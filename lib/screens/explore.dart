@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../net.dart';
 import '../theme.dart';
 import 'business_profile.dart';
 
@@ -25,14 +26,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      var query = sb
-          .from('businesses')
-          .select('*, cities(name)')
-          .eq('is_published', true);
-      if (_filter != 'all') {
-        query = query.eq('category', _filter);
-      }
-      final rows = await query;
+      final rows = await Net.run(() {
+        var query = sb
+            .from('businesses')
+            .select('*, cities(name)')
+            .eq('is_published', true);
+        if (_filter != 'all') {
+          query = query.eq('category', _filter);
+        }
+        return query;
+      });
       if (mounted) {
         setState(() {
           _places = List<Map<String, dynamic>>.from(rows);
@@ -41,7 +44,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() { _error = 'Could not load places: $e'; _loading = false; });
+        setState(() { _error = Net.friendly(e); _loading = false; });
       }
     }
   }

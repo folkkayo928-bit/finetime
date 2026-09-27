@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+import '../net.dart';
 import '../theme.dart';
 import 'book_hotel.dart';
 import 'reserve_table.dart';
@@ -28,30 +29,37 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   Future<void> _load() async {
     setState(() => _error = null);
     try {
-      final r = await sb
-          .from('businesses')
-          .select('*, cities(name)')
-          .eq('id', widget.businessId)
-          .maybeSingle();
-      if (r == null) {
+      final results = await Net.run(() async {
+        final r = await sb
+            .from('businesses')
+            .select('*, cities(name)')
+            .eq('id', widget.businessId)
+            .maybeSingle();
+        if (r == null) return null;
+        // Parallel queries — faster on weak networks.
+        final rooms = await sb
+            .from('room_types')
+            .select()
+            .eq('business_id', widget.businessId);
+        final cats = await sb
+            .from('menu_categories')
+            .select('*, menu_items(*)')
+            .eq('business_id', widget.businessId);
+        return (r, rooms, cats);
+      });
+      if (results == null) {
         if (mounted) setState(() => _error = 'This business is not available.');
         return;
       }
-      final rooms =
-          await sb.from('room_types').select().eq('business_id', widget.businessId);
-      final cats = await sb
-          .from('menu_categories')
-          .select('*, menu_items(*)')
-          .eq('business_id', widget.businessId);
       if (mounted) {
         setState(() {
-          b = Map<String, dynamic>.from(r);
-          _rooms = List<Map<String, dynamic>>.from(rooms);
-          _menu = List<Map<String, dynamic>>.from(cats);
+          b = Map<String, dynamic>.from(results.$1);
+          _rooms = List<Map<String, dynamic>>.from(results.$2);
+          _menu = List<Map<String, dynamic>>.from(results.$3);
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _error = 'Could not load: $e');
+      if (mounted) setState(() => _error = Net.friendly(e));
     }
   }
 
@@ -136,7 +144,9 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.network(business['cover_url'],
-                        fit: BoxFit.cover))
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Center(
+                            child: Icon(Icons.image, size: 48, color: FT.charcoal))))
                 : const Center(
                     child: Icon(Icons.image, size: 48, color: FT.charcoal))),
         const SizedBox(height: 14),
