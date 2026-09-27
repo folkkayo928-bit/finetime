@@ -4,12 +4,14 @@ import 'theme.dart';
 import 'screens/root.dart';
 
 const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // ignore: deprecated_member_use
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  await Supabase.initialize(
+    url: supabaseUrl,
+    // ignore: deprecated_member_use
+    anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+  );
   runApp(const FineTimeApp());
 }
 
