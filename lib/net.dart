@@ -2,7 +2,6 @@ import '../dns_fix.dart';
 
 /// Network resilience helpers: retries with backoff, timeouts,
 /// and friendly errors for weak/unstable connections.
-library;
 
 class Net {
   /// Runs [fn] with a timeout and retries on failure.

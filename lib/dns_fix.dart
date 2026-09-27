@@ -5,19 +5,13 @@ import 'package:http/http.dart' as http;
 
 /// Makes the app independent of the phone's DNS resolver.
 ///
-/// How it works:
 /// 1. At startup we resolve the Supabase host via DNS-over-HTTPS (DoH)
 ///    at the literal IP 1.1.1.1 (Cloudflare) — contacting a literal IP
 ///    requires no DNS at all, so this works even when the device's
 ///    DNS resolver is broken, filtered or misconfigured.
-/// 2. We install an HttpOverrides whose HttpClient connects to the
-///    Supabase host directly at the resolved IP, while the TLS
-///    handshake still uses the original hostname, so certificate
-///    validation and SNI remain correct and secure.
-///
-/// Normal DNS still works as a path: if resolution via DoH fails, the
-/// override stays inactive and the OS resolver is used as before.
-library;
+/// 2. An HttpOverrides HttpClient connects to the Supabase host
+///    directly at the resolved IP; other hosts use normal DNS.
+///    TLS still validates against the original hostname.
 
 class DnsFix {
   static String? _targetHost;
@@ -77,14 +71,19 @@ class _FixedDnsOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
-    // Settable per-client connection factory (Dart >= 2.18):
-    // intercept only the Supabase host; everything else uses default DNS.
+    // The connection factory must always return a ConnectionTask:
+    // - Supabase host with a fresh DoH-resolved IP → connect to that IP.
+    // - Anything else (or no IP yet) → normal DNS via the hostname.
     client.connectionFactory = (Uri uri, String? proxyHost, int? proxyPort) {
-      if (uri.host != host) return null;
-      final addresses = ips();
-      if (addresses.isEmpty) return null; // fall back to OS resolver
-      final port = uri.port != 0 ? uri.port : 443;
-      return Socket.startConnect(addresses.first, port);
+      if (uri.host == host) {
+        final addresses = ips();
+        if (addresses.isNotEmpty) {
+          final port = uri.port != 0 ? uri.port : 443;
+          return Socket.startConnect(addresses.first, port);
+        }
+      }
+      final port = uri.port != 0 ? uri.port : (uri.scheme == 'https' ? 443 : 80);
+      return Socket.startConnect(uri.host, port);
     };
     return client;
   }
