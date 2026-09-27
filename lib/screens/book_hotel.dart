@@ -60,8 +60,8 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
       }).select('reference').single();
       setState(() => _ref = row['reference'] as String);
     } catch (e) {
-      setState(() =>
-          _error = 'Could not book — dates may be unavailable. Please adjust and retry.');
+      setState(() => _error =
+          'Could not book — dates may be unavailable. Please adjust and retry.');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -85,15 +85,17 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
             : ListView(padding: const EdgeInsets.all(16), children: [
                 const Text('Room type',
                     style: TextStyle(fontWeight: FontWeight.w700)),
-                ..._rooms.map((r) => RadioListTile<String>(
-                      value: r['id'] as String,
-                      groupValue: _roomId,
+                ..._rooms.map((r) => ListTile(
                       title: Text(r['name'] ?? ''),
                       subtitle: Text(r['public_price'] == null
                           ? 'Price confirmed by hotel'
                           : 'ETB ${r['public_price']}'),
-                      activeColor: FT.gold,
-                      onChanged: (v) => setState(() => _roomId = v),
+                      trailing: _roomId == r['id']
+                          ? const Icon(Icons.radio_button_checked,
+                              color: FT.gold)
+                          : const Icon(Icons.radio_button_unchecked,
+                              color: Colors.black38),
+                      onTap: () => setState(() => _roomId = r['id'] as String),
                     )),
                 const SizedBox(height: 12),
                 Row(children: [
@@ -116,8 +118,9 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                     onPressed: () async {
                       final d = await showDatePicker(
                           context: context,
-                          initialDate:
-                              _out.isAfter(_in) ? _out : _in.add(const Duration(days: 1)),
+                          initialDate: _out.isAfter(_in)
+                              ? _out
+                              : _in.add(const Duration(days: 1)),
                           firstDate: _in,
                           lastDate:
                               DateTime.now().add(const Duration(days: 366)));
