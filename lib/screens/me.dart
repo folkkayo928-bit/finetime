@@ -89,6 +89,7 @@ class _MeScreenState extends State<MeScreen> {
       body: u == null
         ? ListView(padding: const EdgeInsets.all(16), children: [
             const Text('Welcome to FineTime F', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
+            const Text('BUILD 2', style: TextStyle(fontSize: 11, color: Colors.grey)),
             const SizedBox(height: 20),
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Full real name')),
             TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
