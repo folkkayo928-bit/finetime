@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
+import '../theme.dart';
+import 'book_hotel.dart';
+import 'reserve_table.dart';
+
+class BusinessProfileScreen extends StatefulWidget {
+  final String businessId;
+  const BusinessProfileScreen({super.key, required this.businessId});
+  @override
+  State<BusinessProfileScreen> createState() => _BusinessProfileScreenState();
+}
+
+class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
+  final sb = Supabase.instance.client;
+  Map? b;
+  List _rooms = [];
+  List _menu = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final r = await sb.from('businesses').select('*, cities(name)').eq('id', widget.businessId).single();
+    final rooms = await sb.from('room_types').select().eq('business_id', widget.businessId);
+    final cats = await sb.from('menu_categories').select('*, menu_items(*)').eq('business_id', widget.businessId);
+    if (mounted) setState(() { b = r; _rooms = rooms; _menu = cats; });
+  }
+
+  Future<void> _launch(String url) async {
+    if (await launcher.canLaunchUrl(Uri.parse(url))) await launcher.launchUrl(Uri.parse(url));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final business = b;
+    if (business == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final isHotel = business['category'] == 'hotel';
+    return Scaffold(
+      appBar: AppBar(title: Text(business['name'])),
+      bottomNavigationBar: SafeArea(
+        child: Padding(padding: const EdgeInsets.all(12), child: Row(children: [
+          Expanded(child: OutlinedButton.icon(
+            onPressed: business['phone'] != null ? () => _launch('tel:${business['phone']}') : null,
+            icon: const Icon(Icons.call, size: 18), label: const Text('Call'),
+            style: OutlinedButton.styleFrom(foregroundColor: FT.charcoal))),
+          const SizedBox(width: 8),
+          Expanded(child: OutlinedButton.icon(
+            onPressed: business['lat'] != null
+              ? () => _launch('https://maps.google.com/?q=${business['lat']},${business['lng']}') : null,
+            icon: const Icon(Icons.directions, size: 18), label: const Text('Directions'),
+            style: OutlinedButton.styleFrom(foregroundColor: FT.charcoal))),
+          const SizedBox(width: 8),
+          Expanded(child: FilledButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) =>
+              isHotel ? BookHotelScreen(business: business) : ReserveTableScreen(business: business))),
+            child: Text(isHotel ? 'Book' : 'Reserve', style: const TextStyle(fontWeight: FontWeight.w700)))),
+        ]))),
+      body: ListView(padding: const EdgeInsets.all(16), children: [
+        Container(height: 160, decoration: BoxDecoration(color: FT.gold.withValues(alpha: .25), borderRadius: BorderRadius.circular(16)),
+          child: business['cover_url'] != null
+            ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(business['cover_url'], fit: BoxFit.cover))
+            : const Center(child: Icon(Icons.image, size: 48, color: FT.charcoal))),
+        const SizedBox(height: 14),
+        Text(business['name'], style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
+        Text('${business['category']} · ${business['cities']?['name'] ?? ''}', style: const TextStyle(color: Colors.black54)),
+        if ((business['about'] ?? '').isNotEmpty) ...[
+          const SizedBox(height: 12), Text(business['about'], style: const TextStyle(height: 1.4)),
+        ],
+        if (_rooms.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          const Text('Rooms', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: FT.charcoal)),
+          ..._rooms.map((r) => Card(child: ListTile(
+            title: Text(r['name']),
+            subtitle: Text(r['public_price'] == null
+              ? 'Contact hotel for current rate'
+              : 'ETB ${r['public_price']} / night'),
+            trailing: const Icon(Icons.chevron_right)))),
+        ],
+        if (_menu.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          const Text('Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: FT.charcoal)),
+          ..._menu.expand((c) => ((c['menu_items'] ?? []) as List).map((i) => ListTile(
+            title: Text(i['name']),
+            subtitle: i['description'] != null ? Text(i['description']) : null,
+            trailing: Text(i['price'] != null ? 'ETB ${i['price']}' : '')))),
+        ],
+      ]));
+  }
+}
