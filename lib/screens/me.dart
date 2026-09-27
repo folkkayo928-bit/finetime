@@ -14,6 +14,7 @@ class _MeScreenState extends State<MeScreen> {
   final _email = TextEditingController();
   final _pass = TextEditingController();
   Map? _profile;
+  bool _busy = false;
 
   @override
   void initState() {
@@ -28,27 +29,55 @@ class _MeScreenState extends State<MeScreen> {
     if (mounted) setState(() { _profile = p; _name.text = p?['full_name'] ?? ''; });
   }
 
-  Future<void> _signUp() async {
-    if (_name.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Full real name is required.')));
-      return;
+  void _snack(String msg) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
+  }
+
+  Future<void> _signUp() async {
+    final name = _name.text.trim();
+    final email = _email.text.trim();
+    final pass = _pass.text;
+    if (name.isEmpty) { _snack('Full real name is required.'); return; }
+    if (!email.contains('@')) { _snack('Enter a valid email address.'); return; }
+    if (pass.length < 6) { _snack('Password must be at least 6 characters.'); return; }
+
+    setState(() => _busy = true);
     try {
-      final res = await sb.auth.signUp(email: _email.text.trim(), password: _pass.text);
+      final res = await sb.auth.signUp(email: email, password: pass);
       final u = res.user;
-      if (u != null) {
-        await sb.from('profiles').upsert({'id': u.id, 'full_name': _name.text.trim()});
-        await _loadProfile();
+      if (u == null) {
+        _snack('Sign up failed. Please try again.');
+        return;
       }
+      if (res.session == null) {
+        // Email confirmation is enabled — no session yet.
+        _snack('Account created! Check your email and confirm to sign in.');
+        return;
+      }
+      await sb.from('profiles').upsert({'id': u.id, 'full_name': name});
+      await _loadProfile();
+    } on AuthException catch (e) {
+      _snack(e.message);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sign up failed. Check your details.')));
+      _snack('Sign up failed: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _signIn() async {
-    try { await sb.auth.signInWithPassword(email: _email.text.trim(), password: _pass.text); await _loadProfile(); }
-    catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sign in failed.')));
+    setState(() => _busy = true);
+    try {
+      await sb.auth.signInWithPassword(email: _email.text.trim(), password: _pass.text);
+      await _loadProfile();
+    } on AuthException catch (e) {
+      _snack(e.message);
+    } catch (e) {
+      _snack('Sign in failed: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -65,8 +94,8 @@ class _MeScreenState extends State<MeScreen> {
             TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
             TextField(controller: _pass, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _signUp, child: const Text('Create Account')),
-            TextButton(onPressed: _signIn, child: const Text('Already have an account? Sign in')),
+            FilledButton(onPressed: _busy ? null : _signUp, child: Text(_busy ? 'Working…' : 'Create Account')),
+            TextButton(onPressed: _busy ? null : _signIn, child: const Text('Already have an account? Sign in')),
           ])
         : ListView(children: [
             const CircleAvatar(radius: 36, backgroundColor: FT.gold, child: Icon(Icons.person, size: 40, color: FT.charcoal)),

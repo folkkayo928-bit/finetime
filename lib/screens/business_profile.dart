@@ -17,6 +17,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   Map<String, dynamic>? b;
   List<Map<String, dynamic>> _rooms = [];
   List<Map<String, dynamic>> _menu = [];
+  String? _error;
 
   @override
   void initState() {
@@ -25,35 +26,60 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   Future<void> _load() async {
-    final r = await sb
-        .from('businesses')
-        .select('*, cities(name)')
-        .eq('id', widget.businessId)
-        .single();
-    final rooms =
-        await sb.from('room_types').select().eq('business_id', widget.businessId);
-    final cats = await sb
-        .from('menu_categories')
-        .select('*, menu_items(*)')
-        .eq('business_id', widget.businessId);
-    if (mounted) {
-      setState(() {
-        b = Map<String, dynamic>.from(r);
-        _rooms = List<Map<String, dynamic>>.from(rooms);
-        _menu = List<Map<String, dynamic>>.from(cats);
-      });
+    setState(() => _error = null);
+    try {
+      final r = await sb
+          .from('businesses')
+          .select('*, cities(name)')
+          .eq('id', widget.businessId)
+          .maybeSingle();
+      if (r == null) {
+        if (mounted) setState(() => _error = 'This business is not available.');
+        return;
+      }
+      final rooms =
+          await sb.from('room_types').select().eq('business_id', widget.businessId);
+      final cats = await sb
+          .from('menu_categories')
+          .select('*, menu_items(*)')
+          .eq('business_id', widget.businessId);
+      if (mounted) {
+        setState(() {
+          b = Map<String, dynamic>.from(r);
+          _rooms = List<Map<String, dynamic>>.from(rooms);
+          _menu = List<Map<String, dynamic>>.from(cats);
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Could not load: $e');
     }
   }
 
   Future<void> _launch(String url) async {
-    if (await launcher.canLaunchUrl(Uri.parse(url))) {
-      await launcher.launchUrl(Uri.parse(url));
+    final uri = Uri.parse(url);
+    if (await launcher.canLaunchUrl(uri)) {
+      await launcher.launchUrl(uri);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final business = b;
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(_error!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              FilledButton(onPressed: _load, child: const Text('Retry')),
+            ]),
+          ),
+        ),
+      );
+    }
     if (business == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

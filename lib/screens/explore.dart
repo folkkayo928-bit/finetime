@@ -13,6 +13,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   final sb = Supabase.instance.client;
   String _filter = 'all';
   bool _loading = true;
+  String? _error;
   List<Map<String, dynamic>> _places = [];
 
   @override
@@ -22,19 +23,26 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Future<void> _load() async {
-    var query = sb
-        .from('businesses')
-        .select('*, cities(name)')
-        .eq('is_published', true);
-    if (_filter != 'all') {
-      query = query.eq('category', _filter);
-    }
-    final rows = await query;
-    if (mounted) {
-      setState(() {
-        _places = List<Map<String, dynamic>>.from(rows);
-        _loading = false;
-      });
+    setState(() { _loading = true; _error = null; });
+    try {
+      var query = sb
+          .from('businesses')
+          .select('*, cities(name)')
+          .eq('is_published', true);
+      if (_filter != 'all') {
+        query = query.eq('category', _filter);
+      }
+      final rows = await query;
+      if (mounted) {
+        setState(() {
+          _places = List<Map<String, dynamic>>.from(rows);
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() { _error = 'Could not load places: $e'; _loading = false; });
+      }
     }
   }
 
@@ -56,6 +64,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           selected: _filter == c,
                           selectedColor: FT.gold,
                           onSelected: (_) {
+                            if (_filter == c) return; // no reload on same chip
                             setState(() => _filter = c);
                             _load();
                           },
@@ -67,29 +76,38 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
-                : _places.isEmpty
-                    ? const Center(
-                        child: Text('No places listed here yet.',
-                            style: TextStyle(color: Colors.black38)))
-                    : ListView(
-                        children: _places
-                            .map((b) => ListTile(
-                                  title: Text(b['name'] ?? '',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600)),
-                                  subtitle: Text(
-                                      '${b['category'] ?? ''} · ${(b['cities'] as Map<String, dynamic>?)?['name'] ?? ''}'),
-                                  trailing: const Icon(Icons.chevron_right,
-                                      color: FT.gold),
-                                  onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              BusinessProfileScreen(
-                                                  businessId: b['id']))),
-                                ))
-                            .toList(),
-                      ),
+                : _error != null
+                    ? Center(
+                        child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(mainAxisSize: MainAxisSize.min, children: [
+                              Text(_error!, textAlign: TextAlign.center),
+                              const SizedBox(height: 12),
+                              FilledButton(onPressed: _load, child: const Text('Retry')),
+                            ])))
+                    : _places.isEmpty
+                        ? const Center(
+                            child: Text('No places listed here yet.',
+                                style: TextStyle(color: Colors.black38)))
+                        : ListView(
+                            children: _places
+                                .map((b) => ListTile(
+                                      title: Text(b['name'] ?? '',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600)),
+                                      subtitle: Text(
+                                          '${b['category'] ?? ''} · ${(b['cities'] as Map<String, dynamic>?)?['name'] ?? ''}'),
+                                      trailing: const Icon(Icons.chevron_right,
+                                          color: FT.gold),
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  BusinessProfileScreen(
+                                                      businessId: b['id']))),
+                                    ))
+                                .toList(),
+                          ),
           ),
         ]),
       );
