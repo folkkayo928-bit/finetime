@@ -10,10 +10,9 @@ import 'package:http/http.dart' as http;
 ///    at the literal IP 1.1.1.1 (Cloudflare) — contacting a literal IP
 ///    requires no DNS at all, so this works even when the device's
 ///    DNS resolver is broken, filtered or misconfigured.
-/// 2. We register an HttpOverrides connection factory: whenever the app
-///    connects to the Supabase host, the TCP connection is opened
-///    directly to the resolved IP. HttpClient then upgrades the socket
-///    to TLS using the original hostname from the URL, so certificate
+/// 2. We install an HttpOverrides whose HttpClient connects to the
+///    Supabase host directly at the resolved IP, while the TLS
+///    handshake still uses the original hostname, so certificate
 ///    validation and SNI remain correct and secure.
 ///
 /// Normal DNS still works as a path: if resolution via DoH fails, the
@@ -76,13 +75,17 @@ class _FixedDnsOverrides extends HttpOverrides {
   _FixedDnsOverrides(this.host, this.ips);
 
   @override
-  Future<ConnectionTask<Socket>>? connectionFactory(
-      Uri uri, String? proxyHost, int? proxyPort) {
-    // Only intercept the Supabase host; everything else uses default DNS.
-    if (uri.host != host) return null;
-    final addresses = ips();
-    if (addresses.isEmpty) return null; // fall back to OS resolver
-    final port = uri.port != 0 ? uri.port : 443;
-    return Socket.startConnect(addresses.first, port);
+  HttpClient createHttpClient(SecurityContext? context) {
+    final client = super.createHttpClient(context);
+    // Settable per-client connection factory (Dart >= 2.18):
+    // intercept only the Supabase host; everything else uses default DNS.
+    client.connectionFactory = (Uri uri, String? proxyHost, int? proxyPort) {
+      if (uri.host != host) return null;
+      final addresses = ips();
+      if (addresses.isEmpty) return null; // fall back to OS resolver
+      final port = uri.port != 0 ? uri.port : 443;
+      return Socket.startConnect(addresses.first, port);
+    };
+    return client;
   }
 }

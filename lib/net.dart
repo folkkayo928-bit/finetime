@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../dns_fix.dart';
 
 /// Network resilience helpers: retries with backoff, timeouts,
