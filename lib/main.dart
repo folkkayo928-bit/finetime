@@ -8,6 +8,7 @@ const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // ignore: deprecated_member_use
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   runApp(const FineTimeApp());
 }
