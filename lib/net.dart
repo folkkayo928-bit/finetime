@@ -1,9 +1,9 @@
-/// Network resilience helpers: timeouts, retry (opt-in per call),
-/// and friendly, accurate error messages.
+// Network resilience helpers: timeouts, retry (opt-in per call),
+// and friendly, accurate error messages.
 ///
-/// Auth calls pass retry: false — retrying signup/sign-in multiplies
-/// requests against Supabase rate limits and can trigger
-/// "over_request_rate_limit" errors.
+// Auth calls pass retry: false — retrying signup/sign-in multiplies
+// requests against Supabase rate limits and can trigger
+// "over_request_rate_limit" errors.
 
 class Net {
   static Future<T> run<T>(Future<T> Function() fn,
