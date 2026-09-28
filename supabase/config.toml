@@ -2,3 +2,9 @@ project_id = "atewcbkuzrnfnmzsylze"
 
 [functions.partner-api]
 verify_jwt = false
+
+[functions.create-food-order]
+verify_jwt = true
+
+[functions.request-hotel-booking]
+verify_jwt = true
