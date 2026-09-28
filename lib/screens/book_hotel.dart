@@ -42,8 +42,30 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
     }
   }
 
-  Map<String, dynamic>? get _selectedRoom =>
-      _rooms.where((r) => r['id'] == _roomId).cast<Map<String, dynamic>?>().firstOrNull;
+  /// Ensures the signed-in user has a profiles row.
+  /// bookings.user_id references profiles(id); without this row every
+  /// insert fails with a foreign-key violation that used to be masked
+  /// as "dates may be unavailable".
+  Future<void> _ensureProfile() async {
+    final u = sb.auth.currentUser;
+    if (u == null) return;
+    final p = await sb
+        .from('profiles')
+        .select('id')
+        .eq('id', u.id)
+        .maybeSingle();
+    if (p == null) {
+      await sb.from('profiles').upsert({
+        'id': u.id,
+        'full_name': u.userMetadata?['full_name'] ?? u.email?.split('@').first ?? 'Guest',
+      });
+    }
+  }
+
+  Map<String, dynamic>? get _selectedRoom => _rooms
+      .where((r) => r['id'] == _roomId)
+      .cast<Map<String, dynamic>?>()
+      .firstOrNull;
 
   int get _nights => _out.difference(_in).inDays;
 
@@ -60,7 +82,8 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
       return;
     }
     if (_nights < 1) {
-      setState(() => _error = 'Check-out must be at least one night after check-in.');
+      setState(() => _error =
+          'Check-out must be at least one night after check-in.');
       return;
     }
     final cap = _selectedRoom?['capacity'];
@@ -78,6 +101,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         setState(() => _error = 'Please sign in first (Me tab).');
         return;
       }
+      await _ensureProfile();
       final row = await sb.from('bookings').insert({
         'user_id': user.id,
         'business_id': widget.business['id'],
@@ -87,9 +111,9 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         'guests': _guests,
       }).select('reference').single();
       setState(() => _ref = row['reference'] as String);
-    } catch (_) {
-      setState(() => _error =
-          'Could not book — dates may be unavailable. Please adjust and retry.');
+    } catch (e) {
+      // Show the real reason so failures are diagnosable.
+      setState(() => _error = 'Could not book: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -100,49 +124,66 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text('Book · ${widget.business['name'] ?? 'Hotel'}')),
+        appBar:
+            AppBar(title: Text('Book · ${widget.business['name'] ?? 'Hotel'}')),
         body: _ref != null
             ? Center(
                 child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      const Icon(Icons.check_circle, color: FT.gold, size: 64),
-                      const SizedBox(height: 12),
-                      const Text('Booking requested!',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text('Reference: $_ref'),
-                      const Text('Track it in the Trips tab.'),
-                    ])))
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.check_circle,
+                              color: FT.gold, size: 64),
+                          const SizedBox(height: 12),
+                          const Text('Booking requested!',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 8),
+                          Text('Reference: $_ref'),
+                          const Text('Track it in the Trips tab.'),
+                        ])))
             : _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _rooms.isEmpty
                     ? Center(
                         child: Padding(
                           padding: const EdgeInsets.all(24),
-                          child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            const Icon(Icons.hotel_outlined, size: 48, color: Colors.black38),
-                            const SizedBox(height: 12),
-                            const Text('No rooms listed yet for this hotel.'),
-                            const Text('Price will be confirmed by the hotel directly.',
-                                style: TextStyle(color: Colors.black54)),
-                          ]),
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.hotel_outlined,
+                                    size: 48, color: Colors.black38),
+                                const SizedBox(height: 12),
+                                const Text(
+                                    'No rooms listed yet for this hotel.'),
+                                const Text(
+                                    'Price will be confirmed by the hotel directly.',
+                                    style: TextStyle(
+                                        color: Colors.black54)),
+                              ]),
                         ))
-                    : ListView(padding: const EdgeInsets.all(16), children: [
+                    : ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
                         const Text('Room type',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700)),
                         ..._rooms.map((r) => ListTile(
                               title: Text(r['name'] ?? ''),
                               subtitle: Text(r['public_price'] == null
                                   ? 'Price confirmed by hotel'
                                   : 'ETB ${r['public_price']} / night'),
                               trailing: _roomId == r['id']
-                                  ? const Icon(Icons.radio_button_checked,
+                                  ? const Icon(
+                                      Icons.radio_button_checked,
                                       color: FT.gold)
-                                  : const Icon(Icons.radio_button_unchecked,
+                                  : const Icon(
+                                      Icons.radio_button_unchecked,
                                       color: Colors.black38),
-                              onTap: () => setState(() => _roomId = r['id'] as String),
+                              onTap: () => setState(
+                                  () => _roomId = r['id'] as String),
                             )),
                         const SizedBox(height: 12),
                         Row(children: [
@@ -153,13 +194,14 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                   context: context,
                                   initialDate: _in,
                                   firstDate: DateTime.now(),
-                                  lastDate:
-                                      DateTime.now().add(const Duration(days: 365)));
+                                  lastDate: DateTime.now()
+                                      .add(const Duration(days: 365)));
                               if (d != null) {
                                 setState(() {
                                   _in = d;
                                   if (!_out.isAfter(_in)) {
-                                    _out = _in.add(const Duration(days: 1));
+                                    _out = _in.add(
+                                        const Duration(days: 1));
                                   }
                                 });
                               }
@@ -173,11 +215,13 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                               final d = await showDatePicker(
                                   context: context,
                                   initialDate: _out.isAfter(_in)
-                                      ? _out
-                                      : _in.add(const Duration(days: 1)),
-                                  firstDate: _in.add(const Duration(days: 1)),
-                                  lastDate:
-                                      DateTime.now().add(const Duration(days: 366)));
+                                      ? _out
+                                      : _in.add(
+                                          const Duration(days: 1)),
+                                  firstDate:
+                                      _in.add(const Duration(days: 1)),
+                                  lastDate: DateTime.now()
+                                      .add(const Duration(days: 366)));
                               if (d != null) setState(() => _out = d);
                             },
                             child: Text('Out: ${_fmtDate(_out)}'),
@@ -186,12 +230,15 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int>(
                           initialValue: _guests,
-                          decoration: const InputDecoration(labelText: 'Guests'),
+                          decoration: const InputDecoration(
+                              labelText: 'Guests'),
                           items: List.generate(
                               6,
                               (i) => DropdownMenuItem(
-                                  value: i + 1, child: Text('${i + 1}'))),
-                          onChanged: (v) => setState(() => _guests = v!),
+                                  value: i + 1,
+                                  child: Text('${i + 1}'))),
+                          onChanged: (v) =>
+                              setState(() => _guests = v!),
                         ),
                         if (_total != null) ...[
                           const SizedBox(height: 16),
@@ -199,32 +246,44 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: FT.ivory,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(12),
                             ),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text('${_selectedRoom?['name'] ?? ''} · $_nights night${_nights == 1 ? '' : 's'} · $_guests guest${_guests == 1 ? '' : 's'}'),
-                              const SizedBox(height: 4),
-                              Text('ETB ${_total!.toStringAsFixed(0)}',
-                                  style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
-                                      color: FT.charcoal)),
-                              const SizedBox(height: 4),
-                              const Text('Pay at the hotel. No online payment needed.',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.black54)),
-                            ]),
+                            child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      '${_selectedRoom?['name'] ?? ''} · $_nights night${_nights == 1 ? '' : 's'} · $_guests guest${_guests == 1 ? '' : 's'}'),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                      'ETB ${_total!.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight:
+                                              FontWeight.w800,
+                                          color: FT.charcoal)),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                      'Pay at the hotel. No online payment needed.',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54)),
+                                ]),
                           ),
                         ],
                         if (_error != null)
                           Padding(
-                              padding: const EdgeInsets.only(top: 12),
+                              padding:
+                                  const EdgeInsets.only(top: 12),
                               child: Text(_error!,
-                                  style: const TextStyle(color: Colors.red))),
+                                  style: const TextStyle(
+                                      color: Colors.red))),
                         const SizedBox(height: 20),
                         FilledButton(
                             onPressed: _saving ? null : _submit,
-                            child: Text(
-                                _saving ? 'Submitting…' : 'Request Booking')),
+                            child: Text(_saving
+                                ? 'Submitting…'
+                                : 'Request Booking')),
                       ]));
 }
