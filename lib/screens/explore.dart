@@ -103,7 +103,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     : _places.isEmpty
                         ? const Center(
                             child: Text('No places listed here yet.',
-                                style: TextStyle(color: Colors.black38)))
+                                style: TextStyle(color: Colors.white54)))
                         : ListView(
                             children: _places
                                 .map((b) => ListTile(
