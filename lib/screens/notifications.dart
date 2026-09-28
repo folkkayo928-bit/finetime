@@ -56,7 +56,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ]))
         : _items.isEmpty
           ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.notifications_none, size: 56, color: Colors.black26),
+              Icon(Icons.notifications_none, size: 56, color: Colors.white38),
               SizedBox(height: 12),
               Text("You're all caught up."),
             ]))
