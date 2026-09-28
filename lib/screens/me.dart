@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../net.dart';
 import '../theme.dart';
 
 class MeScreen extends StatefulWidget {
@@ -25,8 +26,13 @@ class _MeScreenState extends State<MeScreen> {
   Future<void> _loadProfile() async {
     final u = sb.auth.currentUser;
     if (u == null) return;
-    final p = await sb.from('profiles').select().eq('id', u.id).maybeSingle();
-    if (mounted) setState(() { _profile = p; _name.text = p?['full_name'] ?? ''; });
+    try {
+      final p = await Net.run(
+          () => sb.from('profiles').select().eq('id', u.id).maybeSingle());
+      if (mounted) setState(() { _profile = p; _name.text = p?['full_name'] ?? ''; });
+    } catch (_) {
+      // Profile load is non-critical at startup; user stays signed in.
+    }
   }
 
   void _snack(String msg) {
@@ -45,7 +51,7 @@ class _MeScreenState extends State<MeScreen> {
 
     setState(() => _busy = true);
     try {
-      final res = await sb.auth.signUp(email: email, password: pass);
+      final res = await Net.run(() => sb.auth.signUp(email: email, password: pass));
       final u = res.user;
       if (u == null) {
         _snack('Sign up failed. Please try again.');
@@ -56,12 +62,12 @@ class _MeScreenState extends State<MeScreen> {
         _snack('Account created! Check your email and confirm to sign in.');
         return;
       }
-      await sb.from('profiles').upsert({'id': u.id, 'full_name': name});
+      await Net.run(() => sb.from('profiles').upsert({'id': u.id, 'full_name': name}));
       await _loadProfile();
     } on AuthException catch (e) {
       _snack(e.message);
     } catch (e) {
-      _snack('Sign up failed: $e');
+      _snack(Net.friendly(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -70,12 +76,13 @@ class _MeScreenState extends State<MeScreen> {
   Future<void> _signIn() async {
     setState(() => _busy = true);
     try {
-      await sb.auth.signInWithPassword(email: _email.text.trim(), password: _pass.text);
+      await Net.run(() => sb.auth
+          .signInWithPassword(email: _email.text.trim(), password: _pass.text));
       await _loadProfile();
     } on AuthException catch (e) {
       _snack(e.message);
     } catch (e) {
-      _snack('Sign in failed: $e');
+      _snack(Net.friendly(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -89,7 +96,7 @@ class _MeScreenState extends State<MeScreen> {
       body: u == null
         ? ListView(padding: const EdgeInsets.all(16), children: [
             const Text('Welcome to FineTime F', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
-            const Text('BUILD 2', style: TextStyle(fontSize: 11, color: Colors.grey)),
+            const Text('BUILD 3', style: TextStyle(fontSize: 11, color: Colors.grey)),
             const SizedBox(height: 20),
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Full real name')),
             TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),

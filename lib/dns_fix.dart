@@ -5,19 +5,25 @@ import 'package:http/http.dart' as http;
 
 /// Makes the app independent of the phone's DNS resolver.
 ///
-/// 1. At startup we resolve the Supabase host via DNS-over-HTTPS (DoH)
-///    at the literal IP 1.1.1.1 (Cloudflare) — contacting a literal IP
-///    requires no DNS at all, so this works even when the device's
-///    DNS resolver is broken, filtered or misconfigured.
-/// 2. An HttpOverrides HttpClient connects to the Supabase host
-///    directly at the resolved IP; other hosts use normal DNS.
-///    TLS still validates against the original hostname.
+/// At startup (and on retries) the Supabase host is resolved via
+/// DNS-over-HTTPS (DoH) contacted at literal IPs. Contacting a literal
+/// IP requires no DNS at all, so this works even when the device's
+/// resolver is broken or filtered. Multiple providers are tried in
+/// order so a single blocked endpoint cannot break resolution.
+/// TLS still validates against the original hostname.
 
 class DnsFix {
   static String? _targetHost;
   static List<InternetAddress> _ips = [];
   static DateTime _resolvedAt = DateTime.fromMillisecondsSinceEpoch(0);
   static const _ttl = Duration(minutes: 30);
+
+  /// DoH endpoints at literal IPs — no DNS needed to reach them.
+  static const _providers = [
+    'https://1.1.1.1/dns-query', // Cloudflare
+    'https://8.8.8.8/resolve', // Google
+    'https://9.9.9.9:5053/dns-query', // Quad9
+  ];
 
   static bool get _fresh =>
       _ips.isNotEmpty && DateTime.now().difference(_resolvedAt) < _ttl;
@@ -33,33 +39,38 @@ class DnsFix {
 
   static List<InternetAddress> _currentIps() => _fresh ? _ips : const [];
 
-  /// Resolve (or refresh) the target host's A records via DoH at 1.1.1.1.
+  /// Resolve (or refresh) the target host's A records via DoH.
+  /// Tries each provider in order; first success wins.
   static Future<void> resolve() async {
     final host = _targetHost;
     if (host == null) return;
-    try {
-      final resp = await http
-          .get(
-            Uri.parse('https://1.1.1.1/dns-query?name=$host&type=A'),
-            headers: {'accept': 'application/dns-json'},
-          )
-          .timeout(const Duration(seconds: 10));
-      if (resp.statusCode != 200) return;
-      final data = jsonDecode(resp.body) as Map<String, dynamic>;
-      final answers = (data['Answer'] as List?) ?? const [];
-      final ips = answers
-          .whereType<Map<String, dynamic>>()
-          .where((a) => a['type'] == 1) // A records only
-          .map((a) => InternetAddress(a['data'].toString()))
-          .toList();
-      if (ips.isNotEmpty) {
-        _ips = ips;
-        _resolvedAt = DateTime.now();
+    for (final base in _providers) {
+      try {
+        final resp = await http
+            .get(
+              Uri.parse('$base?name=$host&type=A'),
+              headers: {'accept': 'application/dns-json'},
+            )
+            .timeout(const Duration(seconds: 8));
+        if (resp.statusCode != 200) continue;
+        final data = jsonDecode(resp.body) as Map<String, dynamic>;
+        final answers = (data['Answer'] as List?) ?? const [];
+        final ips = answers
+            .whereType<Map<String, dynamic>>()
+            .where((a) => a['type'] == 1) // A records only
+            .map((a) => InternetAddress(a['data'].toString()))
+            .toList();
+        if (ips.isNotEmpty) {
+          _ips = ips;
+          _resolvedAt = DateTime.now();
+          return;
+        }
+      } catch (_) {
+        continue; // provider unreachable — try the next one
       }
-    } catch (_) {
-      // DoH unreachable — leave any previous cache in place;
-      // the OS resolver remains the fallback path.
     }
+    // All providers failed — keep any previous cache;
+    // the OS resolver remains the fallback path.
   }
 }
 
