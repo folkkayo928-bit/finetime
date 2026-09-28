@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+import 'package:qr_flutter/qr_flutter.dart';
 import '../net.dart';
 import '../theme.dart';
 import 'book_hotel.dart';
@@ -117,6 +118,29 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
   }
 
+  void _showMenuQr(Map<String, dynamic> business) {
+    final id = business['id']?.toString();
+    if (id == null || id.isEmpty) return;
+    final menuUrl = 'https://finetime.cc/menu.html?id=${Uri.encodeComponent(id)}';
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('QR Menu'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QrImageView(data: menuUrl, size: 230, backgroundColor: Colors.white),
+            const SizedBox(height: 14),
+            const Text('Scan this code to open the digital menu directly.', textAlign: TextAlign.center),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
   Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
     if (await launcher.canLaunchUrl(uri)) {
@@ -155,6 +179,11 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         : ratingValues.reduce((a, b) => a + b) / ratingValues.length;
     return Scaffold(
       appBar: AppBar(title: Text(business['name'] ?? ''), actions: [
+        IconButton(
+          icon: const Icon(Icons.qr_code_2),
+          tooltip: 'Show QR menu',
+          onPressed: () => _showMenuQr(business),
+        ),
         IconButton(
           icon: Icon(_saved ? Icons.favorite : Icons.favorite_border,
               color: _saved ? const Color(0xFFC6A664) : null),
