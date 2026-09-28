@@ -42,22 +42,6 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
     }
   }
 
-  Future<void> _ensureProfile() async {
-    final u = sb.auth.currentUser;
-    if (u == null) return;
-    final p = await sb
-        .from('profiles')
-        .select('id')
-        .eq('id', u.id)
-        .maybeSingle();
-    if (p == null) {
-      await sb.from('profiles').upsert({
-        'id': u.id,
-        'full_name': u.userMetadata?['full_name'] ?? u.email?.split('@').first ?? 'Guest',
-      });
-    }
-  }
-
   Map<String, dynamic>? get _selectedRoom => _rooms
       .where((r) => r['id'] == _roomId)
       .cast<Map<String, dynamic>?>()
