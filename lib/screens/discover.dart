@@ -187,7 +187,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: FT.charcoal))),
+                            color: FT.ivory))),
                 ..._featured.map((b) => _businessCard(context, b)),
               ]),
         ),
