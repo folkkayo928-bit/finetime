@@ -5,6 +5,7 @@ import '../net.dart';
 import '../theme.dart';
 import 'book_hotel.dart';
 import 'reserve_table.dart';
+import 'order_food.dart';
 
 class BusinessProfileScreen extends StatefulWidget {
   final String businessId;
@@ -215,6 +216,22 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 : 'ETB ${r['public_price']} / night'),
             trailing: const Icon(Icons.chevron_right),
           ))),
+        ],
+        if (_menu.isNotEmpty && !isHotel) ...[
+          const SizedBox(height: 14),
+          FilledButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OrderFoodScreen(
+                  business: Map<String, dynamic>.from(business),
+                  menuCategories: _menu,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.shopping_bag_outlined),
+            label: const Text('Order from menu'),
+          ),
         ],
         if (_menu.isNotEmpty) ...[
           const SizedBox(height: 20),
