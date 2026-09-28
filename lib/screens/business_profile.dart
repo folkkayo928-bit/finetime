@@ -294,7 +294,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             title: Text((r['body'] ?? '').toString().isEmpty ? 'Rated experience' : r['body'].toString()),
             subtitle: Text((r['created_at'] ?? '').toString().split('T').first, style: const TextStyle(color: Colors.white54)),
           )),
-        if (_menu.isNotEmpty && !isHotel) ...[
+        if (_menu.isNotEmpty) ...[
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: () => Navigator.push(
