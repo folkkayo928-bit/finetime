@@ -399,16 +399,13 @@ grant execute on function public.create_food_order(uuid,jsonb,text,text) to auth
 
 drop policy if exists "Customers create orders" on public.orders;
 
--- Customer writes for reservations and orders.
+-- Customer writes for reservations. Food orders must use the server-side RPC
+-- above so the database, not the client, controls prices and availability.
 create policy "Customers create reservations"
 on public.reservations for insert
 to authenticated
 with check ((select auth.uid()) = user_id);
 
-create policy "Customers create orders"
-on public.orders for insert
-to authenticated
-with check ((select auth.uid()) = user_id);
 
 create policy "Customers delete own reservations"
 on public.reservations for delete
