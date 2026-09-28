@@ -122,6 +122,8 @@ create table if not exists orders (
   business_id uuid references businesses(id) on delete cascade,
   items jsonb not null,
   total numeric(10,2),
+  table_number text,
+  customer_note text,
   status text check (status in ('placed','confirmed','preparing','ready','delivered','cancelled')) default 'placed',
   created_at timestamptz default now()
 );
