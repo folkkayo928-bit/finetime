@@ -108,7 +108,7 @@ function renderItem(x){
     ?[]
     :['requested','confirmed','changed','cancelled','completed'];
   const actions=statuses.length
-    ?'<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\\''+tab+'\\',\\''+x.id+'\\',\\''+s+'\\')">'+esc(s)+'</button>').join('')+'</div>'
+    ?'<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(&quot;'+tab+'&quot;,&quot;'+x.id+'&quot;,&quot;'+s+'&quot;)">'+esc(s)+'</button>').join('')+'</div>'
     :'<div class="muted" style="margin-top:8px">Order received. The customer will see status updates when the order is progressed.</div>';
   return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div>'+
     '<div class="muted">'+esc(detail)+'</div>'+
