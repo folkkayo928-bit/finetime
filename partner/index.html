@@ -6,173 +6,166 @@
 <title>FineTime Partner</title>
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 <style>
-:root{--charcoal:#121212;--panel:#1b1b1b;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0}
+:root{--charcoal:#121212;--panel:#1b1b1b;--panel2:#222;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0;--danger:#7b3020}
 *{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
-main{max-width:760px;margin:auto;padding:20px 16px 40px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
+main{max-width:900px;margin:auto;padding:18px 14px 44px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
 .card{background:var(--panel);border:1px solid #ffffff12;border-radius:16px;padding:16px;margin-top:14px}
-input,button{font:inherit;border-radius:12px;padding:12px 13px}input{border:0;background:#fff;color:#121212}
-button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:pointer}.ghost{background:transparent;color:var(--ivory);border:1px solid #ffffff22}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.tabs button{padding:10px 6px}
-.item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.danger{background:#7b3020;color:white}
-.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}.ok{color:#9fd6a4;margin-top:10px}
-.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day input{width:100%;margin:6px 0}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}.day button{width:100%;padding:8px}
-@media(max-width:520px){.tabs{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
+input,textarea,select,button{font:inherit;border-radius:11px;padding:11px 12px}input,textarea,select{width:100%;border:0;background:#fff;color:#121212;margin-top:6px}textarea{min-height:80px;resize:vertical}
+button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:pointer}.ghost{background:transparent;color:var(--ivory);border:1px solid #ffffff22}.danger{background:var(--danger);color:#fff}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}.nav button{padding:10px 6px}.nav button.active{outline:2px solid var(--gold)}
+.item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}.ok{color:#9fd6a4;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px}.sectionTitle{margin:0 0 5px}.label{display:block;color:var(--muted);font-size:12px;margin-top:8px}
+.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day button{width:100%;padding:8px}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:5px}
+@media(max-width:620px){.grid,.grid3{grid-template-columns:1fr}.nav{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
-  <div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
+<div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
 
-  <section id="connect" class="card">
-    <h2>Connect your business</h2>
-    <p class="muted">Enter the activation code supplied by FineTime Admin. Your Telegram account will be connected to the authorized business only.</p>
-    <input id="code" placeholder="Activation code" autocomplete="off">
-    <button onclick="activate()">Connect Business</button>
-    <div id="connectError" class="error"></div>
-  </section>
+<section id="connect" class="card">
+<h2>Connect your business</h2>
+<p class="muted">Use the activation code supplied by FineTime Admin. Your Telegram identity is bound to the authorized business.</p>
+<input id="code" placeholder="Activation code" autocomplete="off">
+<div class="actions"><button onclick="activate()">Connect Business</button></div>
+<div id="connectError" class="error"></div>
+</section>
 
-  <section id="app" class="hidden">
-    <div id="business" class="card"></div>
-    <div class="tabs">
-      <button onclick="showTab('bookings')">Bookings</button>
-      <button onclick="showTab('reservations')">Reservations</button>
-      <button onclick="showTab('orders')">Orders</button>
-      <button onclick="showTab('rooms')">Rooms</button>
-    </div>
-    <div id="list" class="card"></div>
-  </section>
+<section id="app" class="hidden">
+<div id="business" class="card"></div>
+<div id="nav" class="nav"></div>
+<div id="content" class="card"></div>
+</section>
 </main>
+
 <script>
 const SUPABASE_URL='__SUPABASE_URL__';
 const SUPABASE_KEY='__SUPABASE_ANON_KEY__';
 const tg=window.Telegram?.WebApp;
 tg?.ready();tg?.expand();
 
-let state={bookings:[],reservations:[],orders:[],rooms:[],inventory:[]},tab='bookings';
+let state={business:null,bookings:[],reservations:[],orders:[],rooms:[],inventory:[],categories:[],promotions:[],subscription:null};
+let tab='overview';
 
 function initData(){return tg?.initData||''}
-
 async function api(action,extra={}){
-  const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-    body:JSON.stringify({action,initData:initData(),...extra})
-  });
-  const d=await r.json();
-  if(!r.ok)throw new Error(d.error||'Request failed');
-  return d;
+ const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:initData(),...extra})});
+ const d=await r.json(); if(!r.ok)throw new Error(d.error||'Request failed'); return d;
 }
-
-async function activate(){
-  const el=document.getElementById('connectError');el.textContent='';
-  try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}
-  catch(e){el.textContent=e.message}
-}
-
+async function activate(){try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}catch(e){document.getElementById('connectError').textContent=e.message}}
 async function bootstrap(){
-  try{
-    const d=await api('bootstrap');
-    state={
-      bookings:d.bookings||[],
-      reservations:d.reservations||[],
-      orders:d.orders||[],
-      rooms:d.rooms||[],
-      inventory:d.inventory||[]
-    };
-    document.getElementById('connect').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    document.getElementById('business').innerHTML='<h2>'+esc(d.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(d.business?.category||'')+'</div>';
-    render();
-  }catch(e){
-    document.getElementById('connectError').textContent=e.message;
-  }
+ try{
+  const d=await api('bootstrap');
+  state={business:d.business||null,bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[],rooms:d.rooms||[],inventory:d.inventory||[],categories:d.categories||[],promotions:d.promotions||[],subscription:d.subscription||null};
+  document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+  document.getElementById('business').innerHTML='<h2>'+esc(state.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(state.business?.category||'')+' · '+(state.business?.is_published?'Published':'Not published')+'</div>';
+  renderNav();render();
+ }catch(e){document.getElementById('connectError').textContent=e.message}
 }
-
-function showTab(t){tab=t;render()}
-
-function render(){
-  if(tab==='rooms'){renderRooms();return}
-  const rows=state[tab]||[];
-  document.getElementById('list').innerHTML='<h3>'+tab[0].toUpperCase()+tab.slice(1)+'</h3>'+
-    (rows.length?rows.map(renderItem).join(''):'<div class="muted">Nothing here yet.</div>');
+function renderNav(){
+ const tabs=[['overview','Overview'],['bookings','Bookings'],['reservations','Reservations'],['orders','Orders'],['menu','Menu'],['rooms','Rooms'],['promotions','Promotions'],['settings','Business']];
+ document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\''+id+'\')">'+label+'</button>').join('');
 }
-
-function renderItem(x){
-  const name=x.profiles?.full_name||'Order';
-  const detail=tab==='bookings'
-    ?(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room'))
-    :tab==='reservations'
-      ?(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||''))
-      :(('ETB '+(x.total??0))+(x.table_number?' · Table '+x.table_number:''));
-  const statuses=tab==='orders'
-    ?[]
-    :['requested','confirmed','changed','cancelled','completed'];
-  const actions=statuses.length
-    ?'<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(&quot;'+tab+'&quot;,&quot;'+x.id+'&quot;,&quot;'+s+'&quot;)">'+esc(s)+'</button>').join('')+'</div>'
-    :'<div class="muted" style="margin-top:8px">Order received. The customer will see status updates when the order is progressed.</div>';
-  return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div>'+
-    '<div class="muted">'+esc(detail)+'</div>'+
-    (x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+
-    actions;
+function showTab(t){tab=t;renderNav();render()}
+function render(){const f={overview:renderOverview,bookings:()=>renderList('bookings'),reservations:()=>renderList('reservations'),orders:()=>renderList('orders'),menu:renderMenu,rooms:renderRooms,promotions:renderPromotions,settings:renderSettings};f[tab]()}
+function renderOverview(){
+ const b=state.business||{};const s=state.subscription;
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Partner overview</h3>'+
+ '<div class="grid3"><div class="item"><strong>'+state.bookings.length+'</strong><div class="muted">Recent bookings</div></div><div class="item"><strong>'+state.reservations.length+'</strong><div class="muted">Reservations</div></div><div class="item"><strong>'+state.orders.length+'</strong><div class="muted">Orders</div></div></div>'+
+ '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+'</div></div>'+
+ '<div class="item"><strong>Public profile</strong><div class="muted">'+(b.is_published?'Published on FineTime':'Not published yet')+'</div></div>'+
+ '<div class="actions"><button onclick="showTab(\'settings\')">Edit business</button><button class="ghost" onclick="showTab(\'menu\')">Manage menu</button><button class="ghost" onclick="showTab(\'promotions\')">Post promotion</button></div>';
 }
-
-function nextDates(days){
-  const out=[];
-  const start=new Date();start.setHours(0,0,0,0);
-  for(let i=0;i<days;i++){
-    const d=new Date(start);d.setDate(d.getDate()+i);out.push(d.toISOString().slice(0,10));
-  }
-  return out;
+function renderList(kind){
+ const rows=state[kind]||[];
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">'+kind[0].toUpperCase()+kind.slice(1)+'</h3>'+
+ (rows.length?rows.map(x=>{
+  const name=esc(x.profiles?.full_name||'Customer');const detail=kind==='bookings'?esc(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room')):kind==='reservations'?esc(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||x.contact_phone||'')):esc('ETB '+(x.total??0)+(x.table_number?' · Table '+x.table_number:''));
+  const actions=kind==='orders'?'<div class="muted">Order received. Use the existing FineTime food-order workflow for operational progression.</div>':'<div class="actions">'+['requested','confirmed','changed','cancelled','completed'].map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\''+s+'\')">'+s+'</button>').join('')+'</div>';
+  return '<div class="item"><div class="row"><strong>'+name+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+detail+'</div>'+(x.special_request?'<div class="muted">Request: '+esc(x.special_request)+'</div>':'')+(x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+actions+'</div>';
+ }).join(''):'<div class="muted">Nothing here yet.</div>');
 }
+async function updateStatus(kind,id,status){try{await api('update_'+(kind==='bookings'?'booking':'reservation'),{id,status});await bootstrap()}catch(e){alert(e.message)}}
 
-function inv(roomId,date){
-  return state.inventory.find(x=>String(x.room_type_id)===String(roomId)&&x.inventory_date===date);
+function renderMenu(){
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Digital menu</h3><p class="muted">Add categories and manage food/drink items, prices, photos and availability.</p>'+
+ '<div class="actions"><button onclick="categoryForm()">+ Category</button><button class="ghost" onclick="itemForm()">+ Menu item</button></div>'+
+ state.categories.map(c=>'<div class="item"><div class="row"><strong>'+esc(c.name)+'</strong><span class="pill">'+(c.menu_items?.length||0)+' items</span></div>'+
+ (c.menu_items||[]).map(i=>'<div class="item"><div class="row"><strong>'+esc(i.name)+'</strong><span class="pill">ETB '+esc(i.price??'—')+'</span></div><div class="muted">'+esc(i.description||'')+' · '+(i.is_available?'Available':'Unavailable')+'</div><div class="actions"><button class="ghost" onclick="itemForm('+jsonArg(i)+')">Edit</button><button class="danger" onclick="deleteItem(\''+i.id+'\')">Delete</button></div></div>').join('')+'</div>').join('');
 }
+function categoryForm(c=null){
+ const name=prompt('Category name',c?.name||'');if(name===null)return;
+ const sort=Number(prompt('Sort order',c?.sort_order??0)||0);
+ api('upsert_category',{id:c?.id,name,sort_order:sort}).then(bootstrap).catch(e=>alert(e.message));
+}
+function itemForm(item=null){
+ const categoryId=item?.category_id||state.categories[0]?.id;if(!categoryId){alert('Create a category first.');return}
+ const name=prompt('Item name',item?.name||'');if(name===null)return;
+ const priceRaw=prompt('Price in ETB',item?.price??'');if(priceRaw===null)return;
+ const description=prompt('Description',item?.description||'');if(description===null)return;
+ const available=confirm('Item is available?');
+ api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:item?.photo_url||null}).then(bootstrap).catch(e=>alert(e.message));
+}
+function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete_menu_item',{id}).then(bootstrap).catch(e=>alert(e.message))}
 
 function renderRooms(){
-  if(!state.rooms.length){
-    document.getElementById('list').innerHTML='<h3>Rooms</h3><div class="muted">No room types are configured for this hotel yet.</div>';
-    return;
-  }
-  const dates=nextDates(14);
-  document.getElementById('list').innerHTML='<h3>Room availability</h3><div class="muted">Set the available rooms for each day. Blocked days cannot be booked.</div>'+
-    state.rooms.map(room=>{
-      const total=Number(room.total_rooms||0);
-      return '<div class="item"><div class="row"><strong>'+esc(room.name)+'</strong><span class="pill">'+total+' total</span></div>'+
-        '<div class="inventory">'+dates.map(date=>{
-          const x=inv(room.id,date);
-          const value=x?Number(x.available_rooms):total;
-          const blocked=x?!!x.blocked:false;
-          return '<div class="day"><strong>'+esc(date.slice(5))+'</strong>'+
-            '<input id="avail-'+room.id+'-'+date+'" type="number" min="0" max="'+total+'" value="'+value+'">'+
-            '<label><input id="block-'+room.id+'-'+date+'" type="checkbox" '+(blocked?'checked':'')+'> Block</label>'+
-            '<button class="ghost" onclick="saveInventory(\''+room.id+'\',\''+date+'\','+total+')">Save</button></div>';
-        }).join('')+'</div></div>';
-    }).join('');
+ const dates=nextDates(14);
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button onclick="roomForm()">+ Room type</button></div>'+
+ (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+r.total_rooms+' total</span></div><div class="muted">Capacity '+r.capacity+' · '+(r.public_price!=null?'ETB '+r.public_price:'Rate confirmed by hotel')+'</div><div class="actions"><button class="ghost" onclick="roomForm('+jsonArg(r)+')">Edit room</button><button class="danger" onclick="deleteRoom(\''+r.id+'\')">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+r.id+'-'+d+'" type="number" min="0" max="'+r.total_rooms+'" value="'+val+'"><label><input id="b-'+r.id+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button class="ghost" onclick="saveInventory(\''+r.id+'\',\''+d+'\','+r.total_rooms+')">Save</button></div>'}).join('')+'</div></div>').join(''):'<div class="muted">No room types configured.</div>');
 }
-
+function roomForm(r=null){
+ const name=prompt('Room type name',r?.name||'');if(name===null)return;
+ const total=Number(prompt('Total rooms',r?.total_rooms??0));if(!Number.isInteger(total)||total<0)return alert('Invalid total rooms.');
+ const capacity=Number(prompt('Guest capacity',r?.capacity??1));if(!Number.isInteger(capacity)||capacity<1)return alert('Invalid capacity.');
+ const price=prompt('Public price in ETB (leave blank if hotel confirms rate)',r?.public_price??'');if(price===null)return;
+ api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description:r?.description||null,beds:r?.beds||null,amenities:r?.amenities||[],photo_url:r?.photo_url||null}).then(bootstrap).catch(e=>alert(e.message));
+}
+function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
 async function saveInventory(roomId,date,total){
-  const a=document.getElementById('avail-'+roomId+'-'+date);
-  const b=document.getElementById('block-'+roomId+'-'+date);
-  const value=Number(a.value);
-  if(!Number.isInteger(value)||value<0||value>total){alert('Available rooms must be between 0 and '+total+'.');return}
-  try{
-    await api('update_inventory',{room_type_id:roomId,inventory_date:date,available_rooms:value,blocked:b.checked});
-    const existing=inv(roomId,date);
-    if(existing){existing.available_rooms=value;existing.blocked=b.checked}
-    else state.inventory.push({room_type_id:roomId,inventory_date:date,available_rooms:value,blocked:b.checked});
-    alert('Saved.');
-  }catch(e){alert(e.message)}
+ const value=Number(document.getElementById('a-'+roomId+'-'+date).value),blocked=document.getElementById('b-'+roomId+'-'+date).checked;
+ if(!Number.isInteger(value)||value<0||value>total)return alert('Available rooms must be between 0 and '+total+'.');
+ try{await api('update_inventory',{room_type_id:roomId,inventory_date:date,available_rooms:value,blocked});await bootstrap();showTab('rooms')}catch(e){alert(e.message)}
+}
+function nextDates(days){const a=[],d=new Date();d.setHours(0,0,0,0);for(let i=0;i<days;i++){const x=new Date(d);x.setDate(x.getDate()+i);a.push(x.toISOString().slice(0,10))}return a}
+
+function renderPromotions(){
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Promotions & posts</h3><p class="muted">Publish real offers only. Expired promotions should not remain active.</p><div class="actions"><button onclick="promoForm()">+ Promotion</button></div>'+
+ (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button class="ghost" onclick="promoForm('+jsonArg(p)+')">Edit</button><button class="danger" onclick="deletePromo(\''+p.id+'\')">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
+}
+function promoForm(p=null){
+ const title=prompt('Promotion title',p?.title||'');if(title===null)return;
+ const desc=prompt('Description',p?.description||'');if(desc===null)return;
+ const badge=prompt('Badge: 25% OFF, TODAY, NEW, FEATURED, LIMITED, FINE TIME PICK',p?.badge||'');if(badge===null)return;
+ const starts=prompt('Start date YYYY-MM-DD',p?.starts_on||'');if(starts===null)return;
+ const ends=prompt('End date YYYY-MM-DD',p?.ends_on||'');if(ends===null)return;
+ api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:p?.image_url||null,terms:p?.terms||null}).then(bootstrap).catch(e=>alert(e.message));
+}
+function deletePromo(id){if(!confirm('Delete this promotion?'))return;api('delete_promotion',{id}).then(bootstrap).catch(e=>alert(e.message))}
+
+function renderSettings(){
+ const b=state.business||{},s=state.subscription;
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Business profile</h3>'+
+ '<div class="grid"><div><label class="label">Business name</label><input id="bn" value="'+attr(b.name)+'"></div><div><label class="label">Phone</label><input id="bp" value="'+attr(b.phone)+'"></div></div>'+
+ '<label class="label">About</label><textarea id="ba">'+esc(b.about||'')+'</textarea>'+
+ '<div class="grid"><div><label class="label">Cover image URL</label><input id="bc" value="'+attr(b.cover_url)+'"></div><div><label class="label">Services (comma separated)</label><input id="bs" value="'+attr((b.services||[]).join(', '))+'"></div></div>'+
+ '<label class="label">Highlights (comma separated)</label><input id="bh" value="'+attr((b.highlights||[]).join(', '))+'">'+
+ '<label class="label">Amenities (comma separated)</label><input id="bam" value="'+attr((b.amenities||[]).join(', '))+'">'+
+ '<div class="actions"><button onclick="saveBusiness()">Save business profile</button></div>'+
+ '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime Admin')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Subscription changes remain controlled by FineTime until billing is integrated.</div></div>';
+}
+function saveBusiness(){
+ const csv=id=>document.getElementById(id).value.split(',').map(x=>x.trim()).filter(Boolean);
+ api('update_business',{name:document.getElementById('bn').value,phone:document.getElementById('bp').value,about:document.getElementById('ba').value,cover_url:document.getElementById('bc').value,services:csv('bs'),highlights:csv('bh'),amenities:csv('bam')}).then(bootstrap).catch(e=>alert(e.message));
 }
 
-async function updateStatus(kind,id,status){
-  try{await api('update_'+kind.slice(0,-1),{id,status});await bootstrap()}
-  catch(e){alert(e.message)}
-}
+function jsonArg(x){return encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function attr(s){return esc(s||'').replace(/\n/g,' ')}
+function decodeArg(s){try{return JSON.parse(decodeURIComponent(s))}catch{return null}}
+window.itemForm=(x)=>itemForm(x?decodeArg(x):null);
+window.roomForm=(x)=>roomForm(x?decodeArg(x):null);
+window.promoForm=(x)=>promoForm(x?decodeArg(x):null);
 
-function esc(s){
-  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-}
 bootstrap();
 </script>
 </body>
