@@ -125,14 +125,17 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         setState(() => _error = 'Please sign in first (Me tab).');
         return;
       }
-      final result = await sb.rpc('request_hotel_booking', params: {
-        'p_business_id': widget.business['id'],
-        'p_room_type_id': _roomId,
-        'p_check_in': _in.toIso8601String().substring(0, 10),
-        'p_check_out': _out.toIso8601String().substring(0, 10),
-        'p_guests': _guests,
-      });
-      final rows = List<Map<String, dynamic>>.from(result as List);
+      final response = await sb.functions.invoke(
+        'request-hotel-booking',
+        body: {
+          'business_id': widget.business['id'],
+          'room_type_id': _roomId,
+          'check_in': _in.toIso8601String().substring(0, 10),
+          'check_out': _out.toIso8601String().substring(0, 10),
+          'guests': _guests,
+        },
+      );
+      final rows = List<Map<String, dynamic>>.from(response.data as List);
       if (rows.isEmpty) throw Exception('The hotel could not accept this request.');
       setState(() => _ref = rows.first['reference'] as String);
     } catch (e) {
