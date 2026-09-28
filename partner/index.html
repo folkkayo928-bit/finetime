@@ -105,12 +105,15 @@ function renderItem(x){
       ?(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||''))
       :(('ETB '+(x.total??0))+(x.table_number?' · Table '+x.table_number:''));
   const statuses=tab==='orders'
-    ?['placed','confirmed','preparing','ready','delivered','cancelled']
+    ?[]
     :['requested','confirmed','changed','cancelled','completed'];
+  const actions=statuses.length
+    ?'<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\\''+tab+'\\',\\''+x.id+'\\',\\''+s+'\\')">'+esc(s)+'</button>').join('')+'</div>'
+    :'<div class="muted" style="margin-top:8px">Order received. The customer will see status updates when the order is progressed.</div>';
   return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div>'+
     '<div class="muted">'+esc(detail)+'</div>'+
     (x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+
-    '<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\''+tab+'\',\''+x.id+'\',\''+s+'\')">'+esc(s)+'</button>').join('')+'</div></div>';
+    actions;
 }
 
 function nextDates(days){
