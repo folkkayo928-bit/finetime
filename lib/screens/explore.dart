@@ -54,7 +54,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
         appBar: AppBar(
           title: const Text('Explore Ethiopia'),
           actions: const [],
-          ],
         ),
         body: Column(children: [
           SizedBox(
