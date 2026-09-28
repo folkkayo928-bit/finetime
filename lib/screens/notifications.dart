@@ -43,6 +43,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  String _dateLabel(dynamic value) {
+    final raw = value?.toString() ?? '';
+    if (raw.length >= 10) return raw.substring(0, 10);
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
@@ -72,7 +78,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       : Icons.notifications_active, color: const Color(0xFFC6A664)),
                   title: Text(n['title'] ?? '', style: TextStyle(fontWeight: n['is_read'] == true ? FontWeight.w400 : FontWeight.w700)),
                   subtitle: Text(n['body'] ?? ''),
-                  trailing: Text((n['created_at'] ?? '').toString().substring(0, 10), style: const TextStyle(fontSize: 11)),
+                  trailing: Text(_dateLabel(n['created_at']), style: const TextStyle(fontSize: 11)),
                   onTap: () async {
                     if (n['is_read'] != true) {
                       await sb.from('notifications').update({'is_read': true}).eq('id', n['id']);
