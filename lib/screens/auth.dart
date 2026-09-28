@@ -47,20 +47,38 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _busy = true);
     try {
       if (_create) {
-        final response = await sb.auth.signUp(email: email, password: password);
+        final response = await sb.auth.signUp(
+          email: email,
+          password: password,
+          data: {'full_name': name},
+        );
         final user = response.user;
         if (user == null) throw const AuthException('Could not create the account.');
+
+        if (response.session == null) {
+          _message('Account created. Confirm your email, then sign in.');
+          return;
+        }
 
         await sb.from('profiles').upsert({
           'id': user.id,
           'full_name': name,
         });
-
-        if (response.session == null) {
-          _message('Account created. Confirm your email, then sign in.');
-        }
       } else {
-        await sb.auth.signInWithPassword(email: email, password: password);
+        final response = await sb.auth.signInWithPassword(email: email, password: password);
+        final user = response.user;
+        if (user != null) {
+          final profile = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+          if (profile == null) {
+            final fullName = (user.userMetadata?['full_name'] ?? '').toString().trim();
+            if (fullName.isEmpty) {
+              await sb.auth.signOut();
+              _message('Please contact FineTime support to complete your profile.');
+              return;
+            }
+            await sb.from('profiles').insert({'id': user.id, 'full_name': fullName});
+          }
+        }
       }
     } on AuthException catch (e) {
       _message(Net.friendly(e));
