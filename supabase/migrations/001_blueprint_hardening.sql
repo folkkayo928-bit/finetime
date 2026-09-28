@@ -264,6 +264,51 @@ with check (
   )
 );
 
+-- Customer writes for reservations and orders.
+create policy "Customers create reservations"
+on public.reservations for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "Customers create orders"
+on public.orders for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "Customers delete own reservations"
+on public.reservations for delete
+to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "Customers delete own orders"
+on public.orders for delete
+to authenticated
+using ((select auth.uid()) = user_id);
+
+-- Partners may manage daily room inventory for their own business.
+drop policy if exists "Partners update room inventory" on public.room_inventory;
+create policy "Partners update room inventory"
+on public.room_inventory for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.room_types rt
+    join public.business_members m on m.business_id = rt.business_id
+    where rt.id = room_inventory.room_type_id
+      and m.user_id = (select auth.uid())
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.room_types rt
+    join public.business_members m on m.business_id = rt.business_id
+    where rt.id = room_inventory.room_type_id
+      and m.user_id = (select auth.uid())
+  )
+);
+
 -- Customer review policy: a review must be tied to a completed FineTime interaction.
 alter table public.reviews enable row level security;
 drop policy if exists "Public read reviews" on public.reviews;
@@ -283,23 +328,25 @@ on public.reviews for insert
 to authenticated
 with check (
   (select auth.uid()) = user_id
-  and exists (
-    select 1 from public.bookings b
-    where b.user_id = reviews.user_id
-      and b.business_id = reviews.business_id
-      and b.status = 'completed'
-  )
-  or exists (
-    select 1 from public.reservations r
-    where r.user_id = reviews.user_id
-      and r.business_id = reviews.business_id
-      and r.status = 'completed'
-  )
-  or exists (
-    select 1 from public.orders o
-    where o.user_id = reviews.user_id
-      and o.business_id = reviews.business_id
-      and o.status in ('delivered','completed')
+  and (
+    exists (
+      select 1 from public.bookings b
+      where b.user_id = reviews.user_id
+        and b.business_id = reviews.business_id
+        and b.status = 'completed'
+    )
+    or exists (
+      select 1 from public.reservations r
+      where r.user_id = reviews.user_id
+        and r.business_id = reviews.business_id
+        and r.status = 'completed'
+    )
+    or exists (
+      select 1 from public.orders o
+      where o.user_id = reviews.user_id
+        and o.business_id = reviews.business_id
+        and o.status in ('delivered','completed')
+    )
   )
 );
 
