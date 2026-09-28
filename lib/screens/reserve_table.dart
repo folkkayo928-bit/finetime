@@ -15,6 +15,7 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
   int _party = 2;
   final _request = TextEditingController();
   final _phone = TextEditingController();
+  bool _loadingPhone = true;
   bool _saving = false;
   String? _error, _done;
   DateTime? _lastTap;
@@ -124,9 +125,15 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
                 TextField(
                     controller: _phone,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                         labelText: 'Your phone number',
-                        hintText: '+251 9.. .. .. ..')),
+                        hintText: '+251 9.. .. .. ..',
+                        suffixIcon: _loadingPhone
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                              )
+                            : null)),
                 const SizedBox(height: 8),
                 TextField(
                     controller: _request,
