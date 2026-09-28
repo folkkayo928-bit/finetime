@@ -20,6 +20,43 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
   String? _error, _done;
   DateTime? _lastTap;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedPhone();
+  }
+
+  Future<void> _loadSavedPhone() async {
+    final user = sb.auth.currentUser;
+    if (user == null) {
+      if (mounted) setState(() => _loadingPhone = false);
+      return;
+    }
+    try {
+      final profile = await sb
+          .from('profiles')
+          .select('phone')
+          .eq('id', user.id)
+          .maybeSingle();
+      final phone = profile?['phone']?.toString().trim();
+      if (mounted) {
+        if (phone != null && phone.isNotEmpty && _phone.text.isEmpty) {
+          _phone.text = phone;
+        }
+        setState(() => _loadingPhone = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingPhone = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _request.dispose();
+    _phone.dispose();
+    super.dispose();
+  }
+
   bool get _canSubmit =>
       _saving == false &&
       (_lastTap == null ||
