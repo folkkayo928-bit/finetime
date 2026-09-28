@@ -31,7 +31,7 @@ class _MeScreenState extends State<MeScreen> {
           () => sb.from('profiles').select().eq('id', u.id).maybeSingle());
       if (mounted) setState(() { _profile = p; _name.text = p?['full_name'] ?? ''; });
     } catch (_) {
-      // Profile load is non-critical at startup; user stays signed in.
+      // Profile load is non-critical; user stays signed in.
     }
   }
 
@@ -58,7 +58,6 @@ class _MeScreenState extends State<MeScreen> {
         return;
       }
       if (res.session == null) {
-        // Email confirmation is enabled — no session yet.
         _snack('Account created! Check your email and confirm to sign in.');
         return;
       }
@@ -96,7 +95,7 @@ class _MeScreenState extends State<MeScreen> {
       body: u == null
         ? ListView(padding: const EdgeInsets.all(16), children: [
             const Text('Welcome to FineTime F', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
-            const Text('BUILD 3', style: TextStyle(fontSize: 11, color: Colors.grey)),
+            const Text('BUILD 4', style: TextStyle(fontSize: 11, color: Colors.grey)),
             const SizedBox(height: 20),
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Full real name')),
             TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),

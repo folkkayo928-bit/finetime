@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../net.dart';
 import '../theme.dart';
 import 'business_profile.dart';
+import 'diagnostics_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -51,7 +52,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Explore Ethiopia')),
+        appBar: AppBar(
+          title: const Text('Explore Ethiopia'),
+          // TEMPORARY diagnostics entry — remove after root cause confirmed.
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.wifi_tethering),
+              tooltip: 'Network diagnostics',
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const DiagnosticsScreen())),
+            ),
+          ],
+        ),
         body: Column(children: [
           SizedBox(
             height: 52,
