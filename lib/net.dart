@@ -2,8 +2,9 @@
 // and friendly, accurate error messages.
 //
 // Auth calls pass retry: false — retrying signup/sign-in multiplies
-// requests against Supabase rate limits and can trigger
-// "over_request_rate_limit" errors.
+// requests against Supabase rate limits.
+
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Net {
   static Future<T> run<T>(Future<T> Function() fn,
@@ -24,37 +25,46 @@ class Net {
     throw lastError!;
   }
 
-  /// Converts raw exceptions into user-friendly messages.
-  /// No blanket "weak internet" claim — the message reflects
-  /// the actual failure class.
+  /// Returns a current user access token, refreshing the session when needed.
+  /// Edge Functions that require a user must receive this JWT in Authorization.
+  static Future<String?> userAccessToken(SupabaseClient client) async {
+    var session = client.auth.currentSession;
+    if (session == null) return null;
+    if (session.isExpired) {
+      final refreshed = await client.auth.refreshSession();
+      session = refreshed.session;
+    }
+    return session?.accessToken;
+  }
+
   static String friendly(Object e) {
     final s = e.toString().toLowerCase();
     if (s.contains('already registered') ||
         s.contains('user already exists') ||
         s.contains('email address') && s.contains('invalid')) {
-      return 'This email already has an account.\nUse "Sign in" below instead.';
+      return 'This email already has an account.\\nUse "Sign in" below instead.';
     }
     if (s.contains('rate') ||
         s.contains('limit') ||
         s.contains('too many') ||
         s.contains('over_request')) {
-      return 'Too many attempts right now.\nPlease wait a few minutes and try again.';
+      return 'Too many attempts right now.\\nPlease wait a few minutes and try again.';
     }
     if (s.contains('email not confirmed')) {
-      return 'Please confirm your email first\n(check your inbox for the FineTime link).';
+      return 'Please confirm your email first\\n(check your inbox for the FineTime link).';
     }
     if (s.contains('invalid login credentials')) {
       return 'Wrong email or password. Please try again.';
     }
     if (s.contains('failed host lookup') || s.contains('errno = 7')) {
-      return 'Could not reach the FineTime server (DNS lookup failed).\n'
+      return 'Could not reach the FineTime server (DNS lookup failed).\\n'
           'Please try again — if this persists, reinstall the app.';
     }
     if (s.contains('connection refused') ||
         s.contains('connection reset') ||
         s.contains('timed out') ||
         s.contains('timeoutexception')) {
-      return 'Could not reach the FineTime server.\n'
+      return 'Could not reach the FineTime server.\\n'
           'Please try again in a moment.';
     }
     return 'Something went wrong. Please try again.';
