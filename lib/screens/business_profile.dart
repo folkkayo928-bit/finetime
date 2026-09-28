@@ -19,11 +19,47 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   List<Map<String, dynamic>> _rooms = [];
   List<Map<String, dynamic>> _menu = [];
   String? _error;
+  bool _saved = false;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _checkSaved();
+  }
+
+  Future<void> _checkSaved() async {
+    final u = sb.auth.currentUser;
+    if (u == null) return;
+    try {
+      final r = await sb.from('saved_places').select('business_id')
+          .eq('user_id', u.id).eq('business_id', widget.businessId).maybeSingle();
+      if (mounted) setState(() => _saved = r != null);
+    } catch (_) {}
+  }
+
+  Future<void> _toggleSave() async {
+    final u = sb.auth.currentUser;
+    if (u == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign in to save places.')));
+      return;
+    }
+    try {
+      if (_saved) {
+        await sb.from('saved_places').delete()
+            .eq('user_id', u.id).eq('business_id', widget.businessId);
+      } else {
+        await sb.from('saved_places')
+            .insert({'user_id': u.id, 'business_id': widget.businessId});
+      }
+      if (mounted) setState(() => _saved = !_saved);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not update saved places.')));
+      }
+    }
   }
 
   Future<void> _load() async {
@@ -93,7 +129,14 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
     final isHotel = business['category'] == 'hotel';
     return Scaffold(
-      appBar: AppBar(title: Text(business['name'] ?? '')),
+      appBar: AppBar(title: Text(business['name'] ?? ''), actions: [
+        IconButton(
+          icon: Icon(_saved ? Icons.favorite : Icons.favorite_border,
+              color: _saved ? const Color(0xFFC6A664) : null),
+          tooltip: _saved ? 'Remove from saved' : 'Save place',
+          onPressed: _toggleSave,
+        ),
+      ]),
       bottomNavigationBar: SafeArea(
         child: Padding(
             padding: const EdgeInsets.all(12),
