@@ -74,7 +74,9 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         _availability
           ..clear()
           ..addAll(next);
-        if (_roomId != null && _availability[_roomId] == false) {\n          _roomId = null;\n        }
+        if (_roomId != null && _availability[_roomId] == false) {
+          _roomId = null;
+        }
         });
       }
     } catch (_) {
