@@ -182,19 +182,27 @@ export default {
       const businessId = selected.business_id
 
       if (body.action === 'bootstrap') {
-        const [{ data: business }, { data: bookings }, { data: reservations }, { data: orders }, { data: rooms }, { data: inventory }] =
+        const [{ data: business }, { data: bookings }, { data: reservations }, { data: orders }, { data: rooms }] =
           await Promise.all([
             admin.from('businesses').select('*').eq('id', businessId).single(),
             admin.from('bookings').select('*, profiles(full_name,phone), room_types(name)').eq('business_id', businessId).order('created_at', { ascending: false }).limit(50),
             admin.from('reservations').select('*, profiles(full_name,phone)').eq('business_id', businessId).order('created_at', { ascending: false }).limit(50),
             admin.from('orders').select('*').eq('business_id', businessId).order('created_at', { ascending: false }).limit(50),
             admin.from('room_types').select('*').eq('business_id', businessId).order('name'),
-            admin.from('room_inventory').select('*').in('room_type_id',
-              (await admin.from('room_types').select('id').eq('business_id', businessId)).data?.map((x: any) => x.id) ?? []
-            ).gte('inventory_date', new Date().toISOString().slice(0, 10)).lte(
-              new Date(Date.now() + 1000 * 60 * 60 * 24 * 90).toISOString().slice(0, 10)
-            ).order('inventory_date'),
           ])
+
+        const roomIds = (rooms ?? []).map((x: any) => x.id)
+        const { data: inventory, error: inventoryError } = roomIds.length
+          ? await admin
+              .from('room_inventory')
+              .select('*')
+              .in('room_type_id', roomIds)
+              .gte('inventory_date', new Date().toISOString().slice(0, 10))
+              .lte('inventory_date', new Date(Date.now() + 1000 * 60 * 60 * 24 * 90).toISOString().slice(0, 10))
+              .order('inventory_date')
+          : { data: [], error: null }
+
+        if (inventoryError) throw inventoryError
 
         return response({
           business,
