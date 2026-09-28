@@ -196,7 +196,7 @@ Widget _businessCard(BuildContext context, Map<String, dynamic> b) =>
                   color: FT.gold.withValues(alpha: .3),
                   child: b['cover_url'] != null
                       ? Image.network(b['cover_url'], fit: BoxFit.cover)
-                      : const Icon(Icons.store, color: FT.charcoal)),
+                      : const Icon(Icons.store, color: FT.ivory)),
               title: Text(b['name'] ?? '',
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text((b['category'] ?? '').toString().toUpperCase(),
