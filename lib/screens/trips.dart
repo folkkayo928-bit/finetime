@@ -115,7 +115,7 @@ class _TripsScreenState extends State<TripsScreen> {
 
     bool includeOrder(Map<String, dynamic> o) {
       final past = _orderPast(o);
-      if (_tab == 2) return past;
+      if (_tab == 2) { return past; }
       if (_tab == 1) { return !past; }
       return false;
     }
