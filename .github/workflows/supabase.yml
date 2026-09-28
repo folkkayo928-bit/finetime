@@ -17,6 +17,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      FINETIME_TELEGRAM_BOT_TOKEN: ${{ secrets.FINETIME_TELEGRAM_BOT_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
@@ -50,12 +54,12 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase db push --include-all
       - name: Set Telegram bot secret
-        if: steps.config.outputs.configured == 'true' && secrets.FINETIME_TELEGRAM_BOT_TOKEN != ''
+        if: steps.config.outputs.configured == 'true' && env.FINETIME_TELEGRAM_BOT_TOKEN != ''
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase secrets set FINETIME_TELEGRAM_BOT_TOKEN="${{ secrets.FINETIME_TELEGRAM_BOT_TOKEN }}"
       - name: Deploy partner API
-        if: steps.config.outputs.configured == 'true' && secrets.FINETIME_TELEGRAM_BOT_TOKEN != ''
+        if: steps.config.outputs.configured == 'true' && env.FINETIME_TELEGRAM_BOT_TOKEN != ''
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase functions deploy partner-api --no-verify-jwt
