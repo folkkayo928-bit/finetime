@@ -59,7 +59,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
       final next = <String, bool>{};
       for (final room in _rooms) {
         final id = room['id']?.toString();
-        if (id == null) continue;
+        if (id == null) { continue; }
         final inventory = List<Map<String, dynamic>>.from(
             (rows as List).where((x) => x['room_type_id']?.toString() == id));
         if (inventory.isEmpty) {
