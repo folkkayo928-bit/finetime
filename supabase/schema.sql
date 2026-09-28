@@ -175,35 +175,4 @@ create policy "own saved" on saved_places for all using (auth.uid() = user_id) w
 drop policy if exists "own orders" on orders;
 create policy "own orders" on orders for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- ===== SEED DATA =====
-
-insert into cities (name, region, is_live) values
-  ('Addis Ababa', 'Addis Ababa', true),
-  ('Bahir Dar', 'Amhara', true),
-  ('Hawassa', 'Sidama', true)
-on conflict (name) do nothing;
-
-insert into businesses (name, city_id, category, about, is_published)
-select 'Sheraton Addis', id, 'hotel', 'Luxury hotel in the heart of Addis Ababa.', true
-from cities where name = 'Addis Ababa'
-and not exists (select 1 from businesses where name = 'Sheraton Addis');
-
-insert into businesses (name, city_id, category, about, is_published)
-select 'Skylight Hotel', id, 'hotel', 'Ethiopian Airlines flagship hotel near Bole Airport.', true
-from cities where name = 'Addis Ababa'
-and not exists (select 1 from businesses where name = 'Skylight Hotel');
-
-insert into businesses (name, city_id, category, about, is_published)
-select 'Kategna Restaurant', id, 'restaurant', 'Traditional Ethiopian cuisine, popular with locals.', true
-from cities where name = 'Addis Ababa'
-and not exists (select 1 from businesses where name = 'Kategna Restaurant');
-
-insert into businesses (name, city_id, category, about, is_published)
-select 'Kuriftu Resort', id, 'hotel', 'Lake Tana waterfront resort.', true
-from cities where name = 'Bahir Dar'
-and not exists (select 1 from businesses where name = 'Kuriftu Resort');
-
-insert into businesses (name, city_id, category, about, is_published)
-select 'Haile Resort', id, 'hotel', 'Lakeside resort on Lake Hawassa.', true
-from cities where name = 'Hawassa'
-and not exists (select 1 from businesses where name = 'Haile Resort');
+-- No demo/seed businesses are inserted here. Production discovery must use published FineTime partner data.
