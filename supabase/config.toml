@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.request-hotel-booking]
 verify_jwt = true
+
+[functions.telegram-bot]
+verify_jwt = false
