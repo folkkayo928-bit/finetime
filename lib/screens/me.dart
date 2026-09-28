@@ -196,7 +196,7 @@ class _MeScreenState extends State<MeScreen> {
       appBar: AppBar(title: const Text('Me')),
       body: u == null
           ? ListView(padding: const EdgeInsets.all(16), children: [
-              const Text('Welcome to FineTime F',
+              const Text('Welcome to FineTime',
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -243,7 +243,6 @@ class _MeScreenState extends State<MeScreen> {
                 title: const Text('Edit Profile'),
                 onTap: _editProfile,
               ),
-              const Divider(),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.notifications_none),
