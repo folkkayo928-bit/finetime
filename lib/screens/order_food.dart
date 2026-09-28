@@ -109,6 +109,24 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
                   Text('Choose from the menu',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 12),
+                  TextField(
+                    controller: _table,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Table number (optional)',
+                      hintText: 'For dine-in orders',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _note,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Order note (optional)',
+                      hintText: 'Special instructions or details',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   ..._items.map((item) {
                     final id = item['id']?.toString();
                     final qty = _cart[id] ?? 0;
