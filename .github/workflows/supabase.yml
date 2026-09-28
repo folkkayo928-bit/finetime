@@ -68,7 +68,8 @@ jobs:
         env:
           FINETIME_TELEGRAM_BOT_TOKEN: ${{ secrets.FINETIME_TELEGRAM_BOT_TOKEN }}
         run: |
+          WEBHOOK_SECRET="$(printf '%s' "$FINETIME_TELEGRAM_BOT_TOKEN" | sha256sum | cut -d' ' -f1)"
           curl --fail --silent --show-error \
             -X POST "https://api.telegram.org/bot${FINETIME_TELEGRAM_BOT_TOKEN}/setWebhook" \
             -H "Content-Type: application/json" \
-            --data '{"url":"https://atewcbkuzrnfnmzsylze.supabase.co/functions/v1/telegram-bot","allowed_updates":["message"]}'
+            --data "{\"url\":\"https://atewcbkuzrnfnmzsylze.supabase.co/functions/v1/telegram-bot\",\"allowed_updates\":[\"message\"],\"secret_token\":\"${WEBHOOK_SECRET}\",\"drop_pending_updates\":false}"
