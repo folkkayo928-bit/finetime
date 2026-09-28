@@ -76,7 +76,7 @@ class _TripsScreenState extends State<TripsScreen> {
   }
 
   List<Widget> _section(String title, IconData icon, List<Widget> rows) {
-    if (rows.isEmpty) return const [];
+    if (rows.isEmpty) { return const []; }
     return [
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
@@ -99,8 +99,8 @@ class _TripsScreenState extends State<TripsScreen> {
       final start = _date('${b['check_in']}');
       final past = _bookingPast(b, today);
       final active = _isActiveBooking(b, today);
-      if (_tab == 2) return past;
-      if (_tab == 1) return active;
+      if (_tab == 2) { return past; }
+      if (_tab == 1) { return active; }
       return !past && !active && !start.isBefore(today);
     }
 
@@ -108,7 +108,7 @@ class _TripsScreenState extends State<TripsScreen> {
       final d = _date('${r['reservation_date']}');
       final past = _reservationPast(r, today);
       final active = _isActiveReservation(r, today);
-      if (_tab == 2) return past;
+      if (_tab == 2) { return past; }
       if (_tab == 1) return active;
       return !past && !active && !d.isBefore(today);
     }
