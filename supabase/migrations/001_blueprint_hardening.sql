@@ -278,6 +278,32 @@ with check (
   )
 );
 
+-- Order item isolation follows the parent order ownership.
+alter table public.order_items enable row level security;
+drop policy if exists "Users read own order items" on public.order_items;
+create policy "Users read own order items"
+on public.order_items for select
+to authenticated
+using (
+  exists (
+    select 1 from public.orders o
+    where o.id = order_items.order_id
+      and (select auth.uid()) = o.user_id
+  )
+);
+
+drop policy if exists "Users create own order items" on public.order_items;
+create policy "Users create own order items"
+on public.order_items for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.orders o
+    where o.id = order_items.order_id
+      and (select auth.uid()) = o.user_id
+  )
+);
+
 -- Customer writes for reservations and orders.
 create policy "Customers create reservations"
 on public.reservations for insert
