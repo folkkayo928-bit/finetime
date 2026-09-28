@@ -8,18 +8,21 @@
 <style>
 :root{--charcoal:#121212;--panel:#1b1b1b;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0}
 *{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
-main{max-width:720px;margin:auto;padding:20px 16px 40px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
+main{max-width:760px;margin:auto;padding:20px 16px 40px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
 .card{background:var(--panel);border:1px solid #ffffff12;border-radius:16px;padding:16px;margin-top:14px}
-input,button{font:inherit;border-radius:12px;padding:13px 14px;width:100%}input{border:0;margin:8px 0;background:#fff;color:#121212}
+input,button{font:inherit;border-radius:12px;padding:12px 13px}input{border:0;background:#fff;color:#121212}
 button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:pointer}.ghost{background:transparent;color:var(--ivory);border:1px solid #ffffff22}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.tabs button{padding:10px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.tabs button{padding:10px 6px}
 .item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.danger{background:#7b3020;color:white}
-.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}
+.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}.ok{color:#9fd6a4;margin-top:10px}
+.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day input{width:100%;margin:6px 0}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}.day button{width:100%;padding:8px}
+@media(max-width:520px){.tabs{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
   <div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
+
   <section id="connect" class="card">
     <h2>Connect your business</h2>
     <p class="muted">Enter the activation code supplied by FineTime Admin. Your Telegram account will be connected to the authorized business only.</p>
@@ -27,12 +30,14 @@ button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:poin
     <button onclick="activate()">Connect Business</button>
     <div id="connectError" class="error"></div>
   </section>
+
   <section id="app" class="hidden">
     <div id="business" class="card"></div>
     <div class="tabs">
       <button onclick="showTab('bookings')">Bookings</button>
       <button onclick="showTab('reservations')">Reservations</button>
       <button onclick="showTab('orders')">Orders</button>
+      <button onclick="showTab('rooms')">Rooms</button>
     </div>
     <div id="list" class="card"></div>
   </section>
@@ -41,51 +46,131 @@ button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:poin
 const SUPABASE_URL='__SUPABASE_URL__';
 const SUPABASE_KEY='__SUPABASE_ANON_KEY__';
 const tg=window.Telegram?.WebApp;
-tg?.ready(); tg?.expand();
-let state={bookings:[],reservations:[],orders:[]},tab='bookings';
+tg?.ready();tg?.expand();
+
+let state={bookings:[],reservations:[],orders:[],rooms:[],inventory:[]},tab='bookings';
+
 function initData(){return tg?.initData||''}
-async function api(action,extra={}) {
+
+async function api(action,extra={}){
   const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{
-    method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-    body:JSON.stringify({action,initData:initData(),chatId:tg?.initDataUnsafe?.user?.id,...extra})
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+    body:JSON.stringify({action,initData:initData(),...extra})
   });
-  const d=await r.json(); if(!r.ok) throw new Error(d.error||'Request failed'); return d;
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Request failed');
+  return d;
 }
+
 async function activate(){
   const el=document.getElementById('connectError');el.textContent='';
   try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}
   catch(e){el.textContent=e.message}
 }
+
 async function bootstrap(){
   try{
-    const d=await api('bootstrap'); state={bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[]};
-    document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+    const d=await api('bootstrap');
+    state={
+      bookings:d.bookings||[],
+      reservations:d.reservations||[],
+      orders:d.orders||[],
+      rooms:d.rooms||[],
+      inventory:d.inventory||[]
+    };
+    document.getElementById('connect').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
     document.getElementById('business').innerHTML='<h2>'+esc(d.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(d.business?.category||'')+'</div>';
     render();
   }catch(e){
-    if(e.message.includes('not connected')){document.getElementById('connectError').textContent=e.message}
-    else document.getElementById('connectError').textContent=e.message;
+    document.getElementById('connectError').textContent=e.message;
   }
 }
+
 function showTab(t){tab=t;render()}
+
 function render(){
+  if(tab==='rooms'){renderRooms();return}
   const rows=state[tab]||[];
   document.getElementById('list').innerHTML='<h3>'+tab[0].toUpperCase()+tab.slice(1)+'</h3>'+
     (rows.length?rows.map(renderItem).join(''):'<div class="muted">Nothing here yet.</div>');
 }
+
 function renderItem(x){
-  const name=x.profiles?.full_name||x.businesses?.name||'Order';
-  const detail=tab==='bookings'?(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s)'):
-    tab==='reservations'?(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s)'):
-    ('ETB '+(x.total??0));
-  const statuses=tab==='orders'?['placed','confirmed','preparing','ready','delivered','cancelled']:['requested','confirmed','changed','cancelled','completed'];
-  return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+esc(detail)+'</div>'+
+  const name=x.profiles?.full_name||'Order';
+  const detail=tab==='bookings'
+    ?(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room'))
+    :tab==='reservations'
+      ?(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||''))
+      :(('ETB '+(x.total??0))+(x.table_number?' · Table '+x.table_number:''));
+  const statuses=tab==='orders'
+    ?['placed','confirmed','preparing','ready','delivered','cancelled']
+    :['requested','confirmed','changed','cancelled','completed'];
+  return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div>'+
+    '<div class="muted">'+esc(detail)+'</div>'+
+    (x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+
     '<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\''+tab+'\',\''+x.id+'\',\''+s+'\')">'+esc(s)+'</button>').join('')+'</div></div>';
 }
-async function updateStatus(kind,id,status){
-  try{await api('update_'+kind.slice(0,-1),{id,status});await bootstrap()}catch(e){alert(e.message)}
+
+function nextDates(days){
+  const out=[];
+  const start=new Date();start.setHours(0,0,0,0);
+  for(let i=0;i<days;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i);out.push(d.toISOString().slice(0,10));
+  }
+  return out;
 }
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+function inv(roomId,date){
+  return state.inventory.find(x=>String(x.room_type_id)===String(roomId)&&x.inventory_date===date);
+}
+
+function renderRooms(){
+  if(!state.rooms.length){
+    document.getElementById('list').innerHTML='<h3>Rooms</h3><div class="muted">No room types are configured for this hotel yet.</div>';
+    return;
+  }
+  const dates=nextDates(14);
+  document.getElementById('list').innerHTML='<h3>Room availability</h3><div class="muted">Set the available rooms for each day. Blocked days cannot be booked.</div>'+
+    state.rooms.map(room=>{
+      const total=Number(room.total_rooms||0);
+      return '<div class="item"><div class="row"><strong>'+esc(room.name)+'</strong><span class="pill">'+total+' total</span></div>'+
+        '<div class="inventory">'+dates.map(date=>{
+          const x=inv(room.id,date);
+          const value=x?Number(x.available_rooms):total;
+          const blocked=x?!!x.blocked:false;
+          return '<div class="day"><strong>'+esc(date.slice(5))+'</strong>'+
+            '<input id="avail-'+room.id+'-'+date+'" type="number" min="0" max="'+total+'" value="'+value+'">'+
+            '<label><input id="block-'+room.id+'-'+date+'" type="checkbox" '+(blocked?'checked':'')+'> Block</label>'+
+            '<button class="ghost" onclick="saveInventory(\''+room.id+'\',\''+date+'\','+total+')">Save</button></div>';
+        }).join('')+'</div></div>';
+    }).join('');
+}
+
+async function saveInventory(roomId,date,total){
+  const a=document.getElementById('avail-'+roomId+'-'+date);
+  const b=document.getElementById('block-'+roomId+'-'+date);
+  const value=Number(a.value);
+  if(!Number.isInteger(value)||value<0||value>total){alert('Available rooms must be between 0 and '+total+'.');return}
+  try{
+    await api('update_inventory',{room_type_id:roomId,inventory_date:date,available_rooms:value,blocked:b.checked});
+    const existing=inv(roomId,date);
+    if(existing){existing.available_rooms=value;existing.blocked=b.checked}
+    else state.inventory.push({room_type_id:roomId,inventory_date:date,available_rooms:value,blocked:b.checked});
+    alert('Saved.');
+  }catch(e){alert(e.message)}
+}
+
+async function updateStatus(kind,id,status){
+  try{await api('update_'+kind.slice(0,-1),{id,status});await bootstrap()}
+  catch(e){alert(e.message)}
+}
+
+function esc(s){
+  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
 bootstrap();
 </script>
-</body></html>
+</body>
+</html>
