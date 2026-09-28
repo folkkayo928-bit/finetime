@@ -33,7 +33,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final p = await Net.run(() => sb
           .from('promotions')
           .select('*, businesses(name)')
-          .gte('ends_on', DateTime.now().toIso8601String().substring(0, 10)));
+          .order('starts_on', ascending: true));
       if (mounted) {
         setState(() {
           _featured = List<Map<String, dynamic>>.from(f);
