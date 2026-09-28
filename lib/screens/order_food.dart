@@ -62,13 +62,16 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
               })
           .toList();
 
-      final result = await sb.rpc('create_food_order', params: {
-        'p_business_id': widget.business['id'],
-        'p_items': payload,
-        'p_table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
-        'p_customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
-      });
-      final rows = List<Map<String, dynamic>>.from(result as List);
+      final response = await sb.functions.invoke(
+        'create-food-order',
+        body: {
+          'business_id': widget.business['id'],
+          'items': payload,
+          'table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
+          'customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
+        },
+      );
+      final rows = List<Map<String, dynamic>>.from(response.data as List);
       if (rows.isEmpty) throw Exception('The business could not accept this order.');
 
       if (!mounted) return;
