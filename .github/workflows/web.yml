@@ -21,6 +21,11 @@ jobs:
       - run: flutter analyze
       - run: flutter create . --platforms=web --org com.finetime --project-name finetime
       - run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Add Partner Mini App
+        run: |
+          mkdir -p build/web/partner
+          cp partner/index.html build/web/partner/index.html
+          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/partner/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
