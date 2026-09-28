@@ -6,6 +6,7 @@ import '../theme.dart';
 import 'book_hotel.dart';
 import 'reserve_table.dart';
 import 'order_food.dart';
+import 'review.dart';
 
 class BusinessProfileScreen extends StatefulWidget {
   final String businessId;
@@ -19,6 +20,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   Map<String, dynamic>? b;
   List<Map<String, dynamic>> _rooms = [];
   List<Map<String, dynamic>> _menu = [];
+  List<Map<String, dynamic>> _reviews = [];
   String? _error;
   bool _saved = false;
 
@@ -93,6 +95,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           b = Map<String, dynamic>.from(results.$1);
           _rooms = List<Map<String, dynamic>>.from(results.$2);
           _menu = List<Map<String, dynamic>>.from(results.$3);
+          _reviews = List<Map<String, dynamic>>.from(results.$4);
         });
       }
     } catch (e) {
@@ -217,7 +220,39 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             trailing: const Icon(Icons.chevron_right),
           ))),
         ],
-        if (_menu.isNotEmpty && !isHotel) ...[
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Reviews', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            if (sb.auth.currentUser != null)
+              TextButton(
+                onPressed: () async {
+                  final changed = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReviewScreen(
+                        businessId: business['id'],
+                        businessName: business['name'] ?? '',
+                      ),
+                    ),
+                  );
+                  if (changed == true) _load();
+                },
+                child: const Text('Write review'),
+              ),
+          ],
+        ),
+        if (_reviews.isEmpty)
+          const Text('No reviews yet.', style: TextStyle(color: Colors.white70))
+        else
+          ..._reviews.map((r) => ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Text('★ ${r['rating']}', style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w800)),
+            title: Text((r['body'] ?? '').toString().isEmpty ? 'Rated experience' : r['body'].toString()),
+            subtitle: Text((r['created_at'] ?? '').toString().split('T').first, style: const TextStyle(color: Colors.white54)),
+          )),
+        $anchor
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: () => Navigator.push(
