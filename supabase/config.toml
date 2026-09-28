@@ -1,2 +1,4 @@
+project_id = "atewcbkuzrnfnmzsylze"
+
 [functions.partner-api]
 verify_jwt = false
