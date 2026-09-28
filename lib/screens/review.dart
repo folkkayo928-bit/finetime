@@ -35,7 +35,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('A completed FineTime experience is required to review this place.')),
+          const SnackBar(content: Text('Review could not be submitted. A completed FineTime experience is required.')),
         );
       }
     } finally {
