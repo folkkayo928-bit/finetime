@@ -1,0 +1,2 @@
+[functions.partner-api]
+verify_jwt = false
