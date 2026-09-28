@@ -1,9 +1,64 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineTime Business</title>
-<meta name="description" content="FineTime public business profile."><style>body{margin:0;background:#121212;color:#f5f1e8;font:16px system-ui;padding:30px}main{max-width:800px;margin:auto}.brand{color:#c9a227;font-weight:900;letter-spacing:4px}img{width:100%;max-height:360px;object-fit:cover;border-radius:18px;margin:20px 0}.card{background:#1b1b1b;padding:20px;border-radius:18px;margin-top:16px}.muted{color:#a0a0a0}.btn{display:inline-block;padding:12px 18px;border-radius:12px;background:#c9a227;color:#121212;font-weight:800;text-decoration:none}</style></head>
-<body><main><a class="brand" href="./">FINETIME</a><div id="root" class="card">Loading…</div></main>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FineTime Business</title>
+<meta name="description" content="FineTime public hospitality business profile.">
+<meta property="og:title" content="FineTime Business">
+<meta property="og:description" content="Discover this FineTime hotel, restaurant or café.">
+<style>
+:root{--c:#121212;--p:#1b1b1b;--g:#c9a227;--i:#f5f1e8;--m:#a0a0a0}
+body{margin:0;background:var(--c);color:var(--i);font:16px system-ui,-apple-system,sans-serif}
+main{max-width:900px;margin:auto;padding:24px 18px 60px}.brand{color:var(--g);font-weight:900;letter-spacing:4px;text-decoration:none}
+.cover{width:100%;max-height:420px;object-fit:cover;border-radius:18px;margin:20px 0}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.gallery img{width:100%;height:150px;object-fit:cover;border-radius:12px}
+.card{background:var(--p);padding:20px;border-radius:18px;margin-top:16px}.muted{color:var(--m);line-height:1.6}.badge{display:inline-block;background:var(--g);color:var(--c);padding:5px 8px;border-radius:6px;font-size:11px;font-weight:900}
+.btn{display:inline-block;padding:12px 18px;border-radius:12px;background:var(--g);color:var(--c);font-weight:800;text-decoration:none;margin:5px 6px 0 0}
+.pill{display:inline-block;border:1px solid #ffffff18;border-radius:999px;padding:6px 10px;margin:4px;color:#ddd}.price{color:var(--g);font-weight:800}.review{border-top:1px solid #ffffff10;padding:12px 0}
+@media(max-width:600px){.gallery{grid-template-columns:1fr 1fr}.gallery img{height:120px}}
+</style>
+</head>
+<body>
+<main>
+<a class="brand" href="./">FINETIME</a>
+<div id="root" class="card">Loading…</div>
+</main>
 <script>
 const U='__SUPABASE_URL__',K='__SUPABASE_ANON_KEY__',id=new URLSearchParams(location.search).get('id');
-async function load(){if(!id){location.href='./';return}try{const r=await fetch(U+'/rest/v1/businesses?select=*,cities(name)&id=eq.'+encodeURIComponent(id)+'&is_published=eq.true',{headers:{apikey:K,Authorization:'Bearer '+K}});const a=await r.json();if(!a.length){root.innerHTML='<h2>Business not found</h2><p class="muted">This public page is unavailable.</p>';return}const b=a[0];document.title=b.name+' — FineTime';root.innerHTML=(b.cover_url?'<img src="'+esc(b.cover_url)+'" alt="">':'')+'<h1>'+esc(b.name)+'</h1><p class="muted">'+esc((b.category||'').toUpperCase())+' · '+esc(b.cities?.name||'')+'</p><p>'+esc(b.about||'')+'</p>'+(b.phone?'<p>Phone: '+esc(b.phone)+'</p>':'')+'<a class="btn" href="menu.html?id='+encodeURIComponent(id)+'">View Digital Menu</a> <a class="btn" href="../">Open FineTime App</a>'}catch(e){root.innerHTML='<h2>Unable to load this page</h2><p class="muted">Please try again later.</p>'}}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}load();
-</script></body></html>
+const H={apikey:K,Authorization:'Bearer '+K};
+async function get(path){const r=await fetch(U+'/rest/v1/'+path,{headers:H});if(!r.ok)throw new Error('Request failed');return r.json()}
+async function load(){
+ if(!id){location.href='./';return}
+ try{
+  const [biz,rooms,cats,promos,reviews]=await Promise.all([
+   get('businesses?select=*,cities(name)&id=eq.'+encodeURIComponent(id)+'&is_published=eq.true'),
+   get('room_types?select=*&business_id=eq.'+encodeURIComponent(id)),
+   get('menu_categories?select=*,menu_items(*)&business_id=eq.'+encodeURIComponent(id)+'&order=sort_order'),
+   get('promotions?select=*&business_id=eq.'+encodeURIComponent(id)+'&status=eq.active&order=starts_on'),
+   get('reviews?select=rating,body,created_at&business_id=eq.'+encodeURIComponent(id)+'&order=created_at.desc&limit=5')
+  ]);
+  if(!biz.length){root.innerHTML='<h2>Business not found</h2><p class="muted">This public page is unavailable.</p>';return}
+  const b=biz[0];document.title=b.name+' — FineTime';
+  const avg=reviews.length?(reviews.reduce((s,r)=>s+Number(r.rating||0),0)/reviews.length).toFixed(1):null;
+  const gallery=Array.isArray(b.gallery_urls)?b.gallery_urls.filter(Boolean):[];
+  const tags=[...(b.highlights||[]),...(b.amenities||[])];
+  root.innerHTML=
+   (b.cover_url?'<img class="cover" src="'+esc(b.cover_url)+'" alt="'+esc(b.name)+'">':'')+
+   '<span class="badge">'+esc((b.category||'').toUpperCase())+'</span>'+
+   '<h1>'+esc(b.name)+'</h1>'+
+   '<p class="muted">'+esc(b.cities?.name||'')+(avg?' · ★ '+avg+' ('+reviews.length+' reviews)':'')+'</p>'+
+   '<p class="muted">'+esc(b.about||'')+'</p>'+
+   (tags.length?'<div>'+tags.map(x=>'<span class="pill">'+esc(x)+'</span>').join('')+'</div>':'')+
+   '<div><a class="btn" href="menu.html?id='+encodeURIComponent(id)+'">View Digital Menu</a>'+
+   (b.phone?'<a class="btn" href="tel:'+esc(b.phone)+'">Call</a>':'')+
+   (b.lat!=null&&b.lng!=null?'<a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q='+encodeURIComponent(b.lat+','+b.lng)+'">Directions</a>':'')+
+   '<a class="btn" href="../">Open FineTime App</a></div>'+
+   (gallery.length?'<div class="card"><h2>Gallery</h2><div class="gallery">'+gallery.map(x=>'<img src="'+esc(x)+'" alt="">').join('')+'</div></div>':'')+
+   (promos.length?'<div class="card"><h2>Promotions</h2>'+promos.map(p=>'<div class="review"><span class="badge">'+esc(p.badge||'FEATURED')+'</span><h3>'+esc(p.title||'')+'</h3><p class="muted">'+esc(p.description||'')+'</p></div>').join('')+'</div>':'')+
+   (rooms.length?'<div class="card"><h2>Rooms</h2>'+rooms.map(x=>'<div class="review"><strong>'+esc(x.name||'')+'</strong><p class="muted">'+esc(x.description||'')+'</p>'+(x.public_price!=null?'<span class="price">ETB '+esc(x.public_price)+' / night</span>':'<span class="muted">Rate confirmed by hotel</span>')+'</div>').join('')+'</div>':'')+
+   (reviews.length?'<div class="card"><h2>Recent reviews</h2>'+reviews.map(x=>'<div class="review"><strong>★ '+esc(x.rating)+'</strong><p class="muted">'+esc(x.body||'Rated experience')+'</p></div>').join('')+'</div>':'');
+ }catch(e){root.innerHTML='<h2>Unable to load this page</h2><p class="muted">Please try again later.</p>'}
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+load();
+</script>
+</body></html>
