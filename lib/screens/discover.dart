@@ -71,7 +71,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                     .titleTextStyle),
                           ]),
                           const SizedBox(height: 4),
-                          const Text('Welcome to FineTime F',
+                          const Text('Welcome to FineTime ✦',
                               style: TextStyle(
                                   color: FT.ivory,
                                   fontSize: 22,
