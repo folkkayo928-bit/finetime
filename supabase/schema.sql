@@ -715,6 +715,19 @@ with check (
   )
 );
 
+drop policy if exists "Customers can update own reviews" on public.reviews;
+create policy "Customers can update own reviews"
+on public.reviews for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Customers can delete own reviews" on public.reviews;
+create policy "Customers can delete own reviews"
+on public.reviews for delete
+to authenticated
+using ((select auth.uid()) = user_id);
+
 -- Atomically validate hotel capacity and reserve inventory.
 create or replace function public.request_hotel_booking(
   p_business_id uuid,
