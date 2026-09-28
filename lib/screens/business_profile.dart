@@ -179,11 +179,12 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         : ratingValues.reduce((a, b) => a + b) / ratingValues.length;
     return Scaffold(
       appBar: AppBar(title: Text(business['name'] ?? ''), actions: [
-        IconButton(
-          icon: const Icon(Icons.qr_code_2),
-          tooltip: 'Show QR menu',
-          onPressed: () => _showMenuQr(business),
-        ),
+        if (_menu.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.qr_code_2),
+            tooltip: 'Show QR menu',
+            onPressed: () => _showMenuQr(business),
+          ),
         IconButton(
           icon: Icon(_saved ? Icons.favorite : Icons.favorite_border,
               color: _saved ? const Color(0xFFC6A664) : null),
