@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'notifications.dart';
+import '../theme.dart';
 
 class MeScreen extends StatefulWidget {
   const MeScreen({super.key});
