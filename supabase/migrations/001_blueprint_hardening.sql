@@ -38,6 +38,17 @@ create table if not exists public.activation_codes (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.partner_business_members (
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  telegram_user_id text not null,
+  role text not null default 'partner' check (role in ('owner','manager','staff','partner')),
+  created_at timestamptz not null default now(),
+  primary key (business_id, telegram_user_id)
+);
+
+create index if not exists partner_business_members_telegram_idx
+  on public.partner_business_members(telegram_user_id);
+
 create table if not exists public.telegram_connections (
   id uuid primary key default gen_random_uuid(),
   business_id uuid not null references public.businesses(id) on delete cascade,
@@ -566,6 +577,8 @@ for each row execute function public.notify_order_change();
 -- Do not expose partner credentials/codes through the client Data API.
 alter table public.activation_codes enable row level security;
 alter table public.telegram_connections enable row level security;
+alter table public.partner_business_members enable row level security;
+revoke all on public.partner_business_members from anon, authenticated;
 drop policy if exists "No client activation code access" on public.activation_codes;
 drop policy if exists "No client telegram connection access" on public.telegram_connections;
 
