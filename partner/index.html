@@ -103,8 +103,9 @@ function itemForm(item=null){
  const name=prompt('Item name',item?.name||'');if(name===null)return;
  const priceRaw=prompt('Price in ETB',item?.price??'');if(priceRaw===null)return;
  const description=prompt('Description',item?.description||'');if(description===null)return;
+ const photoUrl=prompt('Photo URL (optional)',item?.photo_url||'');if(photoUrl===null)return;
  const available=confirm('Item is available?');
- api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:item?.photo_url||null}).then(bootstrap).catch(e=>alert(e.message));
+ api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
 function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete_menu_item',{id}).then(bootstrap).catch(e=>alert(e.message))}
 
@@ -118,7 +119,11 @@ function roomForm(r=null){
  const total=Number(prompt('Total rooms',r?.total_rooms??0));if(!Number.isInteger(total)||total<0)return alert('Invalid total rooms.');
  const capacity=Number(prompt('Guest capacity',r?.capacity??1));if(!Number.isInteger(capacity)||capacity<1)return alert('Invalid capacity.');
  const price=prompt('Public price in ETB (leave blank if hotel confirms rate)',r?.public_price??'');if(price===null)return;
- api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description:r?.description||null,beds:r?.beds||null,amenities:r?.amenities||[],photo_url:r?.photo_url||null}).then(bootstrap).catch(e=>alert(e.message));
+ const description=prompt('Room description',r?.description||'');if(description===null)return;
+ const beds=prompt('Beds',r?.beds||'');if(beds===null)return;
+ const amenities=prompt('Amenities (comma separated)',(r?.amenities||[]).join(', '));if(amenities===null)return;
+ const photoUrl=prompt('Room photo URL (optional)',r?.photo_url||'');if(photoUrl===null)return;
+ api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description,beds,amenities:amenities.split(',').map(x=>x.trim()).filter(Boolean),photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
 function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
 async function saveInventory(roomId,date,total){
@@ -138,7 +143,9 @@ function promoForm(p=null){
  const badge=prompt('Badge: 25% OFF, TODAY, NEW, FEATURED, LIMITED, FINE TIME PICK',p?.badge||'');if(badge===null)return;
  const starts=prompt('Start date YYYY-MM-DD',p?.starts_on||'');if(starts===null)return;
  const ends=prompt('End date YYYY-MM-DD',p?.ends_on||'');if(ends===null)return;
- api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:p?.image_url||null,terms:p?.terms||null}).then(bootstrap).catch(e=>alert(e.message));
+ const imageUrl=prompt('Promotion image URL (optional)',p?.image_url||'');if(imageUrl===null)return;
+ const terms=prompt('Terms (optional)',p?.terms||'');if(terms===null)return;
+ api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:imageUrl.trim()||null,terms:terms.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
 function deletePromo(id){if(!confirm('Delete this promotion?'))return;api('delete_promotion',{id}).then(bootstrap).catch(e=>alert(e.message))}
 
@@ -148,14 +155,27 @@ function renderSettings(){
  '<div class="grid"><div><label class="label">Business name</label><input id="bn" value="'+attr(b.name)+'"></div><div><label class="label">Phone</label><input id="bp" value="'+attr(b.phone)+'"></div></div>'+
  '<label class="label">About</label><textarea id="ba">'+esc(b.about||'')+'</textarea>'+
  '<div class="grid"><div><label class="label">Cover image URL</label><input id="bc" value="'+attr(b.cover_url)+'"></div><div><label class="label">Services (comma separated)</label><input id="bs" value="'+attr((b.services||[]).join(', '))+'"></div></div>'+
+ '<label class="label">Gallery image URLs (comma separated)</label><textarea id="bg">'+esc((b.gallery_urls||[]).join(', '))+'</textarea>'+
+ '<label class="label">Opening hours (JSON)</label><textarea id="bo">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea>'+
  '<label class="label">Highlights (comma separated)</label><input id="bh" value="'+attr((b.highlights||[]).join(', '))+'">'+
  '<label class="label">Amenities (comma separated)</label><input id="bam" value="'+attr((b.amenities||[]).join(', '))+'">'+
  '<div class="actions"><button onclick="saveBusiness()">Save business profile</button></div>'+
- '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime Admin')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Subscription changes remain controlled by FineTime until billing is integrated.</div></div>';
+ '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Plan changes are requested here; FineTime controls activation, price and billing until online billing is integrated.</div><div class="actions"><button class="ghost" onclick="requestPlanChange()">Request plan change</button></div></div>';
 }
 function saveBusiness(){
  const csv=id=>document.getElementById(id).value.split(',').map(x=>x.trim()).filter(Boolean);
- api('update_business',{name:document.getElementById('bn').value,phone:document.getElementById('bp').value,about:document.getElementById('ba').value,cover_url:document.getElementById('bc').value,services:csv('bs'),highlights:csv('bh'),amenities:csv('bam')}).then(bootstrap).catch(e=>alert(e.message));
+ let opening={};
+ try{opening=JSON.parse(document.getElementById('bo').value||'{}')}catch(e){return alert('Opening hours must be valid JSON.')}
+ api('update_business',{name:document.getElementById('bn').value,phone:document.getElementById('bp').value,about:document.getElementById('ba').value,cover_url:document.getElementById('bc').value,gallery_urls:csv('bg'),services:csv('bs'),opening_hours:opening,highlights:csv('bh'),amenities:csv('bam')}).then(bootstrap).catch(e=>alert(e.message));
+}
+function requestPlanChange(){
+ const plan=prompt('Requested plan: basic or premium',state.subscription?.plan||'basic');
+ if(plan===null)return;
+ const normalized=plan.trim().toLowerCase();
+ if(!['basic','premium'].includes(normalized))return alert('Choose basic or premium.');
+ const notes=prompt('Optional note to FineTime Admin','Please review my subscription request.');
+ if(notes===null)return;
+ api('request_subscription_change',{plan:normalized,notes}).then(d=>{alert(d.message||'Subscription request sent to FineTime.');bootstrap()}).catch(e=>alert(e.message));
 }
 
 function jsonArg(x){return encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27')}
