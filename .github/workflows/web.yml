@@ -20,6 +20,7 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter create . --platforms=web --org com.finetime --project-name finetime
+      - run: rm -f test/widget_test.dart
       - run: flutter analyze
       - run: flutter test
       - run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
