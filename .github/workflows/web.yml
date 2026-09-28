@@ -48,7 +48,7 @@ jobs:
       - name: Add public website
         run: |
           mkdir -p build/web/website
-          cp website/index.html website/business.html website/menu.html build/web/website/
+          cp website/index.html website/business.html website/menu.html website/robots.txt website/sitemap.xml build/web/website/
           sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/index.html build/web/website/business.html build/web/website/menu.html
       - uses: actions/upload-pages-artifact@v4
         with:
