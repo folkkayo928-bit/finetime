@@ -196,9 +196,9 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         const SizedBox(height: 14),
         Text(business['name'] ?? '',
             style: const TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
+                fontSize: 22, fontWeight: FontWeight.w800, color: FT.ivory)),
         Text('${business['category'] ?? ''} · ${(business['cities'] as Map<String, dynamic>?)?['name'] ?? ''}',
-            style: const TextStyle(color: Colors.black54)),
+            style: const TextStyle(color: Colors.white70)),
         if ((business['about'] ?? '').toString().isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(business['about'].toString(), style: const TextStyle(height: 1.4)),
@@ -207,7 +207,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           const SizedBox(height: 20),
           const Text('Rooms',
               style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.w700, color: FT.charcoal)),
+                  fontSize: 18, fontWeight: FontWeight.w700, color: FT.ivory)),
           ..._rooms.map((r) => Card(
               child: ListTile(
             title: Text(r['name'] ?? ''),
@@ -237,7 +237,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           const SizedBox(height: 20),
           const Text('Menu',
               style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.w700, color: FT.charcoal)),
+                  fontSize: 18, fontWeight: FontWeight.w700, color: FT.ivory)),
           ..._menu.expand((c) =>
               ((c['menu_items'] ?? []) as List).map((i) => ListTile(
                     title: Text(i['name'] ?? ''),
