@@ -69,11 +69,11 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
               (num.tryParse(x['available_rooms']?.toString() ?? '0') ?? 0) > 0);
         }
       }
-      if (mounted) setState(() {
+      if (mounted) {\n        setState(() {
         _availability
           ..clear()
           ..addAll(next);
-        if (_roomId != null && _availability[_roomId] == false) _roomId = null;
+        if (_roomId != null && _availability[_roomId] == false) {\n          _roomId = null;\n        }
       });
     } catch (_) {
       // Availability is advisory; the booking RPC remains authoritative.
