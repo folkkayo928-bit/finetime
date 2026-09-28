@@ -190,7 +190,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   void showQr() {
     final id = b?['id']?.toString();
     if (id == null || id.isEmpty || !hasFood) return;
-    final url = 'https://finetime.cc/website/menu.html?id=' + Uri.encodeComponent(id);
+    final url = 'https://finetime.cc/website/menu.html?id=${Uri.encodeComponent(id)}';
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
@@ -315,8 +315,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             Text(room['name'] ?? '', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
             const SizedBox(height: 5),
             Text(
-              (room['capacity'] ?? 0).toString() + ' guests' +
-                  (room['beds'] == null ? '' : ' · ' + room['beds'].toString()),
+              '${room['capacity'] ?? 0} guests${room['beds'] == null ? '' : ' · ${room['beds']}'}',
               style: const TextStyle(color: Colors.white60),
             ),
             if ((room['description'] ?? '').toString().isNotEmpty)
@@ -328,7 +327,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 spacing: 6, runSpacing: 6, children: amenityList.take(3).map(pill).toList())),
             const SizedBox(height: 10),
             Text(
-              price == null ? 'Rate confirmed by hotel' : 'ETB ' + price.toString() + ' / night',
+              price == null ? 'Rate confirmed by hotel' : 'ETB $price / night',
               style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w800),
             ),
           ])),
@@ -367,7 +366,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                   style: const TextStyle(color: Colors.white60))),
             ])),
             const SizedBox(width: 8),
-            Text(item['price'] == null ? '' : 'ETB ' + item['price'].toString(),
+            Text(item['price'] == null ? '' : 'ETB ${item['price']}',
               style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w800)),
           ]),
         )),
@@ -385,7 +384,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         padding: const EdgeInsets.all(14),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Text('★ ' + rating.toString() + '.0', style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w800)),
+            Text('★ $rating.0', style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w800)),
             const Spacer(),
             if (date.isNotEmpty) Text(date, style: const TextStyle(color: Colors.white54)),
           ]),
@@ -424,10 +423,10 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         padding: const EdgeInsets.fromLTRB(8, 9, 8, 7),
         child: Row(children: [
           bottomAction(Icons.call_outlined, 'Call',
-            b?['phone'] == null ? null : () => launchUrlValue('tel:' + b!['phone'].toString())),
+            b?['phone'] == null ? null : () => launchUrlValue('tel:${b!['phone']}')),
           bottomAction(Icons.directions_outlined, 'Directions',
             b?['lat'] == null ? null : () => launchUrlValue(
-              'https://maps.google.com/?q=' + b!['lat'].toString() + ',' + b!['lng'].toString())),
+              'https://maps.google.com/?q=${b!['lat']},${b!['lng']}')),
           if (isHotel)
             bottomAction(Icons.hotel_outlined, 'Book', openBooking)
           else ...[
@@ -512,8 +511,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                   if (average != null) Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.star, color: FT.gold, size: 19),
                     const SizedBox(width: 4),
-                    Text(average.toStringAsFixed(1) + ' · ' + ratings.length.toString() +
-                      ' review' + (ratings.length == 1 ? '' : 's'),
+                    Text('${average.toStringAsFixed(1)} · ${ratings.length} review${ratings.length == 1 ? '' : 's'}',
                       style: const TextStyle(color: Colors.white70)),
                   ]),
                 ]),
@@ -526,12 +524,12 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 Wrap(spacing: 10, runSpacing: 10, children: [
                   FilledButton.icon(
                     onPressed: business['lat'] == null ? null : () => launchUrlValue(
-                      'https://maps.google.com/?q=' + business['lat'].toString() + ',' + business['lng'].toString()),
+                      'https://maps.google.com/?q=${business['lat']},${business['lng']}'),
                     icon: const Icon(Icons.location_on_outlined),
                     label: const Text('Get directions'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: business['phone'] == null ? null : () => launchUrlValue('tel:' + business['phone'].toString()),
+                    onPressed: business['phone'] == null ? null : () => launchUrlValue('tel:${business['phone']}'),
                     icon: const Icon(Icons.call_outlined),
                     label: const Text('Call'),
                     style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: FT.gold)),
@@ -649,7 +647,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                           i < (average?.round() ?? 0) ? Icons.star : Icons.star_border,
                           color: FT.gold, size: 19))),
                         const SizedBox(height: 5),
-                        Text(reviews.length.toString() + ' review' + (reviews.length == 1 ? '' : 's'),
+                        Text('${reviews.length} review${reviews.length == 1 ? '' : 's'}',
                           style: const TextStyle(color: Colors.white54)),
                       ]),
                       const Spacer(),
