@@ -13,7 +13,16 @@ class OrderFoodScreen extends StatefulWidget {
 class _OrderFoodScreenState extends State<OrderFoodScreen> {
   final sb = Supabase.instance.client;
   final Map<String, int> _cart = {};
+  final _table = TextEditingController();
+  final _note = TextEditingController();
   bool _saving = false;
+
+  @override
+  void dispose() {
+    _table.dispose();
+    _note.dispose();
+    super.dispose();
+  }
 
   List<Map<String, dynamic>> get _items => widget.menuCategories
       .expand((c) => ((c['menu_items'] ?? []) as List).map((i) => Map<String, dynamic>.from(i)))
@@ -60,6 +69,8 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
         'items': jsonDecode(jsonEncode(payload)),
         'total': _total,
         'status': 'placed',
+        'table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
+        'customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
       });
 
       if (!mounted) return;
