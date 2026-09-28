@@ -4,6 +4,7 @@ import '../theme.dart';
 import 'business_profile.dart';
 import 'explore.dart';
 import 'search.dart';
+import '../net.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -23,21 +24,29 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future<void> _load() async {
-    final f = await sb
-        .from('businesses')
-        .select()
-        .eq('is_published', true)
-        .limit(10);
-    final p = await sb
-        .from('promotions')
-        .select('*, businesses(name)')
-        .gte('ends_on',
-            DateTime.now().toIso8601String().substring(0, 10));
-    if (mounted) {
-      setState(() {
-        _featured = List<Map<String, dynamic>>.from(f);
-        _promos = List<Map<String, dynamic>>.from(p);
-      });
+    try {
+      final f = await Net.run(() => sb
+          .from('businesses')
+          .select()
+          .eq('is_published', true)
+          .limit(10));
+      final p = await Net.run(() => sb
+          .from('promotions')
+          .select('*, businesses(name)')
+          .gte('ends_on', DateTime.now().toIso8601String().substring(0, 10)));
+      if (mounted) {
+        setState(() {
+          _featured = List<Map<String, dynamic>>.from(f);
+          _promos = List<Map<String, dynamic>>.from(p);
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _featured = [];
+          _promos = [];
+        });
+      }
     }
   }
 
@@ -134,7 +143,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: FT.charcoal))),
+                              color: FT.ivory))),
                   SizedBox(
                       height: 110,
                       child: ListView.builder(
