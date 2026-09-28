@@ -94,6 +94,21 @@ export default {
           return response({ error: 'This activation code is invalid, expired, used, or revoked.' }, 403)
         }
 
+        // Atomically claim the one-time code before binding the Telegram identity.
+        // This prevents two simultaneous Telegram users from consuming the same code.
+        const { data: claimed, error: claimError } = await admin
+          .from('activation_codes')
+          .update({ used_at: new Date().toISOString() })
+          .eq('id', activation.id)
+          .is('used_at', null)
+          .is('revoked_at', null)
+          .select('id')
+          .maybeSingle()
+        if (claimError) throw claimError
+        if (!claimed) {
+          return response({ error: 'This activation code has already been used or revoked.' }, 403)
+        }
+
         const { error: connectionError } = await admin
           .from('telegram_connections')
           .upsert({
@@ -112,12 +127,6 @@ export default {
             role: 'partner',
           }, { onConflict: 'business_id,telegram_user_id' })
         if (memberError) throw memberError
-
-        const { error: usedError } = await admin
-          .from('activation_codes')
-          .update({ used_at: new Date().toISOString() })
-          .eq('id', activation.id)
-        if (usedError) throw usedError
 
         return response({ ok: true, business_id: activation.business_id })
       }
