@@ -61,17 +61,21 @@ class _TripsScreenState extends State<TripsScreen> {
         sb.from('reservations').select('*, businesses(name)').eq('user_id', u.id).order('created_at', ascending: false),
         sb.from('orders').select('*, businesses(name)').eq('user_id', u.id).order('created_at', ascending: false),
       ]);
-      if (mounted) setState(() {
+      if (mounted) {
+      setState(() {
         _bookings = List<Map<String, dynamic>>.from(results[0] as List);
         _reservations = List<Map<String, dynamic>>.from(results[1] as List);
         _orders = List<Map<String, dynamic>>.from(results[2] as List);
         _loading = false;
       });
+    }
     } catch (_) {
-      if (mounted) setState(() {
-        _error = 'Could not load your trips. Check your connection.';
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'Could not load your trips. Check your connection.';
+          _loading = false;
+        });
+      }
     }
   }
 
