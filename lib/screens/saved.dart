@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'business_profile.dart';
 
 class SavedScreen extends StatefulWidget {
   const SavedScreen({super.key});
@@ -81,7 +82,12 @@ class _SavedScreenState extends State<SavedScreen> {
                     icon: const Icon(Icons.favorite, color: Color(0xFFC6A664)),
                     tooltip: 'Remove from saved',
                     onPressed: () => _unsave(s)),
-                  onTap: () {},
+                  onTap: () {
+                    final id = biz?['id'];
+                    if (id != null) {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => BusinessProfileScreen(businessId: id))).then((_) => _load());
+                    }
+                  },
                 );
               }).toList()),
             ),
