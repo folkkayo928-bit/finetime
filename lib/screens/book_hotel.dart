@@ -42,10 +42,6 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
     }
   }
 
-  /// Ensures the signed-in user has a profiles row.
-  /// bookings.user_id references profiles(id); without this row every
-  /// insert fails with a foreign-key violation that used to be masked
-  /// as "dates may be unavailable".
   Future<void> _ensureProfile() async {
     final u = sb.auth.currentUser;
     if (u == null) return;
@@ -73,7 +69,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
     final room = _selectedRoom;
     final price = room?['public_price'];
     if (price == null || _nights <= 0) return null;
-    return (num.tryParse(price.toString()) ?? 0) * _nights;
+    return ((num.tryParse(price.toString()) ?? 0) * _nights).toDouble();
   }
 
   Future<void> _submit() async {
