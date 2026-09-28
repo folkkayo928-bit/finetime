@@ -18,6 +18,8 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
   int _guests = 1;
   bool _loading = true, _saving = false;
   String? _error, _ref;
+  final Map<String, bool> _availability = {};
+  bool _checkingAvailability = false;
 
   @override
   void initState() {
@@ -36,9 +38,47 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
           _rooms = List<Map<String, dynamic>>.from(r);
           _loading = false;
         });
+        await _refreshAvailability();
       }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _refreshAvailability() async {
+    if (_rooms.isEmpty || !_out.isAfter(_in)) return;
+    setState(() => _checkingAvailability = true);
+    try {
+      final ids = _rooms.map((r) => r['id']).whereType<String>().toList();
+      final rows = await sb
+          .from('room_inventory')
+          .select('room_type_id,available_rooms,blocked,inventory_date')
+          .inFilter('room_type_id', ids)
+          .gte('inventory_date', _fmtDate(_in))
+          .lt('inventory_date', _fmtDate(_out));
+      final next = <String, bool>{};
+      for (final room in _rooms) {
+        final id = room['id']?.toString();
+        if (id == null) continue;
+        final inventory = List<Map<String, dynamic>>.from(
+            (rows as List).where((x) => x['room_type_id']?.toString() == id));
+        if (inventory.isEmpty) {
+          next[id] = (num.tryParse(room['total_rooms']?.toString() ?? '0') ?? 0) > 0;
+        } else {
+          next[id] = inventory.every((x) => x['blocked'] != true &&
+              (num.tryParse(x['available_rooms']?.toString() ?? '0') ?? 0) > 0);
+        }
+      }
+      if (mounted) setState(() {
+        _availability
+          ..clear()
+          ..addAll(next);
+        if (_roomId != null && _availability[_roomId] == false) _roomId = null;
+      });
+    } catch (_) {
+      // Availability is advisory; the booking RPC remains authoritative.
+    } finally {
+      if (mounted) setState(() => _checkingAvailability = false);
     }
   }
 
@@ -152,9 +192,15 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                 fontWeight: FontWeight.w700)),
                         ..._rooms.map((r) => ListTile(
                               title: Text(r['name'] ?? ''),
-                              subtitle: Text(r['public_price'] == null
-                                  ? 'Price confirmed by hotel'
-                                  : 'ETB ${r['public_price']} / night'),
+                              subtitle: Text(
+                                _checkingAvailability
+                                    ? 'Checking availability…'
+                                    : _availability[r['id']?.toString()] == false
+                                        ? 'Unavailable for selected dates'
+                                        : r['public_price'] == null
+                                            ? 'Available · price confirmed by hotel'
+                                            : 'Available · ETB ${r['public_price']} / night',
+                              ),
                               trailing: _roomId == r['id']
                                   ? const Icon(
                                       Icons.radio_button_checked,
@@ -162,8 +208,10 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                   : const Icon(
                                       Icons.radio_button_unchecked,
                                       color: Colors.white54),
-                              onTap: () => setState(
-                                  () => _roomId = r['id'] as String),
+                              onTap: _availability[r['id']?.toString()] == false
+                                  ? null
+                                  : () => setState(
+                                      () => _roomId = r['id'] as String),
                             )),
                         const SizedBox(height: 12),
                         Row(children: [
@@ -184,6 +232,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                         const Duration(days: 1));
                                   }
                                 });
+                                _refreshAvailability();
                               }
                             },
                             child: Text('In: ${_fmtDate(_in)}'),
@@ -202,7 +251,10 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                       _in.add(const Duration(days: 1)),
                                   lastDate: DateTime.now()
                                       .add(const Duration(days: 366)));
-                              if (d != null) setState(() => _out = d);
+                              if (d != null) {
+                                setState(() => _out = d);
+                                _refreshAvailability();
+                              }
                             },
                             child: Text('Out: ${_fmtDate(_out)}'),
                           )),
