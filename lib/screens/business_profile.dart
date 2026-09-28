@@ -121,7 +121,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   void _showMenuQr(Map<String, dynamic> business) {
     final id = business['id']?.toString();
     if (id == null || id.isEmpty) return;
-    final menuUrl = 'https://finetime.cc/menu.html?id=${Uri.encodeComponent(id)}';
+    final menuUrl = 'https://finetime.cc/website/menu.html?id=${Uri.encodeComponent(id)}';
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
