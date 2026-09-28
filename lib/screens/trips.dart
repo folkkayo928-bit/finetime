@@ -49,7 +49,12 @@ class _TripsScreenState extends State<TripsScreen> {
       if (mounted) setState(() => _loading = false);
       return;
     }
-    if (mounted) setState(() { _loading = true; _error = null; });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     try {
       final results = await Future.wait([
         sb.from('bookings').select('*, businesses(name), room_types(name)').eq('user_id', u.id).order('created_at', ascending: false),
