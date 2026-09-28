@@ -101,16 +101,16 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         setState(() => _error = 'Please sign in first (Me tab).');
         return;
       }
-      await _ensureProfile();
-      final row = await sb.from('bookings').insert({
-        'user_id': user.id,
-        'business_id': widget.business['id'],
-        'room_type_id': _roomId,
-        'check_in': _in.toIso8601String().substring(0, 10),
-        'check_out': _out.toIso8601String().substring(0, 10),
-        'guests': _guests,
-      }).select('reference').single();
-      setState(() => _ref = row['reference'] as String);
+      final result = await sb.rpc('request_hotel_booking', params: {
+        'p_business_id': widget.business['id'],
+        'p_room_type_id': _roomId,
+        'p_check_in': _in.toIso8601String().substring(0, 10),
+        'p_check_out': _out.toIso8601String().substring(0, 10),
+        'p_guests': _guests,
+      });
+      final rows = List<Map<String, dynamic>>.from(result as List);
+      if (rows.isEmpty) throw Exception('The hotel could not accept this request.');
+      setState(() => _ref = rows.first['reference'] as String);
     } catch (e) {
       // Show the real reason so failures are diagnosable.
       setState(() => _error = 'Could not book: ${e.toString()}');
