@@ -435,6 +435,48 @@ export default {
         return response({ ok: true })
       }
 
+      if (body.action === 'request_subscription_change') {
+        const plan = String(body.plan ?? '').trim().toLowerCase()
+        const notes = body.notes == null ? '' : String(body.notes).trim()
+        if (!['basic', 'premium'].includes(plan)) {
+          return response({ error: 'Choose either the basic or premium plan.' }, 400)
+        }
+
+        const { data: current, error: currentError } = await admin
+          .from('business_subscriptions')
+          .select('plan,status,monthly_price,starts_on,ends_on,notes')
+          .eq('business_id', businessId)
+          .maybeSingle()
+
+        if (currentError) throw currentError
+
+        const requestNote = [
+          `Partner requested plan change to ${plan}.`,
+          notes ? `Partner note: ${notes}` : null,
+          `Requested at: ${new Date().toISOString()}`,
+        ].filter(Boolean).join(' ')
+
+        const { error: saveError } = await admin
+          .from('business_subscriptions')
+          .upsert({
+            business_id: businessId,
+            plan: current?.plan ?? 'basic',
+            status: current?.status ?? 'active',
+            monthly_price: current?.monthly_price ?? null,
+            starts_on: current?.starts_on ?? null,
+            ends_on: current?.ends_on ?? null,
+            notes: [current?.notes, requestNote].filter(Boolean).join('\\n'),
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'business_id' })
+
+        if (saveError) throw saveError
+
+        return response({
+          ok: true,
+          message: 'Subscription request sent to FineTime. Your current plan remains active until FineTime confirms the change.',
+        })
+      }
+
       if (body.action === 'update_subscription') {
         const plan = String(body.plan ?? '')
         const status = String(body.status ?? '')
