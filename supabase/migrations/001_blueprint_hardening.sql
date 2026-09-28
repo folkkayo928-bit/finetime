@@ -392,7 +392,7 @@ begin
   status := 'placed';
   return next;
 end;
-$;
+$$;
 
 revoke execute on function public.create_food_order(uuid,jsonb,text,text) from public, anon;
 grant execute on function public.create_food_order(uuid,jsonb,text,text) to authenticated;
