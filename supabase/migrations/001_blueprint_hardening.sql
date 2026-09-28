@@ -74,6 +74,9 @@ create table if not exists public.room_inventory (
 create index if not exists room_inventory_date_idx
   on public.room_inventory(inventory_date, room_type_id);
 
+alter table public.orders add column if not exists table_number text;
+alter table public.orders add column if not exists customer_note text;
+
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
