@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FineTime Partner</title>
+<script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+<style>
+:root{--charcoal:#121212;--panel:#1b1b1b;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0}
+*{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
+main{max-width:720px;margin:auto;padding:20px 16px 40px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
+.card{background:var(--panel);border:1px solid #ffffff12;border-radius:16px;padding:16px;margin-top:14px}
+input,button{font:inherit;border-radius:12px;padding:13px 14px;width:100%}input{border:0;margin:8px 0;background:#fff;color:#121212}
+button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:pointer}.ghost{background:transparent;color:var(--ivory);border:1px solid #ffffff22}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.tabs button{padding:10px}
+.item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.danger{background:#7b3020;color:white}
+.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
+  <section id="connect" class="card">
+    <h2>Connect your business</h2>
+    <p class="muted">Enter the activation code supplied by FineTime Admin. Your Telegram account will be connected to the authorized business only.</p>
+    <input id="code" placeholder="Activation code" autocomplete="off">
+    <button onclick="activate()">Connect Business</button>
+    <div id="connectError" class="error"></div>
+  </section>
+  <section id="app" class="hidden">
+    <div id="business" class="card"></div>
+    <div class="tabs">
+      <button onclick="showTab('bookings')">Bookings</button>
+      <button onclick="showTab('reservations')">Reservations</button>
+      <button onclick="showTab('orders')">Orders</button>
+    </div>
+    <div id="list" class="card"></div>
+  </section>
+</main>
+<script>
+const SUPABASE_URL='__SUPABASE_URL__';
+const SUPABASE_KEY='__SUPABASE_ANON_KEY__';
+const tg=window.Telegram?.WebApp;
+tg?.ready(); tg?.expand();
+let state={bookings:[],reservations:[],orders:[]},tab='bookings';
+function initData(){return tg?.initData||''}
+async function api(action,extra={}) {
+  const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{
+    method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+    body:JSON.stringify({action,initData:initData(),chatId:tg?.initDataUnsafe?.user?.id,...extra})
+  });
+  const d=await r.json(); if(!r.ok) throw new Error(d.error||'Request failed'); return d;
+}
+async function activate(){
+  const el=document.getElementById('connectError');el.textContent='';
+  try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}
+  catch(e){el.textContent=e.message}
+}
+async function bootstrap(){
+  try{
+    const d=await api('bootstrap'); state={bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[]};
+    document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+    document.getElementById('business').innerHTML='<h2>'+esc(d.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(d.business?.category||'')+'</div>';
+    render();
+  }catch(e){
+    if(e.message.includes('not connected')){document.getElementById('connectError').textContent=e.message}
+    else document.getElementById('connectError').textContent=e.message;
+  }
+}
+function showTab(t){tab=t;render()}
+function render(){
+  const rows=state[tab]||[];
+  document.getElementById('list').innerHTML='<h3>'+tab[0].toUpperCase()+tab.slice(1)+'</h3>'+
+    (rows.length?rows.map(renderItem).join(''):'<div class="muted">Nothing here yet.</div>');
+}
+function renderItem(x){
+  const name=x.profiles?.full_name||x.businesses?.name||'Order';
+  const detail=tab==='bookings'?(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s)'):
+    tab==='reservations'?(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s)'):
+    ('ETB '+(x.total??0));
+  const statuses=tab==='orders'?['placed','confirmed','preparing','ready','delivered','cancelled']:['requested','confirmed','changed','cancelled','completed'];
+  return '<div class="item"><div class="row"><strong>'+esc(name)+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+esc(detail)+'</div>'+
+    '<div class="tabs">'+statuses.map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\''+tab+'\',\''+x.id+'\',\''+s+'\')">'+esc(s)+'</button>').join('')+'</div></div>';
+}
+async function updateStatus(kind,id,status){
+  try{await api('update_'+kind.slice(0,-1),{id,status});await bootstrap()}catch(e){alert(e.message)}
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+bootstrap();
+</script>
+</body></html>
