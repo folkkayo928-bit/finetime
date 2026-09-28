@@ -64,11 +64,12 @@ create table if not exists room_types (
 );
 
 create or replace function generate_booking_reference()
-returns text as $$
+returns text as $
 begin
   return 'FT-' || upper(substr(md5(random()::text), 1, 8));
 end;
-$$ language plpgsql;
+$ language plpgsql
+set search_path = '';
 
 create table if not exists bookings (
   id uuid primary key default gen_random_uuid(),
@@ -161,7 +162,10 @@ drop policy if exists "Allow public read on promotions" on promotions;
 create policy "Allow public read on promotions" on promotions for select using (true);
 
 drop policy if exists "own profile" on profiles;
-create policy "own profile" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
+create policy "own profile" on profiles for all
+to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id);
 
 drop policy if exists "own bookings" on bookings;
 create policy "own bookings" on bookings for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -170,7 +174,10 @@ drop policy if exists "own reservations" on reservations;
 create policy "own reservations" on reservations for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "own saved" on saved_places;
-create policy "own saved" on saved_places for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "own saved" on saved_places for all
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
 drop policy if exists "own orders" on orders;
 create policy "own orders" on orders for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
