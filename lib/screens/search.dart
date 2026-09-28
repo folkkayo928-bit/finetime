@@ -39,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: _results.map((b) {
             return ListTile(
               title: Text(b['name'] ?? ''),
-              subtitle: Text((b['category'] ?? '').toString().toUpperCase()),
+              subtitle: Text((b['category'] ?? '').toString().toUpperCase(), style: const TextStyle(color: Colors.white70)),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
