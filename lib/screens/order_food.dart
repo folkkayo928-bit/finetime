@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../net.dart';
 
 class OrderFoodScreen extends StatefulWidget {
   final Map<String, dynamic> business;
@@ -62,8 +63,13 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
               })
           .toList();
 
+      final token = await Net.userAccessToken(sb);
+      if (token == null || token.isEmpty) {
+        throw Exception('Your FineTime session has expired. Please sign in again.');
+      }
       final response = await sb.functions.invoke(
         'create-food-order',
+        headers: {'Authorization': 'Bearer $token'},
         body: {
           'business_id': widget.business['id'],
           'items': payload,
