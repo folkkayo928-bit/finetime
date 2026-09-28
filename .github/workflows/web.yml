@@ -38,6 +38,8 @@ jobs:
       - run: flutter test
       - name: Build Flutter web
         run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
       - name: Add Partner Mini App
         run: |
           mkdir -p build/web/partner
@@ -48,7 +50,7 @@ jobs:
           mkdir -p build/web/website
           cp website/index.html website/business.html website/menu.html build/web/website/
           sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/index.html build/web/website/business.html build/web/website/menu.html
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: build/web
 
