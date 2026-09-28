@@ -1,34 +1,61 @@
 name: Build
+
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: finetime-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with: { channel: stable }
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.2
+          cache: true
+          pub-cache: true
+      - name: Generate missing Flutter platform files
+        run: flutter create . --platforms=android,ios --org com.finetime --project-name finetime --no-pub
+      - name: Remove generated placeholder test
+        run: rm -f test/widget_test.dart
       - run: flutter pub get
-      - run: flutter create . --platforms=android,ios --org com.finetime --project-name finetime
-      - run: rm -f test/widget_test.dart
+      - run: flutter --version
       - run: flutter analyze
       - run: flutter test
-      - run: flutter build apk --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Build Android APK
+        run: flutter build apk --release --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
       - uses: actions/upload-artifact@v4
-        with: { name: finetime-apk, path: build/app/outputs/flutter-apk/app-release.apk }
+        with:
+          name: finetime-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
 
   ios:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with: { channel: stable }
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.2
+          cache: true
+          pub-cache: true
+      - name: Generate missing Flutter platform files
+        run: flutter create . --platforms=android,ios --org com.finetime --project-name finetime --no-pub
+      - name: Remove generated placeholder test
+        run: rm -f test/widget_test.dart
       - run: flutter pub get
-      - run: flutter create . --platforms=android,ios --org com.finetime --project-name finetime
-      - run: rm -f test/widget_test.dart
+      - run: flutter --version
       - run: flutter analyze
       - run: flutter test
-      - run: flutter build ios --release --no-codesign --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Build iOS (unsigned)
+        run: flutter build ios --release --no-codesign --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"

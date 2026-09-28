@@ -2,7 +2,9 @@ name: Deploy Flutter Web
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -10,20 +12,32 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: finetime-web-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with: { channel: stable }
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.2
+          cache: true
+          pub-cache: true
+      - name: Generate missing Flutter web files
+        run: flutter create . --platforms=web --org com.finetime --project-name finetime --no-pub
+      - name: Remove generated placeholder test
+        run: rm -f test/widget_test.dart
       - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter create . --platforms=web --org com.finetime --project-name finetime
-      - run: rm -f test/widget_test.dart
+      - run: flutter --version
       - run: flutter analyze
       - run: flutter test
-      - run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Build Flutter web
+        run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
       - name: Add Partner Mini App
         run: |
           mkdir -p build/web/partner
@@ -39,6 +53,7 @@ jobs:
           path: build/web
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
