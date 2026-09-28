@@ -492,21 +492,6 @@ export default {
           throw error
         }
 
-        if (table === 'bookings' || table === 'reservations') {
-          const targetUserId = data.user_id
-          if (targetUserId) {
-            const label = table === 'bookings' ? 'hotel booking' : 'table reservation'
-            await admin.from('notifications').insert({
-              user_id: targetUserId,
-              title: status === 'confirmed' ? 'Booking confirmed' : status === 'cancelled' ? 'Booking cancelled' : 'Booking updated',
-              body: `Your ${label} at FineTime is now ${status}.`,
-              type: table === 'bookings' ? 'booking' : 'reservation',
-              reference_type: table === 'bookings' ? 'booking' : 'reservation',
-              reference_id: data.id,
-            })
-          }
-        }
-
         return response({ ok: true, data })
       }
 
