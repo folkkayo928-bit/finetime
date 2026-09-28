@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -63,23 +62,14 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
               })
           .toList();
 
-      final order = await sb.from('orders').insert({
-        'user_id': user.id,
-        'business_id': widget.business['id'],
-        'items': jsonDecode(jsonEncode(payload)),
-        'total': _total,
-        'status': 'placed',
-        'table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
-        'customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
-      }).select('id').single();
-
-      await sb.from('order_items').insert(payload.map((item) => {
-        'order_id': order['id'],
-        'menu_item_id': item['menu_item_id'],
-        'item_name': item['name'],
-        'unit_price': item['unit_price'],
-        'quantity': item['quantity'],
-      }).toList());
+      final result = await sb.rpc('create_food_order', params: {
+        'p_business_id': widget.business['id'],
+        'p_items': payload,
+        'p_table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
+        'p_customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
+      });
+      final rows = List<Map<String, dynamic>>.from(result as List);
+      if (rows.isEmpty) throw Exception('The business could not accept this order.');
 
       if (!mounted) return;
       await showDialog<void>(
