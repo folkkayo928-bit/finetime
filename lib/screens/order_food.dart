@@ -63,7 +63,7 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
               })
           .toList();
 
-      await sb.from('orders').insert({
+      final order = await sb.from('orders').insert({
         'user_id': user.id,
         'business_id': widget.business['id'],
         'items': jsonDecode(jsonEncode(payload)),
@@ -71,7 +71,15 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
         'status': 'placed',
         'table_number': _table.text.trim().isEmpty ? null : _table.text.trim(),
         'customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
-      });
+      }).select('id').single();
+
+      await sb.from('order_items').insert(payload.map((item) => {
+        'order_id': order['id'],
+        'menu_item_id': item['menu_item_id'],
+        'item_name': item['name'],
+        'unit_price': item['unit_price'],
+        'quantity': item['quantity'],
+      }).toList());
 
       if (!mounted) return;
       await showDialog<void>(
