@@ -158,7 +158,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                     : null,
                 icon: const Icon(Icons.call, size: 18),
                 label: const Text('Call'),
-                style: OutlinedButton.styleFrom(foregroundColor: FT.charcoal),
+                style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: FT.gold)),
               )),
               const SizedBox(width: 8),
               Expanded(
@@ -169,7 +169,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                     : null,
                 icon: const Icon(Icons.directions, size: 18),
                 label: const Text('Directions'),
-                style: OutlinedButton.styleFrom(foregroundColor: FT.charcoal),
+                style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: FT.gold)),
               )),
               const SizedBox(width: 8),
               Expanded(
