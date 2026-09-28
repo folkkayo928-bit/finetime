@@ -14,10 +14,27 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
   DateTime _date = DateTime.now().add(const Duration(days: 1));
   int _party = 2;
   final _request = TextEditingController();
+  final _phone = TextEditingController();
   bool _saving = false;
   String? _error, _done;
+  DateTime? _lastTap;
+
+  bool get _canSubmit =>
+      _saving == false &&
+      (_lastTap == null ||
+          DateTime.now().difference(_lastTap!) > const Duration(seconds: 2));
+
+  void _onSubmitPressed() {
+    if (!_canSubmit) return; // swallow rapid re-taps
+    _lastTap = DateTime.now();
+    _submit();
+  }
 
   Future<void> _submit() async {
+    if (_phone.text.trim().isEmpty) {
+      setState(() => _error = 'Please add a phone number so the restaurant can confirm.');
+      return;
+    }
     setState(() {
       _saving = true;
       _error = null;
@@ -37,10 +54,13 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
         'reservation_time':
             '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}:00',
         'party_size': _party,
+        'contact_phone': _phone.text.trim(),
         'special_request': _request.text.isEmpty ? null : _request.text,
       });
-      setState(() =>
-          _done = 'Reservation requested, ${prof['full_name']}. Track it in Trips.');
+      setState(() => _done =
+          'Reservation requested, ${prof['full_name']}.\n\n'
+          '${_date.toString().substring(0, 10)} at ${_time.format(context)} · $_party guests\n'
+          'Track it in the Trips tab.');
     } catch (e) {
       setState(() => _error = 'Could not submit reservation. Please retry.');
     } finally {
@@ -48,14 +68,25 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
     }
   }
 
+  String _fmtDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text('Reserve · ${widget.business['name']}')),
         body: _done != null
             ? Center(
-                child: Text(_done!,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)))
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.check_circle, color: Color(0xFFC6A664), size: 64),
+                    const SizedBox(height: 12),
+                    Text(_done!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
+                  ]),
+                ))
             : ListView(padding: const EdgeInsets.all(16), children: [
                 OutlinedButton(
                   onPressed: () async {
@@ -67,7 +98,7 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
                             DateTime.now().add(const Duration(days: 180)));
                     if (d != null) setState(() => _date = d);
                   },
-                  child: Text('Date: ${_date.toString().substring(0, 10)}'),
+                  child: Text('Date: ${_fmtDate(_date)}'),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton(
@@ -91,6 +122,13 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextField(
+                    controller: _phone,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                        labelText: 'Your phone number',
+                        hintText: '+251 9.. .. .. ..')),
+                const SizedBox(height: 8),
+                TextField(
                     controller: _request,
                     decoration: const InputDecoration(
                         labelText: 'Special request (optional)'),
@@ -102,8 +140,9 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
                           style: const TextStyle(color: Colors.red))),
                 const SizedBox(height: 16),
                 FilledButton(
-                    onPressed: _saving ? null : _submit,
-                    child: Text(_saving ? 'Submitting…' : 'Request Reservation')),
+                    onPressed: _onSubmitPressed,
+                    child: Text(
+                        _saving ? 'Submitting…' : 'Request Reservation')),
               ]),
       );
 }
