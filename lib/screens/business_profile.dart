@@ -84,7 +84,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             .from('menu_categories')
             .select('*, menu_items(*)')
             .eq('business_id', widget.businessId);
-        return (r, rooms, cats);
+        final reviews = await sb
+            .from('reviews')
+            .select('rating, body, created_at')
+            .eq('business_id', widget.businessId)
+            .order('created_at', ascending: false)
+            .limit(5);
+        return (r, rooms, cats, reviews);
       });
       if (results == null) {
         if (mounted) setState(() => _error = 'This business is not available.');
