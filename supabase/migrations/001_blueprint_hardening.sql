@@ -316,7 +316,7 @@ returns table(id uuid, total numeric, status text)
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_user uuid := (select auth.uid());
   v_item jsonb;
