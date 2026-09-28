@@ -576,7 +576,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
                 if (hours.isNotEmpty) ...[
                   infoCard(Icons.access_time, 'Opening hours',
-                    hours.entries.map((e) => e.key + ': ' + e.value.toString()).join('\n')),
+                    hours.entries.map((e) => '${e.key}: ${e.value}').join('\\n')),
                   const SizedBox(height: 12),
                 ],
                 infoCard(
