@@ -21,6 +21,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   List<Map<String, dynamic>> _rooms = [];
   List<Map<String, dynamic>> _menu = [];
   List<Map<String, dynamic>> _reviews = [];
+  List<Map<String, dynamic>> _promotions = [];
   String? _error;
   bool _saved = false;
 
@@ -90,7 +91,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             .eq('business_id', widget.businessId)
             .order('created_at', ascending: false)
             .limit(5);
-        return (r, rooms, cats, reviews);
+        final promotions = await sb
+            .from('promotions')
+            .select('id,title,description,badge,image_url,terms,starts_on,ends_on,status')
+            .eq('business_id', widget.businessId)
+            .eq('status', 'active')
+            .order('starts_on', ascending: true);
+        return (r, rooms, cats, reviews, promotions);
       });
       if (results == null) {
         if (mounted) setState(() => _error = 'This business is not available.');
@@ -102,6 +109,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           _rooms = List<Map<String, dynamic>>.from(results.$2);
           _menu = List<Map<String, dynamic>>.from(results.$3);
           _reviews = List<Map<String, dynamic>>.from(results.$4);
+          _promotions = List<Map<String, dynamic>>.from(results.$5);
         });
       }
     } catch (e) {
@@ -138,6 +146,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final isHotel = business['category'] == 'hotel';
+    final ratingValues = _reviews
+        .map((r) => num.tryParse(r['rating']?.toString() ?? ''))
+        .whereType<num>()
+        .toList();
+    final averageRating = ratingValues.isEmpty
+        ? null
+        : ratingValues.reduce((a, b) => a + b) / ratingValues.length;
     return Scaffold(
       appBar: AppBar(title: Text(business['name'] ?? ''), actions: [
         IconButton(
@@ -208,9 +223,30 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 fontSize: 22, fontWeight: FontWeight.w800, color: FT.ivory)),
         Text('${business['category'] ?? ''} · ${(business['cities'] as Map<String, dynamic>?)?['name'] ?? ''}',
             style: const TextStyle(color: Colors.white70)),
+        if (averageRating != null) ...[
+          const SizedBox(height: 8),
+          Row(children: [
+            const Icon(Icons.star, size: 18, color: FT.gold),
+            const SizedBox(width: 4),
+            Text('${averageRating.toStringAsFixed(1)} · ${ratingValues.length} recent review${ratingValues.length == 1 ? '' : 's'}',
+                style: const TextStyle(color: Colors.white70)),
+          ]),
+        ],
         if ((business['about'] ?? '').toString().isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(business['about'].toString(), style: const TextStyle(height: 1.4)),
+        ],
+        if (_promotions.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          const Text('Promotions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: FT.ivory)),
+          const SizedBox(height: 8),
+          ..._promotions.map((p) => Card(
+            child: ListTile(
+              leading: FT.badge((p['badge'] ?? 'FEATURED').toString()),
+              title: Text(p['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: (p['description'] ?? '').toString().isEmpty ? null : Text(p['description'].toString()),
+            ),
+          )),
         ],
         if (_rooms.isNotEmpty) ...[
           const SizedBox(height: 20),
