@@ -51,7 +51,12 @@ class _MeScreenState extends State<MeScreen> {
 
     setState(() => _busy = true);
     try {
-      final res = await Net.run(() => sb.auth.signUp(email: email, password: pass));
+      // retry: false — auth endpoints are rate-limited by Supabase;
+      // retrying would multiply requests and trigger "Limit exceeded".
+      final res = await Net.run(
+        () => sb.auth.signUp(email: email, password: pass),
+        retry: false,
+      );
       final u = res.user;
       if (u == null) {
         _snack('Sign up failed. Please try again.');
@@ -75,11 +80,14 @@ class _MeScreenState extends State<MeScreen> {
   Future<void> _signIn() async {
     setState(() => _busy = true);
     try {
-      await Net.run(() => sb.auth
-          .signInWithPassword(email: _email.text.trim(), password: _pass.text));
+      await Net.run(
+        () => sb.auth
+            .signInWithPassword(email: _email.text.trim(), password: _pass.text),
+        retry: false,
+      );
       await _loadProfile();
     } on AuthException catch (e) {
-      _snack(e.message);
+      _snack(Net.friendly(e));
     } catch (e) {
       _snack(Net.friendly(e));
     } finally {
@@ -95,7 +103,7 @@ class _MeScreenState extends State<MeScreen> {
       body: u == null
         ? ListView(padding: const EdgeInsets.all(16), children: [
             const Text('Welcome to FineTime F', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: FT.charcoal)),
-            const Text('BUILD 4', style: TextStyle(fontSize: 11, color: Colors.grey)),
+            const Text('BUILD 5', style: TextStyle(fontSize: 11, color: Colors.grey)),
             const SizedBox(height: 20),
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Full real name')),
             TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
