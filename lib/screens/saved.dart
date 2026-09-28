@@ -66,7 +66,7 @@ class _SavedScreenState extends State<SavedScreen> {
             ]))
           : _saved.isEmpty
             ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.favorite_border, size: 56, color: Colors.black26),
+                Icon(Icons.favorite_border, size: 56, color: Colors.white38),
                 SizedBox(height: 12),
                 Text('Your saved places will appear here.'),
               ]))
@@ -77,7 +77,7 @@ class _SavedScreenState extends State<SavedScreen> {
                 return ListTile(
                   leading: Icon(_iconFor(biz?['category']), color: const Color(0xFFC6A664)),
                   title: Text(biz?['name'] ?? ''),
-                  subtitle: Text(biz?['category'] ?? ''),
+                  subtitle: Text(biz?['category'] ?? '', style: const TextStyle(color: Colors.white70)),
                   trailing: IconButton(
                     icon: const Icon(Icons.favorite, color: Color(0xFFC6A664)),
                     tooltip: 'Remove from saved',
