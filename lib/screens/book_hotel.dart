@@ -215,7 +215,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                               final d = await showDatePicker(
                                   context: context,
                                   initialDate: _out.isAfter(_in)
-                                      ? _out
+                                      ? _out
                                       : _in.add(
                                           const Duration(days: 1)),
                                   firstDate:
@@ -254,7 +254,8 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                     CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      '${_selectedRoom?['name'] ?? ''} · $_nights night${_nights == 1 ? '' : 's'} · $_guests guest${_guests == 1 ? '' : 's'}'),
+                                      '${_selectedRoom?['name'] ?? ''} · $_nights night${_nights == 1 ? '' : 's'} · $_guests guest${_guests == 1 ? '' : 's'}',
+                                      style: const TextStyle(color: FT.charcoal)),
                                   const SizedBox(height: 4),
                                   Text(
                                       'ETB ${_total!.toStringAsFixed(0)}',
