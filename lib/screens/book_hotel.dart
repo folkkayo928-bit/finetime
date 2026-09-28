@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme.dart';
+import '../net.dart';
 
 class BookHotelScreen extends StatefulWidget {
   final Map<String, dynamic> business;
@@ -125,8 +126,13 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         setState(() => _error = 'Please sign in first (Me tab).');
         return;
       }
+      final token = await Net.userAccessToken(sb);
+      if (token == null || token.isEmpty) {
+        throw Exception('Your FineTime session has expired. Please sign in again.');
+      }
       final response = await sb.functions.invoke(
         'request-hotel-booking',
+        headers: {'Authorization': 'Bearer $token'},
         body: {
           'business_id': widget.business['id'],
           'room_type_id': _roomId,
@@ -140,7 +146,9 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
       setState(() => _ref = rows.first['reference'] as String);
     } catch (e) {
       // Show the real reason so failures are diagnosable.
-      setState(() => _error = 'Could not book: ${e.toString()}');
+      setState(() => _error = e.toString().contains('FunctionsHttpException')
+          ? 'Could not book right now. Please try again.'
+          : 'Could not book: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
