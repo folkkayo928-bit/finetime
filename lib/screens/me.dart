@@ -12,6 +12,7 @@ class MeScreen extends StatefulWidget {
 class _MeScreenState extends State<MeScreen> {
   final sb = Supabase.instance.client;
   final _name = TextEditingController();
+  final _phone = TextEditingController();
   final _email = TextEditingController();
   final _pass = TextEditingController();
   Map? _profile;
@@ -38,6 +39,7 @@ class _MeScreenState extends State<MeScreen> {
         setState(() {
           _profile = p;
           _name.text = p?['full_name'] ?? '';
+          _phone.text = p?['phone'] ?? '';
           _unread = (n as List).length;
         });
       }
@@ -107,6 +109,49 @@ class _MeScreenState extends State<MeScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _editProfile() async {
+    final name = TextEditingController(text: _name.text);
+    final phone = TextEditingController(text: _phone.text);
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Edit profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: name, decoration: const InputDecoration(labelText: 'Full real name')),
+            const SizedBox(height: 10),
+            TextField(controller: phone, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Phone number')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () async {
+              final value = name.text.trim();
+              if (value.isEmpty) { _snack('Full real name is required.'); return; }
+              try {
+                final u = sb.auth.currentUser;
+                if (u == null) return;
+                await sb.from('profiles').update({
+                  'full_name': value,
+                  'phone': phone.text.trim().isEmpty ? null : phone.text.trim(),
+                }).eq('id', u.id);
+                if (mounted) Navigator.pop(context, true);
+              } catch (_) {
+                _snack('Could not update your profile. Please try again.');
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    name.dispose();
+    phone.dispose();
+    if (saved == true) await _loadProfile();
   }
 
   Future<void> _confirmSignOut() async {
@@ -193,6 +238,12 @@ class _MeScreenState extends State<MeScreen> {
                           style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700)))),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Edit Profile'),
+                onTap: _editProfile,
+              ),
+              const Divider(),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.notifications_none),
