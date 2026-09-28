@@ -168,6 +168,7 @@ using (
 );
 
 -- Customer notifications are private.
+alter function public.generate_booking_reference() set search_path = '';
 alter table public.notifications enable row level security;
 drop policy if exists "Users can read own notifications" on public.notifications;
 create policy "Users can read own notifications"
@@ -181,6 +182,39 @@ on public.notifications for update
 to authenticated
 using ((select auth.uid()) = user_id)
 with check ((select auth.uid()) = user_id);
+
+drop policy if exists "own notifications" on public.notifications;
+
+-- Keep auth.uid() evaluated once per statement and retain the existing customer isolation.
+drop policy if exists "own profile" on public.profiles;
+create policy "own profile" on public.profiles for all
+to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id);
+
+drop policy if exists "own saved" on public.saved_places;
+create policy "own saved" on public.saved_places for all
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+-- Foreign-key indexes for predictable joins at scale.
+create index if not exists activation_codes_business_idx on public.activation_codes(business_id);
+create index if not exists bookings_business_idx on public.bookings(business_id);
+create index if not exists bookings_room_type_idx on public.bookings(room_type_id);
+create index if not exists bookings_user_idx on public.bookings(user_id);
+create index if not exists businesses_city_idx on public.businesses(city_id);
+create index if not exists menu_categories_business_idx on public.menu_categories(business_id);
+create index if not exists menu_items_category_idx on public.menu_items(category_id);
+create index if not exists order_items_order_idx on public.order_items(order_id);
+create index if not exists order_items_menu_item_idx on public.order_items(menu_item_id);
+create index if not exists orders_business_idx on public.orders(business_id);
+create index if not exists orders_user_idx on public.orders(user_id);
+create index if not exists promotions_business_idx on public.promotions(business_id);
+create index if not exists reservations_business_idx on public.reservations(business_id);
+create index if not exists reservations_user_idx on public.reservations(user_id);
+create index if not exists room_types_business_idx on public.room_types(business_id);
+create index if not exists saved_places_business_idx on public.saved_places(business_id);
 
 -- Partner membership is private to the connected partner identity.
 alter table public.business_members enable row level security;
