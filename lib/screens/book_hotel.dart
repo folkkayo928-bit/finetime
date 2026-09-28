@@ -16,7 +16,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
   DateTime _in = DateTime.now().add(const Duration(days: 1));
   DateTime _out = DateTime.now().add(const Duration(days: 2));
   int _guests = 1;
-  bool _saving = false;
+  bool _loading = true, _saving = false;
   String? _error, _ref;
 
   @override
@@ -26,18 +26,46 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
   }
 
   Future<void> _loadRooms() async {
-    final r = await sb
-        .from('room_types')
-        .select()
-        .eq('business_id', widget.business['id']);
-    if (mounted) {
-      setState(() => _rooms = List<Map<String, dynamic>>.from(r));
+    try {
+      final r = await sb
+          .from('room_types')
+          .select()
+          .eq('business_id', widget.business['id']);
+      if (mounted) {
+        setState(() {
+          _rooms = List<Map<String, dynamic>>.from(r);
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Map<String, dynamic>? get _selectedRoom =>
+      _rooms.where((r) => r['id'] == _roomId).cast<Map<String, dynamic>?>().firstOrNull;
+
+  int get _nights => _out.difference(_in).inDays;
+
+  double? get _total {
+    final room = _selectedRoom;
+    final price = room?['public_price'];
+    if (price == null || _nights <= 0) return null;
+    return (num.tryParse(price.toString()) ?? 0) * _nights;
   }
 
   Future<void> _submit() async {
     if (_roomId == null) {
       setState(() => _error = 'Please choose a room type.');
+      return;
+    }
+    if (_nights < 1) {
+      setState(() => _error = 'Check-out must be at least one night after check-in.');
+      return;
+    }
+    final cap = _selectedRoom?['capacity'];
+    if (cap is int && _guests > cap) {
+      setState(() => _error = 'This room fits up to $cap guests.');
       return;
     }
     setState(() {
@@ -59,7 +87,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
         'guests': _guests,
       }).select('reference').single();
       setState(() => _ref = row['reference'] as String);
-    } catch (e) {
+    } catch (_) {
       setState(() => _error =
           'Could not book — dates may be unavailable. Please adjust and retry.');
     } finally {
@@ -67,9 +95,12 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
     }
   }
 
+  String _fmtDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Book Stay')),
+        appBar: AppBar(title: Text('Book · ${widget.business['name'] ?? 'Hotel'}')),
         body: _ref != null
             ? Center(
                 child: Padding(
@@ -80,73 +111,120 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                       const Text('Booking requested!',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w700)),
-                      Text('Reference: $_ref — track it in Trips.'),
+                      const SizedBox(height: 8),
+                      Text('Reference: $_ref'),
+                      const Text('Track it in the Trips tab.'),
                     ])))
-            : ListView(padding: const EdgeInsets.all(16), children: [
-                const Text('Room type',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                ..._rooms.map((r) => ListTile(
-                      title: Text(r['name'] ?? ''),
-                      subtitle: Text(r['public_price'] == null
-                          ? 'Price confirmed by hotel'
-                          : 'ETB ${r['public_price']}'),
-                      trailing: _roomId == r['id']
-                          ? const Icon(Icons.radio_button_checked,
-                              color: FT.gold)
-                          : const Icon(Icons.radio_button_unchecked,
-                              color: Colors.black38),
-                      onTap: () => setState(() => _roomId = r['id'] as String),
-                    )),
-                const SizedBox(height: 12),
-                Row(children: [
-                  Expanded(
-                      child: OutlinedButton(
-                    onPressed: () async {
-                      final d = await showDatePicker(
-                          context: context,
-                          initialDate: _in,
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 365)));
-                      if (d != null) setState(() => _in = d);
-                    },
-                    child: Text('In: ${_in.toString().substring(0, 10)}'),
-                  )),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      child: OutlinedButton(
-                    onPressed: () async {
-                      final d = await showDatePicker(
-                          context: context,
-                          initialDate: _out.isAfter(_in)
-                              ? _out
-                              : _in.add(const Duration(days: 1)),
-                          firstDate: _in,
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 366)));
-                      if (d != null) setState(() => _out = d);
-                    },
-                    child: Text('Out: ${_out.toString().substring(0, 10)}'),
-                  )),
-                ]),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<int>(
-                  initialValue: _guests,
-                  decoration: const InputDecoration(labelText: 'Guests'),
-                  items: List.generate(
-                      6,
-                      (i) =>
-                          DropdownMenuItem(value: i + 1, child: Text('${i + 1}'))),
-                  onChanged: (v) => setState(() => _guests = v!),
-                ),
-                if (_error != null)
-                  Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Text(_error!,
-                          style: const TextStyle(color: Colors.red))),
-                const SizedBox(height: 20),
-                FilledButton(
-                    onPressed: _saving ? null : _submit,
-                    child: Text(_saving ? 'Submitting…' : 'Request Booking')),
-              ]));
+            : _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _rooms.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(mainAxisSize: MainAxisSize.min, children: [
+                            const Icon(Icons.hotel_outlined, size: 48, color: Colors.black38),
+                            const SizedBox(height: 12),
+                            const Text('No rooms listed yet for this hotel.'),
+                            const Text('Price will be confirmed by the hotel directly.',
+                                style: TextStyle(color: Colors.black54)),
+                          ]),
+                        ))
+                    : ListView(padding: const EdgeInsets.all(16), children: [
+                        const Text('Room type',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
+                        ..._rooms.map((r) => ListTile(
+                              title: Text(r['name'] ?? ''),
+                              subtitle: Text(r['public_price'] == null
+                                  ? 'Price confirmed by hotel'
+                                  : 'ETB ${r['public_price']} / night'),
+                              trailing: _roomId == r['id']
+                                  ? const Icon(Icons.radio_button_checked,
+                                      color: FT.gold)
+                                  : const Icon(Icons.radio_button_unchecked,
+                                      color: Colors.black38),
+                              onTap: () => setState(() => _roomId = r['id'] as String),
+                            )),
+                        const SizedBox(height: 12),
+                        Row(children: [
+                          Expanded(
+                              child: OutlinedButton(
+                            onPressed: () async {
+                              final d = await showDatePicker(
+                                  context: context,
+                                  initialDate: _in,
+                                  firstDate: DateTime.now(),
+                                  lastDate:
+                                      DateTime.now().add(const Duration(days: 365)));
+                              if (d != null) {
+                                setState(() {
+                                  _in = d;
+                                  if (!_out.isAfter(_in)) {
+                                    _out = _in.add(const Duration(days: 1));
+                                  }
+                                });
+                              }
+                            },
+                            child: Text('In: ${_fmtDate(_in)}'),
+                          )),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: OutlinedButton(
+                            onPressed: () async {
+                              final d = await showDatePicker(
+                                  context: context,
+                                  initialDate: _out.isAfter(_in)
+                                      ? _out
+                                      : _in.add(const Duration(days: 1)),
+                                  firstDate: _in.add(const Duration(days: 1)),
+                                  lastDate:
+                                      DateTime.now().add(const Duration(days: 366)));
+                              if (d != null) setState(() => _out = d);
+                            },
+                            child: Text('Out: ${_fmtDate(_out)}'),
+                          )),
+                        ]),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<int>(
+                          initialValue: _guests,
+                          decoration: const InputDecoration(labelText: 'Guests'),
+                          items: List.generate(
+                              6,
+                              (i) => DropdownMenuItem(
+                                  value: i + 1, child: Text('${i + 1}'))),
+                          onChanged: (v) => setState(() => _guests = v!),
+                        ),
+                        if (_total != null) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: FT.ivory,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              Text('${_selectedRoom?['name'] ?? ''} · $_nights night${_nights == 1 ? '' : 's'} · $_guests guest${_guests == 1 ? '' : 's'}'),
+                              const SizedBox(height: 4),
+                              Text('ETB ${_total!.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: FT.charcoal)),
+                              const SizedBox(height: 4),
+                              const Text('Pay at the hotel. No online payment needed.',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.black54)),
+                            ]),
+                          ),
+                        ],
+                        if (_error != null)
+                          Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Text(_error!,
+                                  style: const TextStyle(color: Colors.red))),
+                        const SizedBox(height: 20),
+                        FilledButton(
+                            onPressed: _saving ? null : _submit,
+                            child: Text(
+                                _saving ? 'Submitting…' : 'Request Booking')),
+                      ]));
 }
