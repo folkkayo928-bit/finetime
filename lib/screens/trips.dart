@@ -90,7 +90,7 @@ class _TripsScreenState extends State<TripsScreen> {
                 title: Text(o['businesses']?['name'] ?? ''),
                 subtitle: Text('ETB ${o['total'] ?? '0'} · ${o['status']}'),
               )),
-              $anchor
+              const Padding(padding: EdgeInsets.all(16), child: Text('Table reservations', style: TextStyle(fontWeight: FontWeight.w700))),
               ..._reservations.map((r) => ListTile(
                 leading: const Icon(Icons.restaurant),
                 title: Text(r['businesses']?['name'] ?? ''),
