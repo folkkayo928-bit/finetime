@@ -154,14 +154,14 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.hotel_outlined,
-                                    size: 48, color: Colors.black38),
+                                    size: 48, color: Colors.white54),
                                 const SizedBox(height: 12),
                                 const Text(
                                     'No rooms listed yet for this hotel.'),
                                 const Text(
                                     'Price will be confirmed by the hotel directly.',
                                     style: TextStyle(
-                                        color: Colors.black54)),
+                                        color: Colors.white70)),
                               ]),
                         ))
                     : ListView(
@@ -181,7 +181,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                       color: FT.gold)
                                   : const Icon(
                                       Icons.radio_button_unchecked,
-                                      color: Colors.black38),
+                                      color: Colors.white54),
                               onTap: () => setState(
                                   () => _roomId = r['id'] as String),
                             )),
@@ -268,7 +268,7 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
                                       'Pay at the hotel. No online payment needed.',
                                       style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.black54)),
+                                          color: Colors.white70)),
                                 ]),
                           ),
                         ],
