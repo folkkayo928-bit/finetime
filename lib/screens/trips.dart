@@ -109,14 +109,14 @@ class _TripsScreenState extends State<TripsScreen> {
       final past = _reservationPast(r, today);
       final active = _isActiveReservation(r, today);
       if (_tab == 2) { return past; }
-      if (_tab == 1) return active;
+      if (_tab == 1) { return active; }
       return !past && !active && !d.isBefore(today);
     }
 
     bool includeOrder(Map<String, dynamic> o) {
       final past = _orderPast(o);
       if (_tab == 2) return past;
-      if (_tab == 1) return !past;
+      if (_tab == 1) { return !past; }
       return false;
     }
 
