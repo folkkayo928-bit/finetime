@@ -87,12 +87,12 @@ class _TripsScreenState extends State<TripsScreen> {
                 const Padding(
                   padding: EdgeInsets.all(32),
                   child: Column(children: [
-                    Icon(Icons.luggage_outlined, size: 56, color: Colors.black26),
+                    Icon(Icons.luggage_outlined, size: 56, color: Colors.white38),
                     SizedBox(height: 12),
                     Text('No trips yet.', style: TextStyle(fontWeight: FontWeight.w700)),
                     SizedBox(height: 4),
                     Text('Book a hotel or reserve a table and it will show up here.',
-                        textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+                        textAlign: TextAlign.center, style: TextStyle(color: Colors.white70)),
                   ]),
                 ),
             ])));
