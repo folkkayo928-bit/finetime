@@ -40,7 +40,7 @@ async function notifyPartner(admin: ReturnType<typeof createClient>, businessId:
           reply_markup: {
             inline_keyboard: [[{
               text: 'Open FineTime Partner',
-              web_app: { url: 'https://finetime.cc/partner/' },
+              web_app: { url: 'https://folkkayo928-bit.github.io/finetime/partner/' },
             }]],
           },
         }),
