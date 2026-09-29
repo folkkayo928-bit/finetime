@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>FineTime Partner</title>
-<script src="https://telegram.org/js/telegram-web-app.js?63"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--charcoal:#121212;--panel:#1b1b1b;--panel2:#222;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0;--danger:#7b3020}
 *{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
@@ -200,7 +201,9 @@ async function openItemForm(item=null){
  const name=prompt('Item name',item?.name||'');if(name===null)return;
  const priceRaw=prompt('Price in ETB',item?.price??'');if(priceRaw===null)return;
  const description=prompt('Description',item?.description||'');if(description===null)return;
- let photoUrl=item?.photo_url||'';\n if(confirm('Upload a menu photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {photoUrl=prompt('Photo URL (optional)',photoUrl);if(photoUrl===null)return}
+ let photoUrl=item?.photo_url||'';
+ if(confirm('Upload a menu photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}
+ else {photoUrl=prompt('Photo URL (optional)',photoUrl);if(photoUrl===null)return}
  const available=confirm('Item is available?');
  api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
@@ -219,7 +222,9 @@ async function openRoomForm(r=null){
  const description=prompt('Room description',r?.description||'');if(description===null)return;
  const beds=prompt('Beds',r?.beds||'');if(beds===null)return;
  const amenities=prompt('Amenities (comma separated)',(r?.amenities||[]).join(', '));if(amenities===null)return;
- let photoUrl=r?.photo_url||'';\n if(confirm('Upload a room photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {photoUrl=prompt('Room photo URL (optional)',photoUrl);if(photoUrl===null)return}
+ let photoUrl=r?.photo_url||'';
+ if(confirm('Upload a room photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}
+ else {photoUrl=prompt('Room photo URL (optional)',photoUrl);if(photoUrl===null)return}
  api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description,beds,amenities:amenities.split(',').map(x=>x.trim()).filter(Boolean),photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
 function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
@@ -240,7 +245,9 @@ async function openPromoForm(p=null){
  const badge=prompt('Badge: 25% OFF, TODAY, NEW, FEATURED, LIMITED, FINE TIME PICK',p?.badge||'');if(badge===null)return;
  const starts=prompt('Start date YYYY-MM-DD',p?.starts_on||'');if(starts===null)return;
  const ends=prompt('End date YYYY-MM-DD',p?.ends_on||'');if(ends===null)return;
- let imageUrl=p?.image_url||'';\n if(confirm('Upload a promotion image from your device?')){try{imageUrl=(await pickImages(false))[0]||imageUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {imageUrl=prompt('Promotion image URL (optional)',imageUrl);if(imageUrl===null)return}
+ let imageUrl=p?.image_url||'';
+ if(confirm('Upload a promotion image from your device?')){try{imageUrl=(await pickImages(false))[0]||imageUrl}catch(e){return alert(e.message||'Could not upload image.')}}
+ else {imageUrl=prompt('Promotion image URL (optional)',imageUrl);if(imageUrl===null)return}
  const terms=prompt('Terms (optional)',p?.terms||'');if(terms===null)return;
  api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:imageUrl.trim()||null,terms:terms.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
