@@ -72,9 +72,18 @@ async function bootstrap(){
  }catch(e){document.getElementById('connectError').textContent=e.message}
 }
 function renderNav(){
- const pending=state.bookings.filter(x=>x.status==='requested').length+state.reservations.filter(x=>x.status==='requested').length+state.orders.filter(x=>x.status==='placed').length;
- const tabs=[['overview','Overview'],['bookings','Bookings'],['reservations','Reservations'],['orders','Orders'],['menu','Menu'],['rooms','Rooms'],['promotions','Promotions'],['settings','Business']];
- document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\''+id+'\')">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
+ const category=String(state.business?.category||'').toLowerCase();
+ const isHotel=category==='hotel';
+ const hasFood=(state.categories||[]).length>0;
+ const pending=(isHotel?state.bookings.filter(x=>x.status==='requested').length:state.reservations.filter(x=>x.status==='requested').length)+((!isHotel||hasFood)?state.orders.filter(x=>x.status==='placed').length:0);
+ const tabs=[['overview','Overview']];
+ if(isHotel) tabs.push(['bookings','Bookings'],['rooms','Rooms']);
+ else tabs.push(['reservations','Reservations']);
+ if(!isHotel||hasFood) tabs.push(['orders','Orders'],['menu','Menu']);
+ tabs.push(['promotions','Promotions'],['settings','Business']);
+ document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\\''+id+'\\')">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
+ const brandSub=document.querySelector('.sub');
+ if(brandSub) brandSub.textContent=isHotel?'Hotel Partner · FineTime':'Restaurant & Café Partner · FineTime';
 }
 function showTab(t){tab=t;renderNav();render()}
 function render(){const f={overview:renderOverview,bookings:()=>renderList('bookings'),reservations:()=>renderList('reservations'),orders:()=>renderList('orders'),menu:renderMenu,rooms:renderRooms,promotions:renderPromotions,settings:renderSettings};f[tab]()}
@@ -106,6 +115,18 @@ function renderList(kind){
   return '<div class="item"><div class="row"><strong>'+name+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+detail+'</div>'+(x.special_request?'<div class="muted">Request: '+esc(x.special_request)+'</div>':'')+(x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+actions+'</div>';
  }).join(''):'<div class="muted">Nothing here yet.</div>');
 }
+async function updateStatus(kind,id,status){
+ const action=kind==='bookings'?'update_booking':kind==='reservations'?'update_reservation':'update_order';
+ const labels={confirmed:'Accept',cancelled:'Reject/Cancel',changed:'Request change',completed:'Complete',preparing:'Mark preparing',ready:'Mark ready',delivered:'Mark delivered'};
+ const label=labels[status]||'Update';
+ if(!confirm(label+' this '+(kind==='bookings'?'booking':kind==='reservations'?'reservation':'order')+'?')) return;
+ try{
+  await api(action,{id,status});
+  await bootstrap();
+  showTab(kind);
+ }catch(e){ alert(e.message||'Could not update request.'); }
+}
+
 function notifyNewRequest(){
  try{
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
