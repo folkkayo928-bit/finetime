@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>FineTime Partner</title>
-<script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+<script src="https://telegram.org/js/telegram-web-app.js?63"></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--charcoal:#121212;--panel:#1b1b1b;--panel2:#222;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0;--danger:#7b3020}
 *{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
@@ -54,6 +54,52 @@ function initData(){return tg?.initData||''}
 async function api(action,extra={}){
  const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:initData(),...extra})});
  const d=await r.json(); if(!r.ok)throw new Error(d.error||'Request failed'); return d;
+}
+\nlet storageClient=null;
+function getStorageClient(){
+ if(!storageClient) storageClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+ return storageClient;
+}
+async function uploadImageFile(file){
+ if(!file)return null;
+ if(!file.type.startsWith('image/'))throw new Error('Please choose an image file.');
+ if(file.size>5*1024*1024)throw new Error('Image must be 5 MB or smaller.');
+ const meta=await api('create_media_upload',{file_name:file.name,mime_type:file.type});
+ const client=getStorageClient();
+ const {error}=await client.storage.from('business-media').uploadToSignedUrl(meta.path,meta.token,file);
+ if(error)throw error;
+ return meta.public_url;
+}
+function pickImages(multiple=false){
+ return new Promise((resolve,reject)=>{
+  const input=document.createElement('input');
+  input.type='file'; input.accept='image/jpeg,image/png,image/webp,image/gif'; input.multiple=multiple;
+  input.onchange=async()=>{
+   try{
+    const files=Array.from(input.files||[]);
+    if(!files.length){resolve([]);return}
+    const urls=[];
+    for(const file of files) urls.push(await uploadImageFile(file));
+    resolve(urls);
+   }catch(e){reject(e)}
+  };
+  input.click();
+ });
+}
+async function uploadCoverFromDevice(){
+ try{
+  const urls=await pickImages(false);
+  if(urls[0])document.getElementById('bc').value=urls[0];
+ }catch(e){alert(e.message||'Could not upload image.')}
+}
+async function uploadGalleryFromDevice(){
+ try{
+  const urls=await pickImages(true);
+  if(urls.length){
+   const current=document.getElementById('bg').value.split(',').map(x=>x.trim()).filter(Boolean);
+   document.getElementById('bg').value=[...current,...urls].join(', ');
+  }
+ }catch(e){alert(e.message||'Could not upload images.')}
 }
 async function activate(){try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}catch(e){document.getElementById('connectError').textContent=e.message}}
 async function bootstrap(){
@@ -149,12 +195,12 @@ function openCategoryForm(c=null){
  const sort=Number(prompt('Sort order',c?.sort_order??0)||0);
  api('upsert_category',{id:c?.id,name,sort_order:sort}).then(bootstrap).catch(e=>alert(e.message));
 }
-function openItemForm(item=null){
+async function openItemForm(item=null){
  const categoryId=item?.category_id||state.categories[0]?.id;if(!categoryId){alert('Create a category first.');return}
  const name=prompt('Item name',item?.name||'');if(name===null)return;
  const priceRaw=prompt('Price in ETB',item?.price??'');if(priceRaw===null)return;
  const description=prompt('Description',item?.description||'');if(description===null)return;
- const photoUrl=prompt('Photo URL (optional)',item?.photo_url||'');if(photoUrl===null)return;
+ let photoUrl=item?.photo_url||'';\n if(confirm('Upload a menu photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {photoUrl=prompt('Photo URL (optional)',photoUrl);if(photoUrl===null)return}
  const available=confirm('Item is available?');
  api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
@@ -165,7 +211,7 @@ function renderRooms(){
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button onclick="openRoomForm()">+ Room type</button></div>'+
  (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+r.total_rooms+' total</span></div><div class="muted">Capacity '+r.capacity+' · '+(r.public_price!=null?'ETB '+r.public_price:'Rate confirmed by hotel')+'</div><div class="actions"><button class="ghost" onclick="openRoomForm('+jsonArg(r)+')">Edit room</button><button class="danger" onclick="deleteRoom(\''+r.id+'\')">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+r.id+'-'+d+'" type="number" min="0" max="'+r.total_rooms+'" value="'+val+'"><label><input id="b-'+r.id+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button class="ghost" onclick="saveInventory(\''+r.id+'\',\''+d+'\','+r.total_rooms+')">Save</button></div>'}).join('')+'</div></div>').join(''):'<div class="muted">No room types configured.</div>');
 }
-function openRoomForm(r=null){
+async function openRoomForm(r=null){
  const name=prompt('Room type name',r?.name||'');if(name===null)return;
  const total=Number(prompt('Total rooms',r?.total_rooms??0));if(!Number.isInteger(total)||total<0)return alert('Invalid total rooms.');
  const capacity=Number(prompt('Guest capacity',r?.capacity??1));if(!Number.isInteger(capacity)||capacity<1)return alert('Invalid capacity.');
@@ -173,7 +219,7 @@ function openRoomForm(r=null){
  const description=prompt('Room description',r?.description||'');if(description===null)return;
  const beds=prompt('Beds',r?.beds||'');if(beds===null)return;
  const amenities=prompt('Amenities (comma separated)',(r?.amenities||[]).join(', '));if(amenities===null)return;
- const photoUrl=prompt('Room photo URL (optional)',r?.photo_url||'');if(photoUrl===null)return;
+ let photoUrl=r?.photo_url||'';\n if(confirm('Upload a room photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {photoUrl=prompt('Room photo URL (optional)',photoUrl);if(photoUrl===null)return}
  api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description,beds,amenities:amenities.split(',').map(x=>x.trim()).filter(Boolean),photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
 function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
@@ -188,13 +234,13 @@ function renderPromotions(){
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">Promotions & posts</h3><p class="muted">Publish real offers only. Expired promotions should not remain active.</p><div class="actions"><button onclick="openPromoForm()">+ Promotion</button></div>'+
  (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button class="ghost" onclick="openPromoForm('+jsonArg(p)+')">Edit</button><button class="danger" onclick="deletePromo(\''+p.id+'\')">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
 }
-function openPromoForm(p=null){
+async function openPromoForm(p=null){
  const title=prompt('Promotion title',p?.title||'');if(title===null)return;
  const desc=prompt('Description',p?.description||'');if(desc===null)return;
  const badge=prompt('Badge: 25% OFF, TODAY, NEW, FEATURED, LIMITED, FINE TIME PICK',p?.badge||'');if(badge===null)return;
  const starts=prompt('Start date YYYY-MM-DD',p?.starts_on||'');if(starts===null)return;
  const ends=prompt('End date YYYY-MM-DD',p?.ends_on||'');if(ends===null)return;
- const imageUrl=prompt('Promotion image URL (optional)',p?.image_url||'');if(imageUrl===null)return;
+ let imageUrl=p?.image_url||'';\n if(confirm('Upload a promotion image from your device?')){try{imageUrl=(await pickImages(false))[0]||imageUrl}catch(e){return alert(e.message||'Could not upload image.')}}\n else {imageUrl=prompt('Promotion image URL (optional)',imageUrl);if(imageUrl===null)return}
  const terms=prompt('Terms (optional)',p?.terms||'');if(terms===null)return;
  api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:imageUrl.trim()||null,terms:terms.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
 }
@@ -205,8 +251,8 @@ function renderSettings(){
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">Business profile</h3>'+
  '<div class="grid"><div><label class="label">Business name</label><input id="bn" value="'+attr(b.name)+'"></div><div><label class="label">Phone</label><input id="bp" value="'+attr(b.phone)+'"></div></div>'+
  '<label class="label">About</label><textarea id="ba">'+esc(b.about||'')+'</textarea>'+
- '<div class="grid"><div><label class="label">Cover image URL</label><input id="bc" value="'+attr(b.cover_url)+'"></div><div><label class="label">Services (comma separated)</label><input id="bs" value="'+attr((b.services||[]).join(', '))+'"></div></div>'+
- '<label class="label">Gallery image URLs (comma separated)</label><textarea id="bg">'+esc((b.gallery_urls||[]).join(', '))+'</textarea>'+
+ '<div class="grid"><div><label class="label">Cover image URL</label><input id="bc" value="'+attr(b.cover_url)+'"><div class="actions"><button class="ghost" onclick="uploadCoverFromDevice()">Upload cover from device</button></div></div><div><label class="label">Services (comma separated)</label><input id="bs" value="'+attr((b.services||[]).join(', '))+'"></div></div>'+
+ '<label class="label">Gallery image URLs (comma separated)</label><textarea id="bg">'+esc((b.gallery_urls||[]).join(', '))+'</textarea><div class="actions"><button class="ghost" onclick="uploadGalleryFromDevice()">Upload gallery photos from device</button></div>'+
  '<label class="label">Opening hours (JSON)</label><textarea id="bo">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea>'+
  '<label class="label">Highlights (comma separated)</label><input id="bh" value="'+attr((b.highlights||[]).join(', '))+'">'+
  '<label class="label">Amenities (comma separated)</label><input id="bam" value="'+attr((b.amenities||[]).join(', '))+'">'+
