@@ -52,7 +52,14 @@ let previousRequestKey='';
 let pollTimer=null;
 
 function initData(){return tg?.initData||''}
-async function api(action,extra={}){\n const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:initData(),...extra})});\n const text=await r.text();\n let d;\n try{d=JSON.parse(text)}catch(_){throw new Error('Partner service returned an invalid response. Please reopen the Mini App and try again.')}\n if(!r.ok)throw new Error(d.error||'Request failed');\n return d;\n}
+async function api(action,extra={}){
+ const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:initData(),...extra})});
+ const text=await r.text();
+ let d;
+ try{d=JSON.parse(text)}catch(_){throw new Error('Partner service returned an invalid response. Please reopen the Mini App and try again.')}
+ if(!r.ok)throw new Error(d.error||'Request failed');
+ return d;
+}
 let storageClient=null;
 function getStorageClient(){
  if(!storageClient) storageClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
@@ -285,7 +292,8 @@ function requestPlanChange(){
 
 function jsonArg(x){return encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function attr(s){return esc(s||'').replace(/\n/g,' ')}
+function attr(s){return esc(s||'').replace(/
+/g,' ')}
 function decodeArg(s){try{return JSON.parse(decodeURIComponent(s))}catch{return null}}
 // Form helpers are intentionally named differently from their public click handlers
 // so edit/add actions cannot recurse through a window-level wrapper.
