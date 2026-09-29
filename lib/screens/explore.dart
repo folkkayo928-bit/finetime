@@ -15,12 +15,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String _filter = 'all';
   bool _loading = true;
   String? _error;
-  List<Map<String, dynamic>> _places = [];\n  RealtimeChannel? _realtime;
+  List<Map<String, dynamic>> _places = [];
+  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _subscribeToUpdates();
   }
 
   void _subscribeToUpdates() {
@@ -55,7 +57,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }
   }
 
-  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
+  @override
+  void dispose() {
+    if (_realtime != null) sb.removeChannel(_realtime!);
+    super.dispose();
+  }\n
+  @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Explore Ethiopia'),
