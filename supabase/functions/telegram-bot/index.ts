@@ -58,7 +58,7 @@ export default {
       }
 
       if (text === '/start' || text === '/partner' || text === '/menu') {
-        const miniAppUrl = 'https://finetime.cc/partner/index.html'
+        const miniAppUrl = 'https://finetime.cc/partner/'
         await telegram(token, 'sendMessage', {
           chat_id: chatId,
           text: 'FineTime Partner\n\nOpen your business workspace to manage your profile, menu, rooms, availability, reservations, bookings and promotions.',
@@ -73,7 +73,7 @@ export default {
         chat_id: chatId,
         text: 'Use the FineTime Partner button below to open your business workspace.',
         reply_markup: {
-          inline_keyboard: [[{ text: 'Open FineTime Partner', web_app: { url: 'https://finetime.cc/partner/index.html' } }]],
+          inline_keyboard: [[{ text: 'Open FineTime Partner', web_app: { url: 'https://finetime.cc/partner/' } }]],
         },
       })
       return json({ ok: true })
