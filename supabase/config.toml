@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.telegram-bot]
 verify_jwt = false
+
+[functions.request-restaurant-reservation]
+verify_jwt = true
