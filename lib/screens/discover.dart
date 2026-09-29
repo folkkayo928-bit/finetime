@@ -15,12 +15,14 @@ class DiscoverScreen extends StatefulWidget {
 class _DiscoverScreenState extends State<DiscoverScreen> {
   final sb = Supabase.instance.client;
   List<Map<String, dynamic>> _featured = [];
-  List<Map<String, dynamic>> _promos = [];\n  RealtimeChannel? _realtime;
+  List<Map<String, dynamic>> _promos = [];
+  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _subscribeToUpdates();
   }
 
   void _subscribeToUpdates() {
@@ -57,7 +59,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     }
   }
 
-  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
+  @override
+  void dispose() {
+    if (_realtime != null) sb.removeChannel(_realtime!);
+    super.dispose();
+  }\n
+  @override
   Widget build(BuildContext context) => Scaffold(
         body: RefreshIndicator(
           onRefresh: _load,
