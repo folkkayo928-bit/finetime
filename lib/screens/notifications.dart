@@ -63,7 +63,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void dispose() {
     if (_realtime != null) sb.removeChannel(_realtime!);
     super.dispose();
-  }\n
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
