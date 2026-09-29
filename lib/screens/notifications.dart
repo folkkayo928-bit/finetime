@@ -11,12 +11,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   final sb = Supabase.instance.client;
   List _items = [];
   bool _loading = true;
-  String? _error;
+  String? _error;\n  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  void _subscribeToUpdates() {
+    final u = sb.auth.currentUser;
+    if (u == null) return;
+    _realtime = sb.channel('notifications-live-${u.id}')
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'notifications', filter: 'user_id=eq.${u.id}', callback: (_) => _load())
+      ..subscribe();
   }
 
   Future<void> _load() async {
@@ -49,7 +57,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return '';
   }
 
-  @override
+  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
     body: _loading
