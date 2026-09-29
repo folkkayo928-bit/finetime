@@ -183,7 +183,8 @@ class _TripsScreenState extends State<TripsScreen> {
   void dispose() {
     if (_realtime != null) sb.removeChannel(_realtime!);
     super.dispose();
-  }\n
+  }
+
   @override
   Widget build(BuildContext context) {
     final signedIn = sb.auth.currentUser != null;
