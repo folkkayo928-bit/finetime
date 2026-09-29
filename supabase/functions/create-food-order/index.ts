@@ -17,6 +17,32 @@ function clients(req: Request) {
   return { supabase, admin }
 }
 
+
+async function notifyPartner(admin: ReturnType<typeof createClient>, businessId: string, text: string) {
+  const token = Deno.env.get('FINETIME_TELEGRAM_BOT_TOKEN')
+  if (!token) return
+  const { data: connections } = await admin
+    .from('telegram_connections')
+    .select('telegram_chat_id')
+    .eq('business_id', businessId)
+    .not('telegram_chat_id', 'is', null)
+  for (const connection of connections ?? []) {
+    if (!connection.telegram_chat_id) continue
+    try {
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: connection.telegram_chat_id,
+          text,
+          disable_notification: false,
+          reply_markup: { inline_keyboard: [[{ text: 'Open FineTime Partner', web_app: { url: 'https://finetime.cc/partner/' } }]] },
+        }),
+      })
+    } catch (error) { console.error('Partner Telegram notification failed', error) }
+  }
+}
+
 export default {
   fetch: async (req: Request) => {
     if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -48,6 +74,12 @@ export default {
         p_customer_note: body.customer_note ?? null,
       })
       if (error) throw error
+      const { data: profile } = await admin.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+      await notifyPartner(
+        admin,
+        businessId,
+        `🔔 New food order\\n\\n${profile?.full_name || 'FineTime customer'}${body.table_number ? ` · Table ${body.table_number}` : ''}\\nTotal: ETB ${data?.total ?? '—'}\\n\\nOpen FineTime Partner to Accept or Reject.`,
+      )
       return Response.json(data, { headers: corsHeaders })
     } catch (error) {
       console.error(error)
