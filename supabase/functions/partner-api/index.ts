@@ -280,6 +280,38 @@ export default {
       const asArray = (value: unknown) =>
         Array.isArray(value) ? value.map((x) => String(x).trim()).filter(Boolean) : []
 
+      if (body.action === 'create_media_upload') {
+        const mimeType = String(body.mime_type ?? '').trim().toLowerCase()
+        const originalName = String(body.file_name ?? '').trim()
+        const allowedTypes = new Set(['image/jpeg','image/png','image/webp','image/gif'])
+        if (!allowedTypes.has(mimeType)) {
+          return response({ error: 'Only JPG, PNG, WEBP or GIF images are supported.' }, 400)
+        }
+        if (!originalName || originalName.length > 180) {
+          return response({ error: 'Invalid image file name.' }, 400)
+        }
+
+        const extension = mimeType === 'image/jpeg' ? 'jpg' : mimeType.split('/')[1]
+        const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80)
+        const path = businessId + '/' + crypto.randomUUID() + '-' + safeName.replace(/\.[^.]+$/, '') + '.' + extension
+
+        const { data, error } = await admin.storage
+          .from('business-media')
+          .createSignedUploadUrl(path)
+        if (error) throw error
+
+        const { data: publicData } = admin.storage
+          .from('business-media')
+          .getPublicUrl(path)
+
+        return response({
+          ok: true,
+          path,
+          token: data.token,
+          public_url: publicData.publicUrl,
+        })
+      }
+
       if (body.action === 'update_business') {
         const patch: Record<string, unknown> = {}
         if (body.name !== undefined) patch.name = String(body.name).trim()
