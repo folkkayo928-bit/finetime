@@ -15,12 +15,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String _filter = 'all';
   bool _loading = true;
   String? _error;
-  List<Map<String, dynamic>> _places = [];
+  List<Map<String, dynamic>> _places = [];\n  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  void _subscribeToUpdates() {
+    _realtime = sb.channel('explore-live')
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'businesses', callback: (_) => _load())
+      ..subscribe();
   }
 
   Future<void> _load() async {
@@ -49,7 +55,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }
   }
 
-  @override
+  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Explore Ethiopia'),
