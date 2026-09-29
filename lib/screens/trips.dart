@@ -14,21 +14,23 @@ class _TripsScreenState extends State<TripsScreen> {
   List<Map<String, dynamic>> _orders = [];
   bool _loading = true;
   String? _error;
-  int _tab = 0;\n  RealtimeChannel? _realtime;
+  int _tab = 0;
+  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _subscribeToUpdates();
   }
 
   void _subscribeToUpdates() {
     final u = sb.auth.currentUser;
     if (u == null) return;
     _realtime = sb.channel('trips-live-${u.id}')
-      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'bookings', filter: 'user_id=eq.${u.id}', callback: (_) => _load())
-      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'reservations', filter: 'user_id=eq.${u.id}', callback: (_) => _load())
-      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'orders', filter: 'user_id=eq.${u.id}', callback: (_) => _load())
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'bookings', callback: (_) => _load())
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'reservations', callback: (_) => _load())
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'orders', callback: (_) => _load())
       ..subscribe();
   }
 
@@ -177,7 +179,12 @@ class _TripsScreenState extends State<TripsScreen> {
     return widgets;
   }
 
-  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
+  @override
+  void dispose() {
+    if (_realtime != null) sb.removeChannel(_realtime!);
+    super.dispose();
+  }\n
+  @override
   Widget build(BuildContext context) {
     final signedIn = sb.auth.currentUser != null;
     return Scaffold(
