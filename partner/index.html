@@ -46,6 +46,9 @@ tg?.ready();tg?.expand();
 
 let state={business:null,bookings:[],reservations:[],orders:[],rooms:[],inventory:[],categories:[],promotions:[],subscription:null};
 let tab='overview';
+let firstBootstrap=true;
+let previousRequestKey='';
+let pollTimer=null;
 
 function initData(){return tg?.initData||''}
 async function api(action,extra={}){
@@ -56,15 +59,22 @@ async function activate(){try{await api('activate',{code:document.getElementById
 async function bootstrap(){
  try{
   const d=await api('bootstrap');
-  state={business:d.business||null,bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[],rooms:d.rooms||[],inventory:d.inventory||[],categories:d.categories||[],promotions:d.promotions||[],subscription:d.subscription||null};
+  const nextState={business:d.business||null,bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[],rooms:d.rooms||[],inventory:d.inventory||[],categories:d.categories||[],promotions:d.promotions||[],subscription:d.subscription||null};
+  const requestKey=[...nextState.bookings.filter(x=>x.status==='requested').map(x=>'b:'+x.id),...nextState.reservations.filter(x=>x.status==='requested').map(x=>'r:'+x.id),...nextState.orders.filter(x=>x.status==='placed').map(x=>'o:'+x.id)].sort().join('|');
+  if(!firstBootstrap && requestKey!==previousRequestKey) notifyNewRequest();
+  previousRequestKey=requestKey;
+  firstBootstrap=false;
+  state=nextState;
   document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
   document.getElementById('business').innerHTML='<h2>'+esc(state.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(state.business?.category||'')+' · '+(state.business?.is_published?'Published':'Not published')+'</div>';
   renderNav();render();
+  if(!pollTimer) pollTimer=setInterval(()=>bootstrap(),10000);
  }catch(e){document.getElementById('connectError').textContent=e.message}
 }
 function renderNav(){
+ const pending=state.bookings.filter(x=>x.status==='requested').length+state.reservations.filter(x=>x.status==='requested').length+state.orders.filter(x=>x.status==='placed').length;
  const tabs=[['overview','Overview'],['bookings','Bookings'],['reservations','Reservations'],['orders','Orders'],['menu','Menu'],['rooms','Rooms'],['promotions','Promotions'],['settings','Business']];
- document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\''+id+'\')">'+label+'</button>').join('');
+ document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\''+id+'\')">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
 }
 function showTab(t){tab=t;renderNav();render()}
 function render(){const f={overview:renderOverview,bookings:()=>renderList('bookings'),reservations:()=>renderList('reservations'),orders:()=>renderList('orders'),menu:renderMenu,rooms:renderRooms,promotions:renderPromotions,settings:renderSettings};f[tab]()}
@@ -80,13 +90,32 @@ function renderList(kind){
  const rows=state[kind]||[];
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">'+kind[0].toUpperCase()+kind.slice(1)+'</h3>'+
  (rows.length?rows.map(x=>{
-  const name=esc(x.profiles?.full_name||'Customer');const detail=kind==='bookings'?esc(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room')):kind==='reservations'?esc(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||x.contact_phone||'')):esc('ETB '+(x.total??0)+(x.table_number?' · Table '+x.table_number:''));
-  const actions=kind==='orders'?'<div class="muted">Order received. Use the existing FineTime food-order workflow for operational progression.</div>':'<div class="actions">'+['requested','confirmed','changed','cancelled','completed'].map(s=>'<button class="'+(s==='cancelled'?'danger':'ghost')+'" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\''+s+'\')">'+s+'</button>').join('')+'</div>';
+  const name=esc(x.profiles?.full_name||'Customer');
+  const detail=kind==='bookings'?esc(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room')):kind==='reservations'?esc(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||x.contact_phone||'')):esc('ETB '+(x.total??0)+(x.table_number?' · Table '+x.table_number:''));
+  let actions='';
+  if(kind==='bookings'||kind==='reservations'){
+    if(x.status==='requested') actions='<div class="actions"><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'confirmed\')">Accept</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Reject</button><button class="ghost" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'changed\')">Request change</button></div>';
+    else if(x.status==='confirmed') actions='<div class="actions"><button class="ghost" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'changed\')">Change</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Cancel</button><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'completed\')">Complete</button></div>';
+    else if(x.status==='changed') actions='<div class="actions"><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'confirmed\')">Accept change</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Reject</button></div>';
+  } else {
+    if(x.status==='placed') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'confirmed\')">Accept order</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Reject order</button></div>';
+    else if(x.status==='confirmed') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'preparing\')">Preparing</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
+    else if(x.status==='preparing') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'ready\')">Ready</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
+    else if(x.status==='ready') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'delivered\')">Delivered</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
+  }
   return '<div class="item"><div class="row"><strong>'+name+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+detail+'</div>'+(x.special_request?'<div class="muted">Request: '+esc(x.special_request)+'</div>':'')+(x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+actions+'</div>';
  }).join(''):'<div class="muted">Nothing here yet.</div>');
 }
-async function updateStatus(kind,id,status){try{await api('update_'+(kind==='bookings'?'booking':'reservation'),{id,status});await bootstrap()}catch(e){alert(e.message)}}
-
+function notifyNewRequest(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(AudioCtx){const ac=new AudioCtx();const now=ac.currentTime;[0,0.18].forEach((delay,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=i?880:660;g.gain.setValueAtTime(0.0001,now+delay);g.gain.exponentialRampToValueAtTime(0.18,now+delay+0.02);g.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.16);o.connect(g);g.connect(ac.destination);o.start(now+delay);o.stop(now+delay+0.18)});setTimeout(()=>ac.close(),600)}
+  }catch(_){}
+  try{tg?.HapticFeedback?.notificationOccurred('warning')}catch(_){}
+  if(tg) tg.showAlert?.('New FineTime request received. Open the request to accept or reject it.');
+  document.title='🔔 New request · FineTime Partner';
+  setTimeout(()=>document.title='FineTime Partner',3000);
+}
 function renderMenu(){
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">Digital menu</h3><p class="muted">Add categories and manage food/drink items, prices, photos and availability.</p>'+
  '<div class="actions"><button onclick="categoryForm()">+ Category</button><button class="ghost" onclick="itemForm()">+ Menu item</button></div>'+
