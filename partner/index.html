@@ -81,7 +81,8 @@ function renderNav(){
  else tabs.push(['reservations','Reservations']);
  if(!isHotel||hasFood) tabs.push(['orders','Orders'],['menu','Menu']);
  tabs.push(['promotions','Promotions'],['settings','Business']);
- document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" onclick="showTab(\\''+id+'\\')">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
+ document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" data-tab="'+id+'">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
+ document.querySelectorAll('#nav [data-tab]').forEach(button=>button.onclick=()=>showTab(button.dataset.tab));
  const brandSub=document.querySelector('.sub');
  if(brandSub) brandSub.textContent=isHotel?'Hotel Partner · FineTime':'Restaurant & Café Partner · FineTime';
 }
