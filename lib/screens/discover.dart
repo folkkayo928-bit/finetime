@@ -63,7 +63,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   void dispose() {
     if (_realtime != null) sb.removeChannel(_realtime!);
     super.dispose();
-  }\n
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         body: RefreshIndicator(
