@@ -61,7 +61,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void dispose() {
     if (_realtime != null) sb.removeChannel(_realtime!);
     super.dispose();
-  }\n
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
