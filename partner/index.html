@@ -106,7 +106,41 @@ async function uploadGalleryFromDevice(){
   }
  }catch(e){alert(e.message||'Could not upload images.')}
 }
-async function activate(){try{await api('activate',{code:document.getElementById('code').value});await bootstrap()}catch(e){document.getElementById('connectError').textContent=e.message}}
+async function activate(){
+ const error=document.getElementById('connectError');
+ const button=document.querySelector('#connect button');
+ const code=document.getElementById('code').value.trim();
+ error.className='muted';
+ error.textContent='Connecting…';
+ if(button){button.disabled=true;button.textContent='Connecting…';}
+ try{
+  if(!code){throw new Error('Enter your activation code.');}
+  try{
+   await api('activate',{code});
+  }catch(e){
+   if(e?.message?.includes('already connected')){ /* continue to bootstrap existing connection */ }
+   else throw e;
+  }
+  await bootstrap();
+  error.textContent='';
+ }catch(e){
+  error.className='error';
+  error.textContent=e.message||'Could not connect. Please try again.';
+ }finally{
+  if(button){button.disabled=false;button.textContent='Connect Business';}
+ }
+}
+async function autoConnect(){
+ try{
+  document.getElementById('connectError').className='muted';
+  document.getElementById('connectError').textContent='Checking Telegram connection…';
+  await bootstrap();
+  document.getElementById('connectError').textContent='';
+ }catch(e){
+  document.getElementById('connectError').className='error';
+  document.getElementById('connectError').textContent=e.message||'Please enter your activation code.';
+ }
+}
 async function bootstrap(){
  try{
   const d=await api('bootstrap');
@@ -299,7 +333,7 @@ window.openItemForm=openItemForm;
 window.openRoomForm=openRoomForm;
 window.openPromoForm=openPromoForm;
 
-bootstrap();
+autoConnect();
 </script>
 </body>
 </html>
