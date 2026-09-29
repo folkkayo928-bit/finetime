@@ -85,16 +85,18 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
       }
       final prof =
           await sb.from('profiles').select('full_name').eq('id', user.id).single();
-      await sb.from('reservations').insert({
-        'user_id': user.id,
-        'business_id': widget.business['id'],
-        'reservation_date': _date.toIso8601String().substring(0, 10),
-        'reservation_time':
-            '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}:00',
-        'party_size': _party,
-        'contact_phone': _phone.text.trim(),
-        'special_request': _request.text.isEmpty ? null : _request.text,
-      });
+      await sb.functions.invoke(
+        'request-restaurant-reservation',
+        body: {
+          'business_id': widget.business['id'],
+          'reservation_date': _date.toIso8601String().substring(0, 10),
+          'reservation_time':
+              '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}:00',
+          'party_size': _party,
+          'contact_phone': _phone.text.trim(),
+          'special_request': _request.text.isEmpty ? null : _request.text,
+        },
+      );
       setState(() => _done =
           'Reservation requested, ${prof['full_name']}.\n\n'
           '${_date.toString().substring(0, 10)} at ${_time.format(context)} · $_party guests\n'
