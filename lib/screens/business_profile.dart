@@ -29,7 +29,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   List<Map<String, dynamic>> promotions = [];
   bool saved = false;
   bool reviewEligible = false;
-  String? error;
+  String? error;\n  RealtimeChannel? _realtime;
 
   bool get isHotel => b?['category']?.toString().toLowerCase() == 'hotel';
   bool get hasFood => menu.isNotEmpty;
@@ -60,6 +60,45 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   String city() => ((b?['cities'] as Map<String, dynamic>?)?['name'] ?? '').toString();
+
+  void _subscribeToUpdates() {
+    _realtime = sb.channel('business-live-${widget.businessId}')
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'businesses',
+        filter: 'id=eq.${widget.businessId}',
+        callback: (_) => load(),
+      )
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'room_types',
+        filter: 'business_id=eq.${widget.businessId}',
+        callback: (_) => load(),
+      )
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'menu_categories',
+        filter: 'business_id=eq.${widget.businessId}',
+        callback: (_) => load(),
+      )
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'menu_items',
+        callback: (_) => load(),
+      )
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'promotions',
+        filter: 'business_id=eq.${widget.businessId}',
+        callback: (_) => load(),
+      )
+      ..subscribe();
+  }
 
   Future<void> checkSaved() async {
     final user = sb.auth.currentUser;
@@ -439,6 +478,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   @override
+  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
   Widget build(BuildContext context) {
     if (error != null) {
       return Scaffold(appBar: AppBar(), body: Center(child: Padding(
