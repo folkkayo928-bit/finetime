@@ -11,19 +11,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   final sb = Supabase.instance.client;
   List _items = [];
   bool _loading = true;
-  String? _error;\n  RealtimeChannel? _realtime;
+  String? _error;
+  RealtimeChannel? _realtime;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _subscribeToUpdates();
   }
 
   void _subscribeToUpdates() {
     final u = sb.auth.currentUser;
     if (u == null) return;
     _realtime = sb.channel('notifications-live-${u.id}')
-      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'notifications', filter: 'user_id=eq.${u.id}', callback: (_) => _load())
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'notifications', callback: (_) => _load())
       ..subscribe();
   }
 
@@ -57,7 +59,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return '';
   }
 
-  @override\n  void dispose() {\n    if (_realtime != null) sb.removeChannel(_realtime!);\n    super.dispose();\n  }\n\n  @override
+  @override
+  void dispose() {
+    if (_realtime != null) sb.removeChannel(_realtime!);
+    super.dispose();
+  }\n
+  @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
     body: _loading
