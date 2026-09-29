@@ -38,8 +38,6 @@ jobs:
       - run: flutter test
       - name: Build Flutter web
         run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
       - name: Add Partner Mini App
         run: |
           mkdir -p build/web/partner
