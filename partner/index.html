@@ -160,9 +160,7 @@ function renderList(kind){
     else if(x.status==='changed') actions='<div class="actions"><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'confirmed\')">Accept change</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Reject</button></div>';
   } else {
     if(x.status==='placed') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'confirmed\')">Accept order</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Reject order</button></div>';
-    else if(x.status==='confirmed') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'preparing\')">Preparing</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
-    else if(x.status==='preparing') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'ready\')">Ready</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
-    else if(x.status==='ready') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'delivered\')">Delivered</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Cancel</button></div>';
+    else if(x.status==='confirmed') actions='<div class="muted">Order accepted. The customer will receive status updates when the order progresses.</div>';
   }
   return '<div class="item"><div class="row"><strong>'+name+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+detail+'</div>'+(x.special_request?'<div class="muted">Request: '+esc(x.special_request)+'</div>':'')+(x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+actions+'</div>';
  }).join(''):'<div class="muted">Nothing here yet.</div>');
