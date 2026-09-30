@@ -30,7 +30,7 @@ jobs:
         run: cp build/app/outputs/flutter-apk/app-debug.apk finetime.apk
       - name: Publish GitHub Release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.FINETIME }}
         run: |
           TAG="v0.1.${{ github.run_number }}"
           gh release create "$TAG" finetime.apk \
