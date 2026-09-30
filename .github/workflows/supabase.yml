@@ -52,7 +52,15 @@ jobs:
         if: steps.config.outputs.configured == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase db push --include-all
+        run: |
+          set -e
+          supabase migration list > /tmp/finetime-migrations.txt
+          cat /tmp/finetime-migrations.txt
+          if awk -F'|' 'NR > 2 && $2 ~ /^[[:space:]]*$/ && $3 ~ /[0-9]/ {found=1} END {exit !found}' /tmp/finetime-migrations.txt; then
+            echo "::warning::Remote Supabase migrations are present that are not in this repository; leaving live database state untouched and skipping automatic db push."
+          else
+            supabase db push --include-all
+          fi
       - name: Verify Telegram bot credentials
         if: env.FINETIME_TELEGRAM_BOT_TOKEN != ''
         env:
