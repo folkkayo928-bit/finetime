@@ -25,8 +25,8 @@ button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:poin
 <div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
 
 <section id="connect" class="card">
-<h2>Connect your business</h2>
-<p class="muted">Use the activation code supplied by FineTime Admin. Your Telegram identity is bound to the authorized business.</p>
+<h2>FineTime Partner</h2><p id="telegramNotice" class="error">Checking Telegram Mini App session…</p>
+<p class="muted">This workspace must be opened from Telegram. If you are viewing this page in Chrome or another browser, use the <strong>FineTime Partner</strong> button inside the FineTime Telegram bot.</p><p class="muted">For a new partner, FineTime Admin supplies an activation code after the Telegram account is authorized.</p>
 <input id="code" placeholder="Activation code" autocomplete="off">
 <div class="actions"><button onclick="activate()">Connect Business</button></div>
 <div id="connectError" class="error"></div>
@@ -128,6 +128,8 @@ async function activate(){
   }
   await bootstrap();
   error.textContent='';
+  const notice=document.getElementById('telegramNotice');
+  if(notice){notice.className='ok';notice.textContent='Telegram session connected.';}
  }catch(e){
   error.className='error';
   error.textContent=e.message||'Could not connect. Please try again.';
@@ -137,9 +139,19 @@ async function activate(){
 }
 async function autoConnect(){
  try{
+  const notice=document.getElementById('telegramNotice');
+  const input=document.getElementById('code');
+  const button=document.querySelector('#connect button');
+  if(!initData()){
+   if(notice){notice.className='error';notice.textContent='Not opened inside Telegram. Open FineTime Partner from the FineTime Telegram bot.';}
+   if(input){input.disabled=true;input.placeholder='Open from Telegram to connect';}
+   if(button){button.disabled=true;button.textContent='Open from Telegram';}
+   document.getElementById('connectError').textContent='';
+   return;
+  }
+  if(notice){notice.className='muted';notice.textContent='Telegram session detected. Checking your business connection…';}
   document.getElementById('connectError').className='muted';
-  document.getElementById('connectError').textContent=initData()?'Checking Telegram connection…':'Open this page from the FineTime Partner button inside Telegram.';
-  if(!initData()) return;
+  document.getElementById('connectError').textContent='';
   await bootstrap();
   document.getElementById('connectError').textContent='';
  }catch(e){
