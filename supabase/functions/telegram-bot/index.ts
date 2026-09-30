@@ -73,7 +73,7 @@ export default {
         chat_id: chatId,
         text: 'Use the FineTime Partner button below to open your business workspace.',
         reply_markup: {
-          inline_keyboard: [[{ text: 'Open FineTime Partner', web_app: { url: 'https://folkkayo928-bit.github.io/finetime/partner.html' } }]],
+          inline_keyboard: [[{ text: 'Open FineTime Partner', web_app: { url: 'https://folkkayo928-bit.github.io/finetime/partner.html?v=20260930c' } }]],
         },
       })
       return json({ ok: true })
