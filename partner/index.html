@@ -342,8 +342,7 @@ function requestPlanChange(){
 
 function jsonArg(x){return encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function attr(s){return esc(s||'').replace(/
-/g,' ')}
+function attr(s){return esc(s||'').replace(/\\n/g,' ')}
 function decodeArg(s){try{return JSON.parse(decodeURIComponent(s))}catch{return null}}
 // Form helpers are intentionally named differently from their public click handlers
 // so edit/add actions cannot recurse through a window-level wrapper.
