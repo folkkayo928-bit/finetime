@@ -1,4 +1,107 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineTime Admin</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input{font:inherit;border-radius:9px;padding:9px 11px}button{border:0;background:#c9a227;color:#111;font-weight:800}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-09-30. This page will not stay stuck on session checking.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineTime Admin</title><script>
+(function(){
+  const STORAGE_KEY='finetime_admin_session_v1';
+  function read(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{return null}}
+  function write(v){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(v))}catch{}}
+  async function json(res){
+    const text=await res.text(); let data=null;
+    try{data=text?JSON.parse(text):null}catch{}
+    if(!res.ok){
+      const msg=data?.msg||data?.message||data?.error_description||data?.error||text||('HTTP '+res.status);
+      const e=new Error(msg); e.status=res.status; e.data=data; throw e;
+    }
+    return data;
+  }
+  async function refresh(session){
+    if(!session?.refresh_token) return null;
+    const res=await fetch(U+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{apikey:K,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:session.refresh_token})
+    });
+    const data=await json(res);
+    const next={access_token:data.access_token,refresh_token:data.refresh_token||session.refresh_token,expires_at:Date.now()+Number(data.expires_in||3600)*1000,user:data.user||session.user};
+    write(next); return next;
+  }
+  async function session(){
+    let v=read();
+    if(!v?.access_token) return null;
+    if(v.expires_at && v.expires_at<Date.now()+30000){
+      try{v=await refresh(v)}catch{localStorage.removeItem(STORAGE_KEY);return null}
+    }
+    return v;
+  }
+  async function authFetch(path,opts={}){
+    const sess=await session();
+    const headers=Object.assign({apikey:K,'Content-Type':'application/json'},opts.headers||{});
+    if(sess?.access_token) headers.Authorization='Bearer '+sess.access_token;
+    const res=await fetch(U+path,Object.assign({},opts,{headers}));
+    return json(res);
+  }
+  class Query{
+    constructor(table){this.table=table;this.method='GET';this.selectValue='*';this.filters=[];this.orders=[];this.limitValue=null;this.body=null;this.expect='many';this.executed=false}
+    select(value='*'){this.selectValue=value;this.wantReturn=true;return this}
+    eq(k,v){this.filters.push([k,'eq',v]);return this}
+    is(k,v){this.filters.push([k,'is',v]);return this}
+    order(k,o={}){this.orders.push([k,o]);return this}
+    limit(n){this.limitValue=n;return this}
+    maybeSingle(){this.expect='maybe';return this}
+    single(){this.expect='single';return this}
+    insert(body){this.method='POST';this.body=body;return this}
+    update(body){this.method='PATCH';this.body=body;return this}
+    delete(){this.method='DELETE';return this}
+    async execute(){
+      if(this.executed)return this.result;
+      this.executed=true;
+      const qs=new URLSearchParams();
+      if(this.method==='GET'||this.wantReturn) qs.set('select',this.selectValue);
+      for(const [k,op,v] of this.filters){
+        qs.set(k,op+'.'+(v===null?'null':String(v)));
+      }
+      for(const [k,o] of this.orders) qs.append('order',k+'.'+(o.ascending?'asc':'desc'));
+      if(this.limitValue!=null)qs.set('limit',String(this.limitValue));
+      const sess=await session();
+      if(!sess?.access_token) throw new Error('Your admin session has expired. Please sign in again.');
+      const headers={apikey:K,Authorization:'Bearer '+sess.access_token};
+      if(this.method!=='GET')headers['Content-Type']='application/json';
+      if(this.method!=='GET'&&this.wantReturn)headers.Prefer='return=representation';
+      const url=U+'/rest/v1/'+encodeURIComponent(this.table)+(qs.toString()?'?'+qs.toString():'');
+      const res=await fetch(url,{method:this.method,headers,body:this.method==='GET'||this.method==='DELETE'?undefined:JSON.stringify(this.body)});
+      const data=await json(res);
+      let out=data;
+      if(this.expect==='single'){
+        if(!Array.isArray(data)||data.length!==1)throw new Error('Expected one '+this.table+' record.');
+        out=data[0];
+      }else if(this.expect==='maybe'){
+        if(!Array.isArray(data))out=data;
+        else if(data.length>1)throw new Error('Expected at most one '+this.table+' record.');
+        else out=data[0]||null;
+      }
+      this.result={data:out,error:null}; return this.result;
+    }
+    then(resolve,reject){return this.execute().then(resolve,reject)}
+  }
+  function createClient(url,key){
+    U=url;K=key;
+    return {
+      auth:{
+        async signInWithPassword({email,password}){
+          try{
+            const res=await fetch(U+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:K,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+            const data=await json(res);
+            const sess={access_token:data.access_token,refresh_token:data.refresh_token,expires_at:Date.now()+Number(data.expires_in||3600)*1000,user:data.user};
+            write(sess); return {data:{session:sess,user:data.user},error:null};
+          }catch(error){return {data:{session:null,user:null},error}}
+        },
+        async getSession(){try{return {data:{session:await session()},error:null}}catch(error){return {data:{session:null},error}}},
+        async signOut(){localStorage.removeItem(STORAGE_KEY);return {error:null}}
+      },
+      from(table){return new Query(table)}
+    };
+  }
+  window.supabase={createClient};
+})();
+</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input{font:inherit;border-radius:9px;padding:9px 11px}button{border:0;background:#c9a227;color:#111;font-weight:800}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-09-30c. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
 const U='__SUPABASE_URL__',K='__SUPABASE_ANON_KEY__',s=supabase.createClient(U,K),view=document.getElementById('view');const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
 async function login(){const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),errEl=document.getElementById('err'),statusEl=document.getElementById('status'),button=document.querySelector('#login button');errEl.textContent='';const emailValue=emailEl.value.trim(),passwordValue=passEl.value;if(!emailValue||!passwordValue){errEl.textContent='Enter both your email and password.';return}if(button){button.disabled=true;button.textContent='Signing in…'}statusEl.textContent='Signing in…';try{const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');if(r.error){errEl.textContent=r.error.message;statusEl.textContent='Sign-in failed.';return}statusEl.textContent='Signed in. Checking admin access…';await boot()}catch(e){errEl.textContent=e.message||'Sign-in failed. Please try again.';statusEl.textContent='Sign-in failed.'}finally{if(button){button.disabled=false;button.textContent='Sign in'}}}
 async function logout(){await s.auth.signOut();location.reload()}
