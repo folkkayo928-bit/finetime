@@ -14,7 +14,7 @@ for p in required:
         if "__SUPABASE_URL__" in t or "__SUPABASE_ANON_KEY__" in t: bad.append("unresolved config: "+p)
         if "SUPABASE_SERVICE_ROLE_KEY" in t or "FINETIME_TELEGRAM_BOT_TOKEN" in t: bad.append("private secret reference: "+p)
         if "cdn.jsdelivr.net/npm/@supabase/supabase-js" in t or "window.supabase" in t: bad.append("browser Supabase SDK dependency: "+p)
-        scripts=re.findall(r"<script(?:\\s[^>]*)?>(.*?)</script>",t,re.S|re.I)
+        scripts=re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>",t,re.S|re.I)
         for i,script in enumerate(scripts):
             if not script.strip(): continue
             with tempfile.NamedTemporaryFile("w",suffix=".js",encoding="utf-8",delete=False) as fh:
