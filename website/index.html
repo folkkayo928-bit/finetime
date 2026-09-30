@@ -21,7 +21,7 @@ input{width:100%;padding:14px;border:0;border-radius:12px;margin:12px 0;backgrou
 </style>
 </head>
 <body>
-<header><a class="brand" href="./">FINETIME</a><a class="btn" href="../">Open App</a></header>
+<header><a class="brand" href="./">FINETIME</a><div style="display:flex;gap:8px;align-items:center"><a class="btn" href="news.html">News</a><a class="btn" href="../">Open App</a></div></header>
 <section class="hero">
   <h1>Discover. Dine. Stay.</h1>
   <p class="lead">FineTime is an Ethiopia-focused hospitality platform for discovering hotels, restaurants and cafés — with menus, reservations, hotel booking and real partner information where available.</p>
@@ -42,6 +42,8 @@ const URL='__SUPABASE_URL__',KEY='__SUPABASE_ANON_KEY__';let data=[];
 async function load(){try{const r=await fetch(URL+'/rest/v1/businesses?select=*,cities(name)&is_published=eq.true&order=name',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});data=await r.json();render()}catch(e){document.getElementById('places').innerHTML='<p class="muted">Business information is temporarily unavailable.</p>'}}
 function render(){const q=document.getElementById('q').value.toLowerCase().trim();const rows=data.filter(b=>!q||[b.name,b.category,b.cities?.name].join(' ').toLowerCase().includes(q));document.getElementById('places').innerHTML=rows.length?rows.map(b=>'<a class="card" href="business.html?id='+encodeURIComponent(b.id)+'"><span class="badge">'+esc((b.category||'').toUpperCase())+'</span><h3>'+esc(b.name)+'</h3><p class="muted">'+esc(b.cities?.name||'')+'</p><p class="muted">'+esc(b.about||'')+'</p></a>').join(''):'<p class="muted">No published FineTime businesses match that search.</p>'}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-document.getElementById('q').addEventListener('input',render);load();
+document.getElementById('q').addEventListener('input',render);
+async function loadModules(){try{const r=await fetch(URL+'/rest/v1/site_modules?select=*&placement=eq.website_home&is_enabled=eq.true&order=sort_order',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});if(!r.ok)return;const rows=await r.json();document.getElementById('modules').innerHTML=rows.map(m=>'<article class="card">'+(m.image_url?'<img src="'+esc(m.image_url)+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px">':'')+'<h3>'+esc(m.title)+'</h3><p class="muted">'+esc(m.body||'')+'</p>'+(m.cta_url?'<a class="btn" href="'+esc(m.cta_url)+'">'+esc(m.cta_label||'Learn more')+'</a>':'')+'</article>').join('')}catch(_){}}
+load();loadModules();
 </script>
 </body></html>
