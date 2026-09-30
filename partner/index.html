@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>FineTime Partner · build 20260930c</title>
+<title>FineTime Partner · build 20260930d</title>
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 
 <style>
@@ -16,8 +16,8 @@ button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:poin
 .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}.nav button{padding:10px 6px}.nav button.active{outline:2px solid var(--gold)}
 .item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}.ok{color:#9fd6a4;margin-top:10px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px}.sectionTitle{margin:0 0 5px}.label{display:block;color:var(--muted);font-size:12px;margin-top:8px}
-.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day button{width:100%;padding:8px}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:5px}
-@media(max-width:620px){.grid,.grid3{grid-template-columns:1fr}.nav{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
+.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day button{width:100%;padding:8px}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:5px}.formHead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #ffffff12;border-radius:13px;padding:14px;margin:12px 0}.formSection h4{margin:0 0 10px;color:var(--gold)}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{color:#ddd;font-size:12px;font-weight:700}.help{color:var(--muted);font-size:11px}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.check{display:flex!important;flex-direction:row!important;align-items:center;gap:7px}.check input{width:auto;margin:0}.preview{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid #ffffff12}@media(max-width:620px){.grid,.grid3,.formGrid{grid-template-columns:1fr}.nav{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -103,6 +103,16 @@ function pickImages(multiple=false){
   };
   input.click();
  });
+}
+async function uploadInto(fieldId,multiple=false){
+ try{
+  const urls=await pickImages(multiple);
+  if(urls[0]){
+   const el=document.getElementById(fieldId);
+   el.value=multiple?[...(el.value?el.value.split(',').map(x=>x.trim()).filter(Boolean):[]),...urls].join(', '):urls[0];
+   el.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+ }catch(e){alert(e.message||'Could not upload image.')}
 }
 async function uploadCoverFromDevice(){
  try{
@@ -246,20 +256,39 @@ function renderMenu(){
  (c.menu_items||[]).map(i=>'<div class="item"><div class="row"><strong>'+esc(i.name)+'</strong><span class="pill">ETB '+esc(i.price??'—')+'</span></div><div class="muted">'+esc(i.description||'')+' · '+(i.is_available?'Available':'Unavailable')+'</div><div class="actions"><button class="ghost" onclick="openItemForm('+jsonArg(i)+')">Edit</button><button class="danger" onclick="deleteItem(\''+i.id+'\')">Delete</button></div></div>').join('')+'</div>').join('');
 }
 function openCategoryForm(c=null){
- const name=prompt('Category name',c?.name||'');if(name===null)return;
- const sort=Number(prompt('Sort order',c?.sort_order??0)||0);
- api('upsert_category',{id:c?.id,name,sort_order:sort}).then(bootstrap).catch(e=>alert(e.message));
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(c?'Edit category':'Add menu category')+'</h3><div class="muted">Keep the category details together on one page.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
+ '<form id="categoryEditor" onsubmit="return saveCategoryForm(event,'+(c?JSON.stringify(c.id):'null')+')">'+
+ '<section class="formSection"><h4>Category details</h4><div class="formGrid">'+
+ '<div class="field full"><label>Category name *</label><input name="name" required value="'+attr(c?.name||'')" placeholder="Starters, Main dishes, Drinks…"></div>'+
+ '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(c?.sort_order??0)+'"></div>'+
+ '</div></section><div class="formActions"><button type="submit">'+(c?'Save category':'Create category')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
+}
+async function saveCategoryForm(event,id){
+ event.preventDefault();
+ const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),sort=Number(fd.get('sort_order')||0);
+ if(!name)return alert('Category name is required.');
+ try{await api('upsert_category',{id,name,sort_order:Number.isFinite(sort)?sort:0});await bootstrap();showTab('menu')}catch(e){alert(e.message||'Could not save category.')}
 }
 async function openItemForm(item=null){
- const categoryId=item?.category_id||state.categories[0]?.id;if(!categoryId){alert('Create a category first.');return}
- const name=prompt('Item name',item?.name||'');if(name===null)return;
- const priceRaw=prompt('Price in ETB',item?.price??'');if(priceRaw===null)return;
- const description=prompt('Description',item?.description||'');if(description===null)return;
- let photoUrl=item?.photo_url||'';
- if(confirm('Upload a menu photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}
- else {photoUrl=prompt('Photo URL (optional)',photoUrl);if(photoUrl===null)return}
- const available=confirm('Item is available?');
- api('upsert_menu_item',{id:item?.id,category_id:categoryId,name,price:Number(priceRaw),description,is_available:available,photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
+ const categoryId=item?.category_id||state.categories[0]?.id;
+ if(!categoryId)return alert('Create a category first.');
+ const options=state.categories.map(c=>'<option value="'+c.id+'" '+(String(c.id)===String(categoryId)?'selected':'')+'>'+esc(c.name)+'</option>').join('');
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(item?'Edit menu item':'Add menu item')+'</h3><div class="muted">Enter the full menu item once, including its photo and availability.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
+ '<form id="itemEditor" onsubmit="return saveItemForm(event,'+(item?JSON.stringify(item.id):'null')+')">'+
+ '<section class="formSection"><h4>Menu item</h4><div class="formGrid">'+
+ '<div class="field"><label>Category *</label><select name="category_id" required>'+options+'</select></div>'+
+ '<div class="field"><label>Item name *</label><input name="name" required value="'+attr(item?.name||'')" placeholder="Doro wat"></div>'+
+ '<div class="field"><label>Price (ETB) *</label><input name="price" required type="number" min="0" step="0.01" value="'+attr(item?.price??'')+'"></div>'+
+ '<div class="field"><label class="check"><input name="is_available" type="checkbox" '+(item?.is_available!==false?'checked':'')+'> Available for ordering</label></div>'+
+ '<div class="field full"><label>Description</label><textarea name="description" placeholder="Ingredients, portion, serving details…">'+esc(item?.description||'')+'</textarea></div>'+
+ '<div class="field full"><label>Photo</label><input id="itemPhotoUrl" name="photo_url" value="'+attr(item?.photo_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'itemPhotoUrl\',false)">Upload from device</button></div><img id="itemPhotoPreview" class="preview" '+(item?.photo_url?'src="'+attr(item.photo_url)+'"':'style="display:none"')+' alt="Menu item preview"></div>'+
+ '</div></section><div class="formActions"><button type="submit">'+(item?'Save item':'Create menu item')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
+ document.getElementById('itemPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('itemPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
+}
+async function saveItemForm(event,id){
+ event.preventDefault();const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),price=Number(fd.get('price'));
+ if(!name||!Number.isFinite(price)||price<0)return alert('Enter a valid item name and price.');
+ try{await api('upsert_menu_item',{id,category_id:String(fd.get('category_id')),name,price,description:String(fd.get('description')||'').trim()||null,is_available:fd.get('is_available')==='on',photo_url:String(fd.get('photo_url')||'').trim()||null});await bootstrap();showTab('menu')}catch(e){alert(e.message||'Could not save menu item.')}
 }
 function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete_menu_item',{id}).then(bootstrap).catch(e=>alert(e.message))}
 
@@ -269,17 +298,25 @@ function renderRooms(){
  (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+r.total_rooms+' total</span></div><div class="muted">Capacity '+r.capacity+' · '+(r.public_price!=null?'ETB '+r.public_price:'Rate confirmed by hotel')+'</div><div class="actions"><button class="ghost" onclick="openRoomForm('+jsonArg(r)+')">Edit room</button><button class="danger" onclick="deleteRoom(\''+r.id+'\')">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+r.id+'-'+d+'" type="number" min="0" max="'+r.total_rooms+'" value="'+val+'"><label><input id="b-'+r.id+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button class="ghost" onclick="saveInventory(\''+r.id+'\',\''+d+'\','+r.total_rooms+')">Save</button></div>'}).join('')+'</div></div>').join(''):'<div class="muted">No room types configured.</div>');
 }
 async function openRoomForm(r=null){
- const name=prompt('Room type name',r?.name||'');if(name===null)return;
- const total=Number(prompt('Total rooms',r?.total_rooms??0));if(!Number.isInteger(total)||total<0)return alert('Invalid total rooms.');
- const capacity=Number(prompt('Guest capacity',r?.capacity??1));if(!Number.isInteger(capacity)||capacity<1)return alert('Invalid capacity.');
- const price=prompt('Public price in ETB (leave blank if hotel confirms rate)',r?.public_price??'');if(price===null)return;
- const description=prompt('Room description',r?.description||'');if(description===null)return;
- const beds=prompt('Beds',r?.beds||'');if(beds===null)return;
- const amenities=prompt('Amenities (comma separated)',(r?.amenities||[]).join(', '));if(amenities===null)return;
- let photoUrl=r?.photo_url||'';
- if(confirm('Upload a room photo from your device?')){try{photoUrl=(await pickImages(false))[0]||photoUrl}catch(e){return alert(e.message||'Could not upload image.')}}
- else {photoUrl=prompt('Room photo URL (optional)',photoUrl);if(photoUrl===null)return}
- api('upsert_room',{id:r?.id,name,total_rooms:total,capacity,public_price:price===''?null:Number(price),description,beds,amenities:amenities.split(',').map(x=>x.trim()).filter(Boolean),photo_url:photoUrl.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(r?'Edit room type':'Add room type')+'</h3><div class="muted">Configure the room completely before saving.</div></div><button class="ghost" type="button" onclick="showTab(\'rooms\')">Back</button></div>'+
+ '<form id="roomEditor" onsubmit="return saveRoomForm(event,'+(r?JSON.stringify(r.id):'null')+')">'+
+ '<section class="formSection"><h4>Room details</h4><div class="formGrid">'+
+ '<div class="field"><label>Room type name *</label><input name="name" required value="'+attr(r?.name||'')" placeholder="Deluxe King"></div>'+
+ '<div class="field"><label>Total rooms *</label><input name="total_rooms" required type="number" min="0" step="1" value="'+attr(r?.total_rooms??0)+'"></div>'+
+ '<div class="field"><label>Guest capacity *</label><input name="capacity" required type="number" min="1" step="1" value="'+attr(r?.capacity??1)+'"></div>'+
+ '<div class="field"><label>Public price (ETB/night)</label><input name="public_price" type="number" min="0" step="0.01" value="'+attr(r?.public_price??'')+'"><span class="help">Leave blank if the hotel confirms rates manually.</span></div>'+
+ '<div class="field"><label>Beds</label><input name="beds" value="'+attr(r?.beds||'')+'" placeholder="1 king bed"></div>'+
+ '<div class="field"><label>Amenities</label><input name="amenities" value="'+attr((r?.amenities||[]).join(', '))+'" placeholder="Wi‑Fi, AC, TV"></div>'+
+ '<div class="field full"><label>Description</label><textarea name="description">'+esc(r?.description||'')+'</textarea></div>'+
+ '<div class="field full"><label>Room photo</label><input id="roomPhotoUrl" name="photo_url" value="'+attr(r?.photo_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'roomPhotoUrl\',false)">Upload from device</button></div><img id="roomPhotoPreview" class="preview" '+(r?.photo_url?'src="'+attr(r.photo_url)+'"':'style="display:none"')+' alt="Room preview"></div>'+
+ '</div></section><div class="formActions"><button type="submit">'+(r?'Save room type':'Create room type')+'</button><button type="button" class="ghost" onclick="showTab(\'rooms\')">Cancel</button></div></form>';
+ document.getElementById('roomPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('roomPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
+}
+async function saveRoomForm(event,id){
+ event.preventDefault();const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),total=Number(fd.get('total_rooms')),capacity=Number(fd.get('capacity')),priceRaw=String(fd.get('public_price')||'');
+ if(!name||!Number.isInteger(total)||total<0||!Number.isInteger(capacity)||capacity<1)return alert('Enter valid room name, total rooms and capacity.');
+ const price=priceRaw===''?null:Number(priceRaw);if(price!==null&&(!Number.isFinite(price)||price<0))return alert('Enter a valid room price.');
+ try{await api('upsert_room',{id,name,total_rooms:total,capacity,public_price:price,description:String(fd.get('description')||'').trim()||null,beds:String(fd.get('beds')||'').trim()||null,amenities:String(fd.get('amenities')||'').split(',').map(x=>x.trim()).filter(Boolean),photo_url:String(fd.get('photo_url')||'').trim()||null});await bootstrap();showTab('rooms')}catch(e){alert(e.message||'Could not save room type.')}
 }
 function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
 async function saveInventory(roomId,date,total){
@@ -294,16 +331,26 @@ function renderPromotions(){
  (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button class="ghost" onclick="openPromoForm('+jsonArg(p)+')">Edit</button><button class="danger" onclick="deletePromo(\''+p.id+'\')">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
 }
 async function openPromoForm(p=null){
- const title=prompt('Promotion title',p?.title||'');if(title===null)return;
- const desc=prompt('Description',p?.description||'');if(desc===null)return;
- const badge=prompt('Badge: 25% OFF, TODAY, NEW, FEATURED, LIMITED, FINE TIME PICK',p?.badge||'');if(badge===null)return;
- const starts=prompt('Start date YYYY-MM-DD',p?.starts_on||'');if(starts===null)return;
- const ends=prompt('End date YYYY-MM-DD',p?.ends_on||'');if(ends===null)return;
- let imageUrl=p?.image_url||'';
- if(confirm('Upload a promotion image from your device?')){try{imageUrl=(await pickImages(false))[0]||imageUrl}catch(e){return alert(e.message||'Could not upload image.')}}
- else {imageUrl=prompt('Promotion image URL (optional)',imageUrl);if(imageUrl===null)return}
- const terms=prompt('Terms (optional)',p?.terms||'');if(terms===null)return;
- api('upsert_promotion',{id:p?.id,title,description:desc,badge,starts_on:starts,ends_on:ends,status:'active',image_url:imageUrl.trim()||null,terms:terms.trim()||null}).then(bootstrap).catch(e=>alert(e.message));
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(p?'Edit promotion':'Add promotion')+'</h3><div class="muted">Create the complete offer in one page.</div></div><button class="ghost" type="button" onclick="showTab(\'promotions\')">Back</button></div>'+
+ '<form id="promoEditor" onsubmit="return savePromoForm(event,'+(p?JSON.stringify(p.id):'null')+')">'+
+ '<section class="formSection"><h4>Promotion</h4><div class="formGrid">'+
+ '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(p?.title||'')" placeholder="Weekend special"></div>'+
+ '<div class="field"><label>Badge</label><select name="badge"><option value="25% OFF">25% OFF</option><option value="TODAY">TODAY</option><option value="NEW">NEW</option><option value="FEATURED">FEATURED</option><option value="LIMITED">LIMITED</option><option value="FINE TIME PICK">FINE TIME PICK</option></select></div>'+
+ '<div class="field"><label>Status</label><select name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>'+
+ '<div class="field"><label>Start date</label><input name="starts_on" type="date" value="'+attr(p?.starts_on||'')+'"></div>'+
+ '<div class="field"><label>End date</label><input name="ends_on" type="date" value="'+attr(p?.ends_on||'')+'"></div>'+
+ '<div class="field full"><label>Description</label><textarea name="description">'+esc(p?.description||'')+'</textarea></div>'+
+ '<div class="field full"><label>Terms</label><textarea name="terms">'+esc(p?.terms||'')+'</textarea></div>'+
+ '<div class="field full"><label>Promotion image</label><input id="promoImageUrl" name="image_url" value="'+attr(p?.image_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'promoImageUrl\',false)">Upload from device</button></div><img id="promoImagePreview" class="preview" '+(p?.image_url?'src="'+attr(p.image_url)+'"':'style="display:none"')+' alt="Promotion preview"></div>'+
+ '</div></section><div class="formActions"><button type="submit">'+(p?'Save promotion':'Create promotion')+'</button><button type="button" class="ghost" onclick="showTab(\'promotions\')">Cancel</button></div></form>';
+ if(p?.badge)document.querySelector('#promoEditor [name="badge"]').value=p.badge;
+ if(p?.status)document.querySelector('#promoEditor [name="status"]').value=p.status;
+ document.getElementById('promoImageUrl').addEventListener('input',e=>{const q=document.getElementById('promoImagePreview');q.src=e.target.value;q.style.display=e.target.value?'block':'none'});
+}
+async function savePromoForm(event,id){
+ event.preventDefault();const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim(),badge=String(fd.get('badge')||'FEATURED');
+ if(!title)return alert('Promotion title is required.');
+ try{await api('upsert_promotion',{id,title,description:String(fd.get('description')||'').trim()||null,badge,starts_on:String(fd.get('starts_on')||'')||null,ends_on:String(fd.get('ends_on')||'')||null,status:String(fd.get('status')||'active'),image_url:String(fd.get('image_url')||'').trim()||null,terms:String(fd.get('terms')||'').trim()||null});await bootstrap();showTab('promotions')}catch(e){alert(e.message||'Could not save promotion.')}
 }
 function deletePromo(id){if(!confirm('Delete this promotion?'))return;api('delete_promotion',{id}).then(bootstrap).catch(e=>alert(e.message))}
 
@@ -331,26 +378,15 @@ async function saveBusiness(){
  }catch(e){alert(e.message||'Could not save business profile.')}
 }
 function requestPlanChange(){
- const plan=prompt('Requested plan: basic or premium',state.subscription?.plan||'basic');
- if(plan===null)return;
- const normalized=plan.trim().toLowerCase();
- if(!['basic','premium'].includes(normalized))return alert('Choose basic or premium.');
- const notes=prompt('Optional note to FineTime Admin','Please review my subscription request.');
- if(notes===null)return;
- api('request_subscription_change',{plan:normalized,notes}).then(d=>{alert(d.message||'Subscription request sent to FineTime.');bootstrap()}).catch(e=>alert(e.message));
+ const current=state.subscription?.plan||'basic';
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">Request plan change</h3><div class="muted">Send the request to FineTime Admin without popup prompts.</div></div><button class="ghost" type="button" onclick="showTab(\'settings\')">Back</button></div>'+
+ '<form id="planEditor" class="formSection" onsubmit="return savePlanRequest(event)"><div class="formGrid">'+
+ '<div class="field"><label>Requested plan</label><select name="plan"><option value="basic" '+(current==='basic'?'selected':'')+'>Basic</option><option value="premium" '+(current==='premium'?'selected':'')+'>Premium</option></select></div>'+
+ '<div class="field full"><label>Note to FineTime Admin</label><textarea name="notes">Please review my subscription request.</textarea></div>'+
+ '</div><div class="formActions"><button type="submit">Send request</button><button type="button" class="ghost" onclick="showTab(\'settings\')">Cancel</button></div></form>';
+}
+async function savePlanRequest(event){
+ event.preventDefault();const fd=new FormData(event.currentTarget);
+ try{const d=await api('request_subscription_change',{plan:String(fd.get('plan')),notes:String(fd.get('notes')||'').trim()});alert(d.message||'Subscription request sent to FineTime.');await bootstrap();showTab('overview')}catch(e){alert(e.message||'Could not send request.')}
 }
 
-function jsonArg(x){return encodeURIComponent(JSON.stringify(x)).replace(/'/g,'%27')}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function attr(s){return esc(s||'').replace(/\\n/g,' ')}
-function decodeArg(s){try{return JSON.parse(decodeURIComponent(s))}catch{return null}}
-// Form helpers are intentionally named differently from their public click handlers
-// so edit/add actions cannot recurse through a window-level wrapper.
-window.openItemForm=openItemForm;
-window.openRoomForm=openRoomForm;
-window.openPromoForm=openPromoForm;
-
-autoConnect();
-</script>
-</body>
-</html>
