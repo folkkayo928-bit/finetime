@@ -119,12 +119,11 @@ async function activate(){
  error.textContent='Connecting…';
  if(button){button.disabled=true;button.textContent='Connecting…';}
  try{
-  if(!code){throw new Error('Enter your activation code.');}
+  if(!code)throw new Error('Enter your activation code.');
   try{
    await api('activate',{code});
   }catch(e){
-   if(e?.message?.includes('already connected')){ /* continue to bootstrap existing connection */ }
-   else throw e;
+   if(!e?.message?.toLowerCase().includes('already connected'))throw e;
   }
   await bootstrap();
   error.textContent='';
@@ -159,8 +158,13 @@ async function bootstrap(){
   document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
   document.getElementById('business').innerHTML='<h2>'+esc(state.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(state.business?.category||'')+' · '+(state.business?.is_published?'Published':'Not published')+'</div>';
   renderNav();render();
-  if(!pollTimer) pollTimer=setInterval(()=>bootstrap(),10000);
- }catch(e){document.getElementById('connectError').textContent=e.message}
+  if(!pollTimer) pollTimer=setInterval(()=>bootstrap().catch(()=>{}),10000);
+ }catch(e){
+  const message=e?.message||'Partner connection failed.';
+  document.getElementById('connectError').className='error';
+  document.getElementById('connectError').textContent=message;
+  throw e;
+ }
 }
 function renderNav(){
  const category=String(state.business?.category||'').toLowerCase();
