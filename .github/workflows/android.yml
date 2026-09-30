@@ -2,7 +2,7 @@ name: Build Android App
 on:
   push: {branches: [main]}
   workflow_dispatch:
-permissions: {contents: read}
+permissions: {contents: write}
 concurrency:
   group: finetime-android-${{ github.ref }}
   cancel-in-progress: true
@@ -26,3 +26,13 @@ jobs:
           path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Prepare release APK
+        run: cp build/app/outputs/flutter-apk/app-debug.apk finetime.apk
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v0.1.${{ github.run_number }}"
+          gh release create "$TAG" finetime.apk \
+            --title "FineTime $TAG" \
+            --generate-notes
