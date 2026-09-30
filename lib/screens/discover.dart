@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../theme.dart';
 import 'business_profile.dart';
 import 'explore.dart';
@@ -71,10 +72,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Future<void> _openModuleUrl(String value) async {
     final uri = Uri.tryParse(value);
     if (uri == null) return;
-    // Keep CMS CTAs simple and safe: only http(s) destinations are opened.
     if (uri.scheme != 'http' && uri.scheme != 'https') return;
-    // Avoid adding another dependency; use Flutter's web-compatible URL intent where supported.
-    await showDialog<void>(context: context, builder: (_) => AlertDialog(title: Text(_modules.firstWhere((m) => m['cta_url'] == value, orElse: () => {})['title'] ?? 'FineTime'), content: Text(value), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))]));
+    await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
   }
 
   @override
