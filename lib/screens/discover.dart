@@ -45,6 +45,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final p = await Net.run(() => sb
           .from('promotions')
           .select('*, businesses(name)')
+          .eq('status', 'active')
           .order('starts_on', ascending: true));
       final m = await Net.run(() => sb
           .from('site_modules')
