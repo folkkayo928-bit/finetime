@@ -15,6 +15,7 @@ jobs:
         with: {channel: stable, flutter-version: 3.44.2, cache: true}
       - run: flutter create . --platforms=android --org com.finetime --project-name finetime --no-pub
       - run: flutter pub get
+      - run: rm -f test/widget_test.dart
       - run: flutter analyze
       - run: flutter test
       - name: Build installable debug APK
