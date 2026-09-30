@@ -47,8 +47,16 @@ jobs:
       - name: Add public website
         run: |
           mkdir -p build/web/website
-          cp website/index.html website/business.html website/menu.html website/robots.txt website/sitemap.xml build/web/website/
-          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/index.html build/web/website/business.html build/web/website/menu.html
+          cp website/index.html website/business.html website/menu.html website/news.html website/robots.txt website/sitemap.xml build/web/website/
+          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/index.html build/web/website/business.html build/web/website/menu.html build/web/website/news.html
+      - name: Add admin console
+        run: |
+          mkdir -p build/web/admin
+          cp admin/index.html build/web/admin/index.html
+          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/admin/index.html
+      - name: Verify public deployment package
+        run: python3 tools/verify_static_deploy.py
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: build/web
