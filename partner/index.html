@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>FineTime Partner · build 20260930b</title>
+<title>FineTime Partner · build 20260930c</title>
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--charcoal:#121212;--panel:#1b1b1b;--panel2:#222;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0;--danger:#7b3020}
 *{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
@@ -65,19 +65,27 @@ async function api(action,extra={}){
  if(!r.ok)throw new Error(d.error||'Request failed');
  return d;
 }
-let storageClient=null;
-function getStorageClient(){
- if(!storageClient) storageClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
- return storageClient;
-}
 async function uploadImageFile(file){
  if(!file)return null;
  if(!file.type.startsWith('image/'))throw new Error('Please choose an image file.');
  if(file.size>5*1024*1024)throw new Error('Image must be 5 MB or smaller.');
  const meta=await api('create_media_upload',{file_name:file.name,mime_type:file.type});
- const client=getStorageClient();
- const {error}=await client.storage.from('business-media').uploadToSignedUrl(meta.path,meta.token,file);
- if(error)throw error;
+ const cleanPath=String(meta.path||'').split('/').filter(Boolean).map(encodeURIComponent).join('/');
+ const signedUrl=SUPABASE_URL+'/storage/v1/object/upload/sign/business-media/'+cleanPath+'?token='+encodeURIComponent(meta.token);
+ const form=new FormData();
+ form.append('cacheControl','3600');
+ form.append('',file,file.name);
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),20000);
+ try{
+  const response=await fetch(signedUrl,{method:'PUT',headers:{apikey:SUPABASE_KEY,'x-upsert':'false'},body:form,signal:controller.signal});
+  const text=await response.text();
+  let data=null;try{data=text?JSON.parse(text):null}catch{}
+  if(!response.ok)throw new Error(data?.message||data?.error||text||('Image upload failed ('+response.status+').'));
+ }catch(e){
+  if(e?.name==='AbortError')throw new Error('Image upload timed out. Please try again.');
+  throw e;
+ }finally{clearTimeout(timeout)}
  return meta.public_url;
 }
 function pickImages(multiple=false){
