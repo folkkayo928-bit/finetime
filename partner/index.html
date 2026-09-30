@@ -53,7 +53,12 @@ let pollTimer=null;
 
 function initData(){return tg?.initData||''}
 async function api(action,extra={}){
- const r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:initData(),...extra})});
+ const telegramInitData=initData();
+ if(!telegramInitData) throw new Error('This Partner Mini App must be opened from Telegram. Open FineTime Partner from the Telegram bot, then enter your activation code.');
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),12000);
+ let r;
+ try{r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:telegramInitData,...extra}),signal:controller.signal});}catch(e){if(e?.name==='AbortError')throw new Error('Partner service timed out. Check your connection and reopen the Mini App.');throw e}finally{clearTimeout(timeout)}
  const text=await r.text();
  let d;
  try{d=JSON.parse(text)}catch(_){throw new Error('Partner service returned an invalid response. Please reopen the Mini App and try again.')}
@@ -133,7 +138,8 @@ async function activate(){
 async function autoConnect(){
  try{
   document.getElementById('connectError').className='muted';
-  document.getElementById('connectError').textContent='Checking Telegram connection…';
+  document.getElementById('connectError').textContent=initData()?'Checking Telegram connection…':'Open this page from the FineTime Partner button inside Telegram.';
+  if(!initData()) return;
   await bootstrap();
   document.getElementById('connectError').textContent='';
  }catch(e){
