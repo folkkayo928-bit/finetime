@@ -1,0 +1,27 @@
+name: Build Android App
+on:
+  push: {branches: [main]}
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: finetime-android-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: {channel: stable, flutter-version: 3.44.2, cache: true}
+      - run: flutter create . --platforms=android --org com.finetime --project-name finetime --no-pub
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - name: Build installable debug APK
+        run: flutter build apk --debug --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finetime-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
