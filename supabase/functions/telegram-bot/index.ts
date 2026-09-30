@@ -58,7 +58,7 @@ export default {
       }
 
       if (text === '/start' || text === '/partner' || text === '/menu') {
-        const miniAppUrl = 'https://folkkayo928-bit.github.io/finetime/partner.html'
+        const miniAppUrl = 'https://folkkayo928-bit.github.io/finetime/partner.html?v=20260930b'
         await telegram(token, 'sendMessage', {
           chat_id: chatId,
           text: 'FineTime Partner\n\nOpen your business workspace to manage your profile, menu, rooms, availability, reservations, bookings and promotions.',
