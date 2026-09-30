@@ -39,7 +39,7 @@
     return json(res);
   }
   class Query{
-    constructor(table){this.table=table;this.method='GET';this.selectValue='*';this.filters=[];this.orders=[];this.limitValue=null;this.body=null;this.expect='many';this.executed=false}
+    constructor(table){this.table=table;this.method='GET';this.selectValue='*';this.filters=[];this.orders=[];this.limitValue=null;this.body=null;this.expect='many';this.executed=false;this.upsertValue=false;this.onConflict=null}
     select(value='*'){this.selectValue=value;this.wantReturn=true;return this}
     eq(k,v){this.filters.push([k,'eq',v]);return this}
     is(k,v){this.filters.push([k,'is',v]);return this}
@@ -48,6 +48,7 @@
     maybeSingle(){this.expect='maybe';return this}
     single(){this.expect='single';return this}
     insert(body){this.method='POST';this.body=body;return this}
+    upsert(body,opts={}){this.method='POST';this.body=body;this.upsertValue=true;this.onConflict=opts.onConflict||null;return this}
     update(body){this.method='PATCH';this.body=body;return this}
     delete(){this.method='DELETE';return this}
     async execute(){
@@ -60,11 +61,13 @@
       }
       for(const [k,o] of this.orders) qs.append('order',k+'.'+(o.ascending?'asc':'desc'));
       if(this.limitValue!=null)qs.set('limit',String(this.limitValue));
+      if(this.upsertValue&&this.onConflict)qs.set('on_conflict',this.onConflict);
       const sess=await session();
       if(!sess?.access_token) throw new Error('Your admin session has expired. Please sign in again.');
       const headers={apikey:K,Authorization:'Bearer '+sess.access_token};
       if(this.method!=='GET')headers['Content-Type']='application/json';
       if(this.method!=='GET'&&this.wantReturn)headers.Prefer='return=representation';
+      if(this.upsertValue)headers.Prefer=(headers.Prefer?headers.Prefer+',':'')+'resolution=merge-duplicates,return=representation';
       const url=U+'/rest/v1/'+encodeURIComponent(this.table)+(qs.toString()?'?'+qs.toString():'');
       const res=await fetch(url,{method:this.method,headers,body:this.method==='GET'||this.method==='DELETE'?undefined:JSON.stringify(this.body)});
       const data=await json(res);
