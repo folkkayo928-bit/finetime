@@ -82,7 +82,6 @@
     then(resolve,reject){return this.execute().then(resolve,reject)}
   }
   function createClient(url,key){
-    U=url;K=key;
     return {
       auth:{
         async signInWithPassword({email,password}){
