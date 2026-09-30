@@ -218,16 +218,90 @@ async function saveBusinessForm(event,id){
  }catch(e){alert(e.message||'Could not save business.')}
 }
 async function codes(){const r=await s.from('activation_codes').select('id,business_id,expires_at,used_at,revoked_at,created_at,businesses(name)').order('created_at',{ascending:false});if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Activation Codes</h2><button onclick="makeCode()">+ Generate</button>'+(r.data||[]).map(x=>'<div class="card"><b>'+esc(x.businesses?.name||x.business_id)+'</b><span class="pill">'+(x.used_at?'Used':x.revoked_at?'Revoked':x.expires_at&&new Date(x.expires_at)<new Date()?'Expired':'Active')+'</span><p class="muted">'+esc(x.created_at)+'</p>'+(!x.used_at&&!x.revoked_at?'<button class="d" onclick="revoke(\''+x.id+'\')">Revoke</button>':'')+'</div>').join('')}
-async function makeCode(){const r=await s.from('businesses').select('id,name').order('name');if(r.error||!r.data?.length)return alert('Create a business first.');const pick=prompt('Choose business number:\n'+r.data.map((b,i)=>(i+1)+'. '+b.name).join('\n'),'1');const index=Number(pick)-1;if(!Number.isInteger(index)||!r.data[index])return;const b=r.data[index].id;const h=Number(prompt('Expires in hours','168'));const raw=Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[x%36]).join(''),code='FT-'+raw.slice(0,6)+'-'+raw.slice(6);const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)),hash=Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');const saveResult=await s.from('activation_codes').insert({business_id:b,code_hash:hash,expires_at:new Date(Date.now()+Math.max(1,h||168)*3600000).toISOString()});if(saveResult.error)alert(saveResult.error.message);else{alert('Activation code: '+code+'\nGive it to the partner now. Only the hash is stored.');codes()}}
+async function makeCode(){
+ const r=await s.from('businesses').select('id,name').order('name');
+ if(r.error)return alert(r.error.message);
+ if(!r.data?.length)return alert('Create a business first.');
+ view.innerHTML='<div class="formHead"><div><h2>Generate activation code</h2><p class="muted">Create a partner connection code without leaving this page.</p></div><button class="g" type="button" onclick="codes()">Back</button></div>'+
+ '<form id="codeEditor" class="formSection" onsubmit="return generateCode(event)"><div class="formGrid">'+
+ '<div class="field"><label>Business *</label><select name="business_id" required>'+r.data.map((b,i)=>'<option value="'+b.id+'">'+esc(b.name)+'</option>').join('')+'</select></div>'+
+ '<div class="field"><label>Expires in hours *</label><input name="hours" type="number" min="1" max="8760" value="168" required><span class="help">Default: 7 days.</span></div>'+
+ '</div><div class="formActions"><button type="submit">Generate activation code</button><button type="button" class="g" onclick="codes()">Cancel</button></div></form>';
+}
+async function generateCode(event){
+ event.preventDefault();
+ const fd=new FormData(event.currentTarget),businessId=String(fd.get('business_id')||''),hours=Math.max(1,Math.min(8760,Number(fd.get('hours')||168)));
+ const raw=Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[x%36]).join('');
+ const code='FT-'+raw.slice(0,6)+'-'+raw.slice(6);
+ const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+ const hash=Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');
+ const saveResult=await s.from('activation_codes').insert({business_id:businessId,code_hash:hash,expires_at:new Date(Date.now()+hours*3600000).toISOString()});
+ if(saveResult.error)return alert(saveResult.error.message);
+ const businessName=event.currentTarget.querySelector('select option:checked')?.textContent||'Selected business';
+ view.innerHTML='<div class="card"><h2>Activation code created</h2><p class="muted">'+esc(businessName)+' · expires in '+hours+' hours</p><div style="font-size:28px;font-weight:900;letter-spacing:2px;margin:20px 0">'+esc(code)+'</div><p class="muted">Only the hash is stored in Supabase. Give this code to the partner now.</p><div class="formActions"><button type="button" onclick="codes()">Done</button><button type="button" class="g" onclick="makeCode()">Generate another</button></div></div>';
+}
 async function revoke(id){const r=await s.from('activation_codes').update({revoked_at:new Date().toISOString()}).eq('id',id);if(r.error)alert(r.error.message);else codes()}
-async function news(){const r=await s.from('news').select('*').order('created_at',{ascending:false});if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>News</h2><button onclick="makeNews()">+ Create</button>'+(r.data||[]).map(n=>'<div class="card"><b>'+esc(n.title)+'</b><span class="pill">'+(n.is_published?'Published':'Draft')+'</span><p class="muted">'+esc(n.summary||'')+'</p><button onclick="editNews(\''+q(n)+'\')">Edit</button> <button onclick="pubNews(\''+n.id+'\','+(!n.is_published)+')">'+(n.is_published?'Hide':'Publish')+'</button> <button class="d" onclick="delNews(\''+n.id+'\')">Delete</button></div>').join('')}
-function makeNews(){editNews(q({}))}
-async function editNews(x){const n=dq(x);const title=prompt('Title',n.title||'');if(title===null)return;const slug=prompt('Slug',n.slug||title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));if(slug===null)return;const summary=prompt('Summary',n.summary||'');if(summary===null)return;const body=prompt('Body',n.body||'');if(body===null)return;const cover=prompt('Cover URL',n.cover_url||'');if(cover===null)return;const p={title:title.trim(),slug:slug.trim(),summary:summary.trim()||null,body:body.trim()||null,cover_url:cover.trim()||null};const r=n.id?await s.from('news').update(p).eq('id',n.id):await s.from('news').insert(p);if(r.error)alert(r.error.message);else news()}
+async function news(){
+ const r=await s.from('news').select('*').order('created_at',{ascending:false});
+ if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';
+ view.innerHTML='<div class="formHead"><div><h2>News</h2><p class="muted">Create and edit public FineTime news in one page.</p></div><button onclick="editNews()">+ Create news</button></div>'+
+ (r.data||[]).map(n=>'<div class="card"><b>'+esc(n.title)+'</b><span class="pill">'+(n.is_published?'Published':'Draft')+'</span><p class="muted">'+esc(n.summary||'')+'</p><button onclick="editNews(\''+q(n)+'\')">Edit</button> <button onclick="pubNews(\''+n.id+'\','+(!n.is_published)+')">'+(n.is_published?'Hide':'Publish')+'</button> <button class="d" onclick="delNews(\''+n.id+'\')">Delete</button></div>').join('')||'<div class="card muted">No news yet.</div>';
+}
+function makeNews(){editNews()}
+async function editNews(x){
+ const n=x?dq(x):{};
+ view.innerHTML='<div class="formHead"><div><h2>'+(n.id?'Edit news':'Create news')+'</h2><p class="muted">Write the complete article before publishing it.</p></div><button class="g" type="button" onclick="news()">Back</button></div>'+
+ '<form id="newsEditor" onsubmit="return saveNewsForm(event,'+(n.id?JSON.stringify(n.id):'null')+')">'+
+ '<section class="formSection"><h3>Article</h3><div class="formGrid">'+
+ '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(n.title)+'"></div>'+
+ '<div class="field"><label>Slug *</label><input name="slug" required value="'+attr(n.slug)+'" placeholder="fine-time-update"><span class="help">Use lowercase words separated by hyphens.</span></div>'+
+ '<div class="field"><label>Cover image URL</label><input name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://…"></div>'+
+ '<div class="field full"><label>Summary</label><textarea name="summary">'+esc(n.summary||'')+'</textarea></div>'+
+ '<div class="field full"><label>Body</label><textarea name="body" style="min-height:260px">'+esc(n.body||'')+'</textarea></div>'+
+ '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+(n.is_published?'checked':'')+'> Publish now</label></div>'+
+ '</div></section>'+
+ '<div class="formActions"><button type="submit">'+(n.id?'Save changes':'Create news')+'</button><button type="button" class="g" onclick="news()">Cancel</button></div></form>';
+}
+async function saveNewsForm(event,id){
+ event.preventDefault();
+ const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim(),slug=String(fd.get('slug')||'').trim();
+ if(!title||!slug)return alert('Title and slug are required.');
+ const publish=fd.get('is_published')==='on';
+ const p={title,slug,summary:String(fd.get('summary')||'').trim()||null,body:String(fd.get('body')||'').trim()||null,cover_url:String(fd.get('cover_url')||'').trim()||null,is_published:publish,published_at:publish?new Date().toISOString():null};
+ const r=id?await s.from('news').update(p).eq('id',id):await s.from('news').insert(p);
+ if(r.error)alert(r.error.message);else news();
+}
 async function pubNews(id,v){const r=await s.from('news').update({is_published:v,published_at:v?new Date().toISOString():null}).eq('id',id);if(r.error)alert(r.error.message);else news()}
 async function delNews(id){if(!confirm('Delete this news?'))return;const r=await s.from('news').delete().eq('id',id);if(r.error)alert(r.error.message);else news()}
-async function modules(){const r=await s.from('site_modules').select('*').order('placement').order('sort_order');if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Site Modules</h2><button onclick="editModule()">+ Create</button>'+(r.data||[]).map(m=>'<div class="card"><b>'+esc(m.title)+'</b><span class="pill">'+esc(m.placement)+' · '+(m.is_enabled?'Enabled':'Disabled')+'</span><p class="muted">'+esc(m.body||'')+'</p><button onclick="editModule(\''+q(m)+'\')">Edit</button> <button onclick="toggleModule(\''+m.id+'\','+(!m.is_enabled)+')">'+(m.is_enabled?'Disable':'Enable')+'</button> <button class="d" onclick="delModule(\''+m.id+'\')">Delete</button></div>').join('')}
-function editModule(x){const m=x?dq(x):{};const placement=prompt('Placement',m.placement||'app_home');if(placement===null)return;const title=prompt('Title',m.title||'');if(title===null)return;const body=prompt('Body',m.body||'');if(body===null)return;const cta=prompt('CTA label',m.cta_label||'');if(cta===null)return;const url=prompt('CTA URL',m.cta_url||'');if(url===null)return;const image=prompt('Image URL',m.image_url||'');if(image===null)return;saveModule(m,{placement,title,body:body||null,cta_label:cta||null,cta_url:url||null,image_url:image||null,sort_order:Number(prompt('Sort order',m.sort_order||0)||0)})}
-async function saveModule(m,p){const r=m.id?await s.from('site_modules').update(p).eq('id',m.id):await s.from('site_modules').insert(p);if(r.error)alert(r.error.message);else modules()}
+async function modules(){
+ const r=await s.from('site_modules').select('*').order('placement').order('sort_order');
+ if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';
+ view.innerHTML='<div class="formHead"><div><h2>Site Modules</h2><p class="muted">Build homepage cards for the app or public website.</p></div><button onclick="editModule()">+ Create module</button></div>'+
+ (r.data||[]).map(m=>'<div class="card"><b>'+esc(m.title)+'</b><span class="pill">'+esc(m.placement)+' · '+(m.is_enabled?'Enabled':'Disabled')+'</span><p class="muted">'+esc(m.body||'')+'</p><button onclick="editModule(\''+q(m)+'\')">Edit</button> <button onclick="toggleModule(\''+m.id+'\','+(!m.is_enabled)+')">'+(m.is_enabled?'Disable':'Enable')+'</button> <button class="d" onclick="delModule(\''+m.id+'\')">Delete</button></div>').join('')||'<div class="card muted">No site modules yet.</div>';
+}
+function editModule(x){
+ const m=x?dq(x):{};
+ view.innerHTML='<div class="formHead"><div><h2>'+(m.id?'Edit site module':'Create site module')+'</h2><p class="muted">All content is visible here before you save.</p></div><button class="g" type="button" onclick="modules()">Back</button></div>'+
+ '<form id="moduleEditor" onsubmit="return saveModuleForm(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
+ '<section class="formSection"><h3>Module content</h3><div class="formGrid">'+
+ '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'app_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+(m.placement==='website_home'?'selected':'')+'>Public website home</option></select></div>'+
+ '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(m.sort_order??0)+'"></div>'+
+ '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(m.title)+'"></div>'+
+ '<div class="field full"><label>Body</label><textarea name="body">'+esc(m.body||'')+'</textarea></div>'+
+ '<div class="field"><label>CTA label</label><input name="cta_label" value="'+attr(m.cta_label)+'" placeholder="Learn more"></div>'+
+ '<div class="field"><label>CTA URL</label><input name="cta_url" type="url" value="'+attr(m.cta_url)+'" placeholder="https://…"></div>'+
+ '<div class="field full"><label>Image URL</label><input name="image_url" value="'+attr(m.image_url)+'" placeholder="https://…"></div>'+
+ '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+(m.is_enabled?'checked':'')+'> Enable immediately</label></div>'+
+ '</div></section><div class="formActions"><button type="submit">'+(m.id?'Save changes':'Create module')+'</button><button type="button" class="g" onclick="modules()">Cancel</button></div></form>';
+}
+async function saveModuleForm(event,id){
+ event.preventDefault();
+ const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim();
+ if(!title)return alert('Title is required.');
+ const p={placement:String(fd.get('placement')||'app_home'),title,body:String(fd.get('body')||'').trim()||null,cta_label:String(fd.get('cta_label')||'').trim()||null,cta_url:String(fd.get('cta_url')||'').trim()||null,image_url:String(fd.get('image_url')||'').trim()||null,sort_order:Number(fd.get('sort_order')||0),is_enabled:fd.get('is_enabled')==='on'};
+ const r=id?await s.from('site_modules').update(p).eq('id',id):await s.from('site_modules').insert(p);
+ if(r.error)alert(r.error.message);else modules();
+}
 async function toggleModule(id,v){const r=await s.from('site_modules').update({is_enabled:v}).eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function delModule(id){if(!confirm('Delete this module?'))return;const r=await s.from('site_modules').delete().eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function audit(){const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Audit Log</h2>'+(r.data||[]).map(x=>'<div class="item"><b>'+esc(x.action)+'</b><span class="pill">'+esc(x.entity_type)+'</span><div class="muted">'+esc(x.created_at)+' · '+esc(x.entity_id||'')+'</div></div>').join('')||'<div class="card muted">No audit entries.</div>'}
