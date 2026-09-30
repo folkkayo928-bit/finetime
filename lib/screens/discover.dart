@@ -16,6 +16,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   final sb = Supabase.instance.client;
   List<Map<String, dynamic>> _featured = [];
   List<Map<String, dynamic>> _promos = [];
+  List<Map<String, dynamic>> _modules = [];
   RealtimeChannel? _realtime;
 
   @override
@@ -29,6 +30,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     _realtime = sb.channel('discover-live')
       ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'businesses', callback: (_) => _load())
       ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'promotions', callback: (_) => _load())
+      ..onPostgresChanges(event: PostgresChangeEvent.all, schema: 'public', table: 'site_modules', callback: (_) => _load())
       ..subscribe();
   }
 
@@ -43,10 +45,17 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           .from('promotions')
           .select('*, businesses(name)')
           .order('starts_on', ascending: true));
+      final m = await Net.run(() => sb
+          .from('site_modules')
+          .select('id,placement,title,body,cta_label,cta_url,image_url,sort_order')
+          .eq('placement', 'app_home')
+          .eq('is_enabled', true)
+          .order('sort_order', ascending: true));
       if (mounted) {
         setState(() {
           _featured = List<Map<String, dynamic>>.from(f);
           _promos = List<Map<String, dynamic>>.from(p);
+          _modules = List<Map<String, dynamic>>.from(m);
         });
       }
     } catch (_) {
@@ -57,6 +66,15 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         });
       }
     }
+  }
+
+  Future<void> _openModuleUrl(String value) async {
+    final uri = Uri.tryParse(value);
+    if (uri == null) return;
+    // Keep CMS CTAs simple and safe: only http(s) destinations are opened.
+    if (uri.scheme != 'http' && uri.scheme != 'https') return;
+    // Avoid adding another dependency; use Flutter's web-compatible URL intent where supported.
+    await showDialog<void>(context: context, builder: (_) => AlertDialog(title: Text(_modules.firstWhere((m) => m['cta_url'] == value, orElse: () => {})['title'] ?? 'FineTime'), content: Text(value), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))]));
   }
 
   @override
@@ -150,6 +168,36 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                                 fontWeight:
                                                     FontWeight.w700))))))
                             .toList())),
+                if (_modules.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Text('FineTime updates',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: FT.ivory))),
+                  ..._modules.map((m) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        child: Card(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            if ((m['image_url'] ?? '').toString().isNotEmpty)
+                              ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(12)), child: Image.network(m['image_url'], height: 150, width: double.infinity, fit: BoxFit.cover)),
+                            Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text(m['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                                if ((m['body'] ?? '').toString().isNotEmpty) ...[
+                                  const SizedBox(height: 6),
+                                  Text(m['body'] ?? '', style: const TextStyle(color: Colors.white70)),
+                                ],
+                                if ((m['cta_url'] ?? '').toString().isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Align(alignment: Alignment.centerLeft, child: FilledButton(onPressed: () => _openModuleUrl(m['cta_url'].toString()), child: Text(m['cta_label'] ?? 'Learn more'))),
+                                ],
+                              ]),
+                            ),
+                          ]),
+                        ),
+                      )),
+                ],
                 if (_promos.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   const Padding(
