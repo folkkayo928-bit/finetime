@@ -114,7 +114,7 @@ async function logout(){await s.auth.signOut();location.reload()}
 async function forgotPassword(){const email=document.getElementById('email').value.trim();if(!email)return alert('Enter your admin email first.');const productionRedirect='https://finetime.folkkayo928.workers.dev/';const r=await s.auth.resetPasswordForEmail(email,{redirectTo:productionRedirect});if(r.error)alert(r.error.message);else alert('If that email belongs to an account, a password reset email has been sent. Follow the link to return here and complete the reset with your Admin Security PIN.')}
 async function verifyPinValue(pin){
  const value=String(pin||'').trim();
- if(!/^\\d{6,12}$/.test(value))throw new Error('PIN must contain 6 to 12 digits.');
+ if(!value)throw new Error('PIN cannot be empty.');
  const r=await s.rpc('verify_admin_security_pin',{p_pin:value});
  if(r.error)throw r.error;
  if(r.data!==true)throw new Error('Incorrect PIN or the PIN is temporarily locked.');
@@ -128,19 +128,19 @@ function security(){
  view.innerHTML='<div class="formHead"><div><h2>Admin Security</h2><p class="muted">All security changes use visible forms. No browser prompts. Your PIN is checked server-side and never stored in this page.</p></div><button class="g" type="button" id="securityBack">Back to Businesses</button></div>'+
  '<div id="securityMessage"></div>'+
  '<section class="formSection"><h3>Admin Security PIN</h3><form id="pinForm"><div class="formGrid">'+
- '<div class="field"><label>New PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="new-password" minlength="6" maxlength="12" pattern="[0-9]{6,12}" required placeholder="6–12 digits"><span class="help">Use 6 to 12 digits. Saving a new PIN replaces the current PIN.</span></div>'+
+ '<div class="field"><label>New PIN *</label><input name="pin" type="password" autocomplete="new-password" required placeholder="Enter any PIN"><span class="help">Any non-empty PIN is accepted. Saving a new PIN replaces the current PIN.</span></div>'+
  '<div class="field"><label>Confirm new PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" minlength="6" maxlength="12" pattern="[0-9]{6,12}" required placeholder="Repeat the PIN"></div>'+
  '</div><div class="formActions"><button type="submit">Save PIN</button></div></form></section>'+
  '<section class="formSection"><h3>Change password</h3><p class="help">Enter the Admin Security PIN before changing the password. If you are completing a password-recovery link, the current password is not required.</p>'+
  '<form id="passwordForm"><div class="formGrid">'+
- '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="off" required placeholder="6–12 digit PIN"></div>'+
+ '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter your PIN"></div>'+
  '<div class="field"><label>Current password <span class="help">(only for normal change)</span></label><input name="current" type="password" autocomplete="current-password" placeholder="Current password"></div>'+
- '<div class="field"><label>New password *</label><input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"></div>'+
+ '<div class="field"><label>New password *</label><input name="password" type="password" autocomplete="new-password" required placeholder="Enter any password"></div>'+
  '<div class="field"><label>Confirm new password *</label><input name="confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repeat new password"></div>'+
  '</div><div class="formActions"><button type="submit">Save new password</button></div></form></section>'+
  '<section class="formSection"><h3>Change email</h3><p class="help">Enter the Admin Security PIN and the new admin email. Supabase may still require email confirmation depending on your Auth settings.</p>'+
  '<form id="emailForm"><div class="formGrid">'+
- '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="off" required placeholder="6–12 digit PIN"></div>'+
+ '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter your PIN"></div>'+
  '<div class="field"><label>New email *</label><input name="email" type="email" autocomplete="email" required placeholder="admin@example.com"></div>'+
  '</div><div class="formActions"><button type="submit">Save new email</button></div></form></section>';
  document.getElementById('securityBack')?.addEventListener('click',businesses);
@@ -151,14 +151,14 @@ function security(){
 }
 async function saveSecurityPin(event){
  event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),confirmPin=String(fd.get('confirm')||'');
- if(!/^\\d{6,12}$/.test(pin))return securityMessage('PIN must contain 6 to 12 digits.');
+ if(!pin.trim())return securityMessage('PIN cannot be empty.');
  if(pin!==confirmPin)return securityMessage('PIN confirmation does not match.');
  const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
  try{const r=await s.rpc('set_admin_security_pin',{p_pin:pin});if(r.error)throw r.error;form.reset();securityMessage('Admin Security PIN saved successfully.',true)}catch(e){securityMessage(e.message||'Could not save the PIN.')}finally{if(button){button.disabled=false;button.textContent='Save PIN'}}
 }
 async function savePasswordForm(event){
  event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),current=String(fd.get('current')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
- if(password.length<8)return securityMessage('Use at least 8 characters for the new password.');
+ if(!password) return securityMessage('Password cannot be empty.');
  if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
  const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
  try{
