@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>FineTime Partner · build 20261001e</title>
+<title>FineTime Partner · build 20261001f</title>
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 
 <style>
@@ -28,7 +28,7 @@ button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:poin
 <h2>Connect your business</h2>
 <p class="muted">Use the activation code supplied by FineTime Admin. Your Telegram identity is bound to the authorized business.</p>
 <input id="code" placeholder="Activation code" autocomplete="off">
-<div class="actions"><button onclick="activate()">Connect Business</button></div>
+<div class="actions"><button id="connectBusinessButton" type="button">Connect Business</button></div>
 <div id="connectError" class="error"></div>
 </section>
 
@@ -155,6 +155,8 @@ async function activate(){
   if(button){button.disabled=false;button.textContent='Connect Business';}
  }
 }
+document.getElementById('connectBusinessButton')?.addEventListener('click',()=>activate());
+
 async function autoConnect(){
  try{
   document.getElementById('connectError').className='muted';
