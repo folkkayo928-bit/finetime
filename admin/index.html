@@ -164,16 +164,11 @@ async function savePasswordForm(event){
  if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
  const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
  try{
-   const sess=await session();
-   if(!sess?.access_token)throw new Error('Your admin session has expired. Please sign in again.');
-   const res=await fetch(U+'/functions/v1/admin-password-change',{
-     method:'POST',
-     headers:{apikey:K,Authorization:'Bearer '+sess.access_token,'Content-Type':'application/json'},
-     body:JSON.stringify({pin,password})
-   });
-   let data=null;const raw=await res.text();try{data=raw?JSON.parse(raw):null}catch{}
-   if(!res.ok)throw new Error(data?.error||data?.message||raw||('HTTP '+res.status));
-   form.reset();securityMessage('Password updated successfully. You do not need the current password.',true);
+   await verifyPinValue(pin);
+   const r=await s.auth.updateUser({password});
+   if(r.error)throw r.error;
+   form.reset();securityMessage('Password updated successfully.',true);
+   if((location.hash||'').includes('access_token='))history.replaceState(null,'',location.pathname+location.search);
  }catch(e){securityMessage(e.message||'Could not update the password.')}
  finally{if(button){button.disabled=false;button.textContent='Save new password'}}
 }
