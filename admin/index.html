@@ -359,7 +359,7 @@ async function editNews(x){
  '<div class="field"><label>Cover image URL</label><input name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://…"></div>'+
  '<div class="field full"><label>Summary</label><textarea name="summary">'+esc(n.summary||'')+'</textarea></div>'+
  '<div class="field full"><label>Body</label><textarea name="body" style="min-height:260px">'+esc(n.body||'')+'</textarea></div>'+
- '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+(n.is_published?'checked':'')+'> Publish now</label></div>'+
+ '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+((n.id?n.is_published:true)?'checked':'')+'> Publish now</label></div>'+
  '</div></section>'+
  '<div class="formActions"><button type="submit">'+(n.id?'Save changes':'Create news')+'</button><button type="button" class="g" onclick="news()">Cancel</button></div></form>';
 }
@@ -385,7 +385,7 @@ function editModule(x){
  view.innerHTML='<div class="formHead"><div><h2>'+(m.id?'Edit site module':'Create site module')+'</h2><p class="muted">All content is visible here before you save.</p></div><button class="g" type="button" onclick="modules()">Back</button></div>'+
  '<form id="moduleEditor" onsubmit="return saveModuleForm(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
  '<section class="formSection"><h3>Module content</h3><div class="formGrid">'+
- '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'app_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+(m.placement==='website_home'?'selected':'')+'>Public website home</option></select></div>'+
+ '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'website_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+((m.placement||'website_home')==='website_home'?'selected':'')+'>Public website home</option></select></div>'+
  '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(m.sort_order??0)+'"></div>'+
  '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(m.title)+'"></div>'+
  '<div class="field full"><label>Body</label><textarea name="body">'+esc(m.body||'')+'</textarea></div>'+
