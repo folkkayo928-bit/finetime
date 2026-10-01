@@ -306,6 +306,18 @@ async function saveBusinessForm(event,id){
    businesses();
  }catch(e){alert(e.message||'Could not save business.')}
 }
+async function delBusiness(id,button){
+ if(!confirm('Delete this business? This removes the business record and may be blocked by related data.'))return;
+ if(button)button.disabled=true;
+ try{
+   const r=await s.from('businesses').delete().eq('id',id).select('id').maybeSingle();
+   if(r.error)throw r.error;
+   if(!r.data){businessStatus('No business record was deleted. Related records may be preventing deletion, or the record is already gone.');return}
+   await businesses();
+   businessStatus('Business deleted successfully.',true);
+ }catch(e){businessStatus(e.message||'The delete action failed.')}
+ finally{if(button)button.disabled=false}
+}
 async function codes(){const r=await s.from('activation_codes').select('id,business_id,expires_at,used_at,revoked_at,created_at,businesses(name)').order('created_at',{ascending:false});if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Activation Codes</h2><button onclick="makeCode()">+ Generate</button>'+(r.data||[]).map(x=>'<div class="card"><b>'+esc(x.businesses?.name||x.business_id)+'</b><span class="pill">'+(x.used_at?'Used':x.revoked_at?'Revoked':x.expires_at&&new Date(x.expires_at)<new Date()?'Expired':'Active')+'</span><p class="muted">'+esc(x.created_at)+'</p>'+(!x.used_at&&!x.revoked_at?'<button class="d" onclick="revoke(\''+x.id+'\')">Revoke</button>':'')+'</div>').join('')}
 async function makeCode(){
  const r=await s.from('businesses').select('id,name').order('name');
