@@ -392,7 +392,7 @@ function editModule(x){
  '<div class="field"><label>CTA label</label><input name="cta_label" value="'+attr(m.cta_label)+'" placeholder="Learn more"></div>'+
  '<div class="field"><label>CTA URL</label><input name="cta_url" type="url" value="'+attr(m.cta_url)+'" placeholder="https://…"></div>'+
  '<div class="field full"><label>Image URL</label><input name="image_url" value="'+attr(m.image_url)+'" placeholder="https://…"></div>'+
- '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+(m.is_enabled?'checked':'')+'> Enable immediately</label></div>'+
+ '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+((m.id?m.is_enabled:true)?'checked':'')+'> Enable immediately</label></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(m.id?'Save changes':'Create module')+'</button><button type="button" class="g" onclick="modules()">Cancel</button></div></form>';
 }
 async function saveModuleForm(event,id){
