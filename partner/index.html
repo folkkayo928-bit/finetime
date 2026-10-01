@@ -308,8 +308,15 @@ function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete
 
 function renderRooms(){
  const dates=nextDates(14);
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button type="button" onclick="openRoomForm()">+ Room type</button></div>'+
- (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+esc(r.total_rooms)+' total</span></div><div class="muted">Capacity '+esc(r.capacity)+' · '+(r.public_price!=null?'ETB '+esc(r.public_price):'Rate confirmed by hotel')+'</div><div class="actions"><button type="button" class="ghost" data-edit-room="'+esc(r.id)+'">Edit room</button><button type="button" class="danger" data-delete-room="'+esc(r.id)+'">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+esc(r.id)+'-'+d+'" type="number" min="0" max="'+esc(r.total_rooms)+'" value="'+esc(val)+'"><label><input id="b-'+esc(r.id)+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button type="button" class="ghost" data-save-inventory="'+esc(r.id)+'" data-date="'+d+'" data-total="'+esc(r.total_rooms)+'">Save</button></div>}).join('')}</div></div>').join(''):'<div class="muted">No room types configured.</div>');
+ const rows=state.rooms.map(r=>{
+  const days=dates.map(d=>{
+   const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);
+   const val=x?.available_rooms??r.total_rooms;
+   return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+esc(r.id)+'-'+d+'" type="number" min="0" max="'+esc(r.total_rooms)+'" value="'+esc(val)+'"><label><input id="b-'+esc(r.id)+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button type="button" class="ghost" data-save-inventory="'+esc(r.id)+'" data-date="'+d+'" data-total="'+esc(r.total_rooms)+'">Save</button></div>';
+  }).join('');
+  return '<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+esc(r.total_rooms)+' total</span></div><div class="muted">Capacity '+esc(r.capacity)+' · '+(r.public_price!=null?'ETB '+esc(r.public_price):'Rate confirmed by hotel')+'</div><div class="actions"><button type="button" class="ghost" data-edit-room="'+esc(r.id)+'">Edit room</button><button type="button" class="danger" data-delete-room="'+esc(r.id)+'">Delete</button></div><div class="inventory">'+days+'</div></div>';
+ }).join('');
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button type="button" onclick="openRoomForm()">+ Room type</button></div>'+(rows||'<div class="muted">No room types configured.</div>');
  document.querySelectorAll('[data-edit-room]').forEach(btn=>btn.onclick=()=>{const room=state.rooms.find(x=>String(x.id)===String(btn.dataset.editRoom));if(room)openRoomForm(room)});
  document.querySelectorAll('[data-delete-room]').forEach(btn=>btn.onclick=()=>deleteRoom(btn.dataset.deleteRoom));
  document.querySelectorAll('[data-save-inventory]').forEach(btn=>btn.onclick=()=>saveInventory(btn.dataset.saveInventory,btn.dataset.date,Number(btn.dataset.total)));
