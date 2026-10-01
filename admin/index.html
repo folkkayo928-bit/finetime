@@ -107,23 +107,110 @@
   }
   globalThis.supabase={createClient};
 })();
-</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-09-30f. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
+</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
 const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',s=supabase.createClient(U,K),view=document.getElementById('view');const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
 async function login(){const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),errEl=document.getElementById('err'),statusEl=document.getElementById('status'),button=document.querySelector('#login button');errEl.textContent='';const emailValue=emailEl.value.trim(),passwordValue=passEl.value;if(!emailValue||!passwordValue){errEl.textContent='Enter both your email and password.';return}if(button){button.disabled=true;button.textContent='Signing in…'}statusEl.textContent='Signing in…';try{const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');if(r.error){errEl.textContent=r.error.message;statusEl.textContent='Sign-in failed.';return}statusEl.textContent='Signed in. Checking admin access…';await boot()}catch(e){errEl.textContent=e.message||'Sign-in failed. Please try again.';statusEl.textContent='Sign-in failed.'}finally{if(button){button.disabled=false;button.textContent='Sign in'}}}
 async function logout(){await s.auth.signOut();location.reload()}
 async function forgotPassword(){const email=document.getElementById('email').value.trim();if(!email)return alert('Enter your admin email first.');const productionRedirect='https://finetime.folkkayo928.workers.dev/';const r=await s.auth.resetPasswordForEmail(email,{redirectTo:productionRedirect});if(r.error)alert(r.error.message);else alert('If that email belongs to an account, a password reset email has been sent. Follow the link to return here and complete the reset with your Admin Security PIN.')}
-async function verifyPin(){const pin=prompt('Enter your 6–12 digit Admin Security PIN:');if(pin===null)return false;if(!/^\\d{6,12}$/.test(pin))return alert('PIN must contain 6 to 12 digits.'),false;const r=await s.rpc('verify_admin_security_pin',{p_pin:pin});if(r.error)throw r.error;if(r.data!==true)return alert('Incorrect PIN or temporarily locked after repeated failures.'),false;return true}
-async function setPin(){const a=prompt('Create a 6–12 digit numeric Admin Security PIN:');if(a===null)return;if(!/^\\d{6,12}$/.test(a))return alert('PIN must contain 6 to 12 digits.');const b=prompt('Confirm your Admin Security PIN:');if(b!==a)return alert('PINs do not match.');const r=await s.rpc('set_admin_security_pin',{p_pin:a});if(r.error)alert(r.error.message);else alert('Admin Security PIN saved. Keep it private.');security()}
-async function changePassword(){if(!(await verifyPin()))return;const p=prompt('New password (use a strong, unique password):');if(p===null)return;if(p.length<8)return alert('Use at least 8 characters.');const r=await s.auth.updateUser({password:p});if(r.error)alert(r.error.message);else alert('Password updated successfully.')}
-async function changeEmail(){if(!(await verifyPin()))return;const email=prompt('New admin email address:');if(email===null)return;if(!/^\\S+@\\S+\\.\\S+$/.test(email.trim()))return alert('Enter a valid email address.');const r=await s.auth.updateUser({email:email.trim()});if(r.error)alert(r.error.message);else alert('Email change requested. Supabase may require confirmation of the current and new email addresses.')}
-async function security(){const {data:{session}}=await s.auth.getSession();if(!session?.user)return;view.innerHTML='<div class="card"><h2>Admin Security</h2><p class="muted">This extra PIN protects password and email changes. The PIN is stored only as a server-side hash and is never saved in this page or GitHub.</p><button onclick="setPin()">Set / Change PIN</button><br><br><button onclick="changePassword()">Change password (PIN required)</button><br><br><button onclick="changeEmail()">Change email (PIN required)</button><br><br><button class="g" onclick="businesses()">Back to Businesses</button></div>';if((location.hash||'').includes('access_token=')){alert('Password recovery session received. Use Security → Change password and enter your Admin Security PIN.')}}
-
+async function verifyPinValue(pin){
+ const value=String(pin||'').trim();
+ if(!/^\\d{6,12}$/.test(value))throw new Error('PIN must contain 6 to 12 digits.');
+ const r=await s.rpc('verify_admin_security_pin',{p_pin:value});
+ if(r.error)throw r.error;
+ if(r.data!==true)throw new Error('Incorrect PIN or the PIN is temporarily locked.');
+ return true;
+}
+function securityMessage(message,ok=false){
+ const el=document.getElementById('securityMessage');
+ if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>';
+}
+function security(){
+ view.innerHTML='<div class="formHead"><div><h2>Admin Security</h2><p class="muted">All security changes use visible forms. No browser prompts. Your PIN is checked server-side and never stored in this page.</p></div><button class="g" type="button" id="securityBack">Back to Businesses</button></div>'+
+ '<div id="securityMessage"></div>'+
+ '<section class="formSection"><h3>Admin Security PIN</h3><form id="pinForm"><div class="formGrid">'+
+ '<div class="field"><label>New PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="new-password" minlength="6" maxlength="12" pattern="[0-9]{6,12}" required placeholder="6–12 digits"><span class="help">Use 6 to 12 digits. Saving a new PIN replaces the current PIN.</span></div>'+
+ '<div class="field"><label>Confirm new PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" minlength="6" maxlength="12" pattern="[0-9]{6,12}" required placeholder="Repeat the PIN"></div>'+
+ '</div><div class="formActions"><button type="submit">Save PIN</button></div></form></section>'+
+ '<section class="formSection"><h3>Change password</h3><p class="help">Enter the Admin Security PIN before changing the password. If you are completing a password-recovery link, the current password is not required.</p>'+
+ '<form id="passwordForm"><div class="formGrid">'+
+ '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="off" required placeholder="6–12 digit PIN"></div>'+
+ '<div class="field"><label>Current password <span class="help">(only for normal change)</span></label><input name="current" type="password" autocomplete="current-password" placeholder="Current password"></div>'+
+ '<div class="field"><label>New password *</label><input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"></div>'+
+ '<div class="field"><label>Confirm new password *</label><input name="confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repeat new password"></div>'+
+ '</div><div class="formActions"><button type="submit">Save new password</button></div></form></section>'+
+ '<section class="formSection"><h3>Change email</h3><p class="help">Enter the Admin Security PIN and the new admin email. Supabase may still require email confirmation depending on your Auth settings.</p>'+
+ '<form id="emailForm"><div class="formGrid">'+
+ '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" inputmode="numeric" autocomplete="off" required placeholder="6–12 digit PIN"></div>'+
+ '<div class="field"><label>New email *</label><input name="email" type="email" autocomplete="email" required placeholder="admin@example.com"></div>'+
+ '</div><div class="formActions"><button type="submit">Save new email</button></div></form></section>';
+ document.getElementById('securityBack')?.addEventListener('click',businesses);
+ document.getElementById('pinForm')?.addEventListener('submit',saveSecurityPin);
+ document.getElementById('passwordForm')?.addEventListener('submit',savePasswordForm);
+ document.getElementById('emailForm')?.addEventListener('submit',saveEmailForm);
+ if((location.hash||'').includes('access_token='))securityMessage('Password recovery session detected. Set a new password below; the current password can be left blank.',true);
+}
+async function saveSecurityPin(event){
+ event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),confirmPin=String(fd.get('confirm')||'');
+ if(!/^\\d{6,12}$/.test(pin))return securityMessage('PIN must contain 6 to 12 digits.');
+ if(pin!==confirmPin)return securityMessage('PIN confirmation does not match.');
+ const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
+ try{const r=await s.rpc('set_admin_security_pin',{p_pin:pin});if(r.error)throw r.error;form.reset();securityMessage('Admin Security PIN saved successfully.',true)}catch(e){securityMessage(e.message||'Could not save the PIN.')}finally{if(button){button.disabled=false;button.textContent='Save PIN'}}
+}
+async function savePasswordForm(event){
+ event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),current=String(fd.get('current')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
+ if(password.length<8)return securityMessage('Use at least 8 characters for the new password.');
+ if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
+ const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
+ try{
+   await verifyPinValue(pin);
+   const recovery=/(access_token=|refresh_token=)/.test(location.hash||'');
+   const attrs=recovery?{password}:{password,current_password:current};
+   if(!recovery&&!current)return securityMessage('Enter the current password for a normal password change.');
+   const r=await s.auth.updateUser(attrs);if(r.error)throw r.error;
+   form.reset();securityMessage('Password updated successfully.',true);
+   if(recovery)history.replaceState(null,'',location.pathname+location.search);
+ }catch(e){securityMessage(e.message||'Could not update the password.')}
+ finally{if(button){button.disabled=false;button.textContent='Save new password'}}
+}
+async function saveEmailForm(event){
+ event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),email=String(fd.get('email')||'').trim();
+ if(!/^\\S+@\\S+\\.\\S+$/.test(email))return securityMessage('Enter a valid email address.');
+ const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
+ try{await verifyPinValue(pin);const r=await s.auth.updateUser({email});if(r.error)throw r.error;form.reset();securityMessage('Email change submitted successfully. Check the required confirmation email if Supabase Auth requests one.',true)}catch(e){securityMessage(e.message||'Could not update the email.')}finally{if(button){button.disabled=false;button.textContent='Save new email'}}
+}
 async function withTimeout(p,label='Request'){return await Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' timed out. Check your connection and try again.')),10000))])}
 async function boot(){const loginEl=document.getElementById('login'),appEl=document.getElementById('app'),statusEl=document.getElementById('status'),errEl=document.getElementById('err');try{statusEl.textContent='Checking session…';const {data:{session},error:sessionError}=await withTimeout(s.auth.getSession(),'Session check');if(sessionError)throw sessionError;const user=session?.user;if(!user){loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Please sign in.';return}const r=await withTimeout(s.from('admin_memberships').select('role').eq('user_id',user.id).maybeSingle(),'Admin access check');if(r.error)throw r.error;if(r.data?.role!=='admin'){await s.auth.signOut();loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Signed in, but this account is not a FineTime admin.';errEl.textContent='No admin membership is currently assigned to this account.';return}loginEl.classList.add('hidden');appEl.classList.remove('hidden');statusEl.textContent='Admin session active.';errEl.textContent='';await businesses()}catch(e){loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Admin sign-in check failed.';errEl.textContent=e.message||'The admin request failed. Please try again.'}}
 const q=x=>encodeURIComponent(JSON.stringify(x)),dq=x=>{try{return JSON.parse(decodeURIComponent(x))}catch{return{}}};
 const attr=x=>esc(x||'').replace(/"/g,'&quot;');
 
-async function businesses(){const r=await s.from('businesses').select('*').order('name');if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<div class="row"><h2>Businesses</h2><button onclick="businessForm()">+ Create</button></div>'+(r.data||[]).map(b=>'<div class="card"><b>'+esc(b.name)+'</b><span class="pill">'+esc(b.category)+' · '+(b.is_published?'Published':'Hidden')+'</span><p class="muted">'+esc(b.about||'')+'</p><button onclick="businessForm(\''+q(b)+'\')">Edit</button> <button onclick="publish(\''+b.id+'\','+(!b.is_published)+')">'+(b.is_published?'Hide':'Publish')+'</button> <button class="d" onclick="delBusiness(\''+b.id+'\')">Delete</button></div>').join('')||'<div class="card muted">No businesses.</div>'}
+let businessRows=[];
+async function businesses(){
+ const r=await s.from('businesses').select('*').order('name');
+ if(r.error){view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';return}
+ businessRows=r.data||[];
+ view.innerHTML='<div class="formHead"><div><h2>Businesses</h2><p class="muted">Edit, publish/hide, or delete businesses. Every action reports its result here.</p></div><button id="createBusinessButton" type="button">+ Create</button></div><div id="businessActionStatus"></div>'+
+ (businessRows.length?businessRows.map(b=>'<div class="card" data-business-id="'+esc(b.id)+'"><b>'+esc(b.name)+'</b><span class="pill">'+esc(b.category||'')+' · '+(b.is_published?'Published':'Hidden')+'</span><p class="muted">'+esc(b.about||'')+'</p><div class="actions"><button type="button" data-business-action="edit" data-id="'+esc(b.id)+'">Edit</button><button type="button" data-business-action="publish" data-id="'+esc(b.id)+'">'+(b.is_published?'Hide':'Publish')+'</button><button type="button" class="d" data-business-action="delete" data-id="'+esc(b.id)+'">Delete</button></div></div>').join(''):'<div class="card muted">No businesses.</div>');
+ document.getElementById('createBusinessButton')?.addEventListener('click',()=>businessForm());
+ view.querySelectorAll('[data-business-action]').forEach(btn=>btn.addEventListener('click',async()=>{
+   const id=btn.dataset.id,action=btn.dataset.businessAction,b=businessRows.find(x=>String(x.id)===String(id));
+   if(!b)return;
+   if(action==='edit'){await businessForm(encodeURIComponent(JSON.stringify(b)));return}
+   if(action==='publish'){await setBusinessPublished(id,!b.is_published,btn);return}
+   if(action==='delete'){await delBusiness(id,btn);return}
+ }));
+}
+function businessStatus(message,ok=false){const el=document.getElementById('businessActionStatus');if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>'}
+async function setBusinessPublished(id,value,button){
+ if(button)button.disabled=true;
+ try{
+   const r=await s.from('businesses').update({is_published:value}).eq('id',id).select('id,is_published').maybeSingle();
+   if(r.error)throw r.error;
+   if(!r.data){businessStatus('No business record was changed. Please refresh and try again.');return}
+   await businesses();
+   businessStatus('Business '+(value?'published':'hidden')+' successfully.',true);
+ }catch(e){businessStatus(e.message||'The publish/hide action failed.')}
+ finally{if(button)button.disabled=false}
+}
 async function businessForm(x){
  const b=x?dq(x):{};
  const [citiesResult,profileResult,subscriptionResult]=await Promise.all([
@@ -219,8 +306,6 @@ async function saveBusinessForm(event,id){
    businesses();
  }catch(e){alert(e.message||'Could not save business.')}
 }
-async function publish(id,v){const r=await s.from('businesses').update({is_published:v}).eq('id',id);if(r.error)alert(r.error.message);else businesses()}
-async function delBusiness(id){if(!confirm('Delete this business?'))return;const r=await s.from('businesses').delete().eq('id',id);if(r.error)alert(r.error.message);else businesses()}
 async function codes(){const r=await s.from('activation_codes').select('id,business_id,expires_at,used_at,revoked_at,created_at,businesses(name)').order('created_at',{ascending:false});if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Activation Codes</h2><button onclick="makeCode()">+ Generate</button>'+(r.data||[]).map(x=>'<div class="card"><b>'+esc(x.businesses?.name||x.business_id)+'</b><span class="pill">'+(x.used_at?'Used':x.revoked_at?'Revoked':x.expires_at&&new Date(x.expires_at)<new Date()?'Expired':'Active')+'</span><p class="muted">'+esc(x.created_at)+'</p>'+(!x.used_at&&!x.revoked_at?'<button class="d" onclick="revoke(\''+x.id+'\')">Revoke</button>':'')+'</div>').join('')}
 async function makeCode(){
  const r=await s.from('businesses').select('id,name').order('name');
@@ -309,5 +394,5 @@ async function saveModuleForm(event,id){
 async function toggleModule(id,v){const r=await s.from('site_modules').update({is_enabled:v}).eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function delModule(id){if(!confirm('Delete this module?'))return;const r=await s.from('site_modules').delete().eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function audit(){const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Audit Log</h2>'+(r.data||[]).map(x=>'<div class="item"><b>'+esc(x.action)+'</b><span class="pill">'+esc(x.entity_type)+'</span><div class="muted">'+esc(x.created_at)+' · '+esc(x.entity_id||'')+'</div></div>').join('')||'<div class="card muted">No audit entries.</div>'}
-(async()=>{try{await s.auth.recoverFromHash()}catch(e){console.warn('Recovery session could not be restored',e)}boot()})();
+(async()=>{try{const recovered=await s.auth.recoverFromHash();await boot();if(recovered)setTimeout(()=>security(),0)}catch(e){console.warn('Recovery session could not be restored',e);boot()}})();
 </script></body></html>
