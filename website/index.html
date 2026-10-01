@@ -45,6 +45,6 @@ function render(){const q=document.getElementById('q').value.toLowerCase().trim(
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 document.getElementById('q').addEventListener('input',render);
 async function loadModules(){try{const r=await fetch(URL+'/rest/v1/site_modules?select=*&placement=eq.website_home&is_enabled=eq.true&order=sort_order&_ft='+Date.now(),{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});if(!r.ok)return;const rows=await r.json();document.getElementById('modules').innerHTML=rows.map(m=>'<article class="card">'+(m.image_url?'<img src="'+esc(m.image_url)+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px">':'')+'<h3>'+esc(m.title)+'</h3><p class="muted">'+esc(m.body||'')+'</p>'+(m.cta_url?'<a class="btn" href="'+esc(m.cta_url)+'">'+esc(m.cta_label||'Learn more')+'</a>':'')+'</article>').join('')}catch(_){}}
-load();loadModules();
+load();loadModules();setInterval(load,5000);setInterval(loadModules,5000);
 </script>
 </body></html>
