@@ -129,7 +129,7 @@ function security(){
  '<div id="securityMessage"></div>'+
  '<section class="formSection"><h3>Admin Security PIN</h3><form id="pinForm"><div class="formGrid">'+
  '<div class="field"><label>New PIN *</label><input name="pin" type="password" autocomplete="new-password" required placeholder="Enter any PIN"><span class="help">Any non-empty PIN is accepted. Saving a new PIN replaces the current PIN.</span></div>'+
- '<div class="field"><label>Confirm new PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" minlength="6" maxlength="12" pattern="[0-9]{6,12}" required placeholder="Repeat the PIN"></div>'+
+ '<div class="field"><label>Confirm new PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" required placeholder="Repeat the PIN"></div>'+
  '</div><div class="formActions"><button type="submit">Save PIN</button></div></form></section>'+
  '<section class="formSection"><h3>Change password</h3><p class="help">Enter the Admin Security PIN before changing the password. If you are completing a password-recovery link, the current password is not required.</p>'+
  '<form id="passwordForm"><div class="formGrid">'+
@@ -157,18 +157,23 @@ async function saveSecurityPin(event){
  try{const r=await s.rpc('set_admin_security_pin',{p_pin:pin});if(r.error)throw r.error;form.reset();securityMessage('Admin Security PIN saved successfully.',true)}catch(e){securityMessage(e.message||'Could not save the PIN.')}finally{if(button){button.disabled=false;button.textContent='Save PIN'}}
 }
 async function savePasswordForm(event){
- event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),current=String(fd.get('current')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
- if(!password) return securityMessage('Password cannot be empty.');
+ event.preventDefault();
+ const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
+ if(!pin.trim())return securityMessage('PIN cannot be empty.');
+ if(!password)return securityMessage('Password cannot be empty.');
  if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
  const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
  try{
-   await verifyPinValue(pin);
-   const recovery=/(access_token=|refresh_token=)/.test(location.hash||'');
-   const attrs=recovery?{password}:{password,current_password:current};
-   if(!recovery&&!current)return securityMessage('Enter the current password for a normal password change.');
-   const r=await s.auth.updateUser(attrs);if(r.error)throw r.error;
-   form.reset();securityMessage('Password updated successfully.',true);
-   if(recovery)history.replaceState(null,'',location.pathname+location.search);
+   const sess=await session();
+   if(!sess?.access_token)throw new Error('Your admin session has expired. Please sign in again.');
+   const res=await fetch(U+'/functions/v1/admin-password-change',{
+     method:'POST',
+     headers:{apikey:K,Authorization:'Bearer '+sess.access_token,'Content-Type':'application/json'},
+     body:JSON.stringify({pin,password})
+   });
+   let data=null;const raw=await res.text();try{data=raw?JSON.parse(raw):null}catch{}
+   if(!res.ok)throw new Error(data?.error||data?.message||raw||('HTTP '+res.status));
+   form.reset();securityMessage('Password updated successfully. You do not need the current password.',true);
  }catch(e){securityMessage(e.message||'Could not update the password.')}
  finally{if(button){button.disabled=false;button.textContent='Save new password'}}
 }
