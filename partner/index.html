@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>FineTime Partner · build 20260930d</title>
+<title>FineTime Partner · build 20261001e</title>
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 
 <style>
@@ -52,6 +52,9 @@ let previousRequestKey='';
 let pollTimer=null;
 
 function initData(){return tg?.initData||''}
+function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function attr(value){return esc(value)}
+function editorOpen(){return !!document.querySelector('#content form')}
 async function api(action,extra={}){
  const telegramInitData=initData();
  if(!telegramInitData) throw new Error('This Partner Mini App must be opened from Telegram. Open FineTime Partner from the Telegram bot, then enter your activation code.');
@@ -172,10 +175,12 @@ async function bootstrap(){
   if(!firstBootstrap && requestKey!==previousRequestKey) notifyNewRequest();
   previousRequestKey=requestKey;
   firstBootstrap=false;
+  const keepEditor=editorOpen();
   state=nextState;
   document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
   document.getElementById('business').innerHTML='<h2>'+esc(state.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(state.business?.category||'')+' · '+(state.business?.is_published?'Published':'Not published')+'</div>';
-  renderNav();render();
+  renderNav();
+  if(!keepEditor) render();
   if(!pollTimer) pollTimer=setInterval(()=>bootstrap().catch(()=>{}),10000);
  }catch(e){
   const message=e?.message||'Partner connection failed.';
@@ -251,9 +256,12 @@ function notifyNewRequest(){
 }
 function renderMenu(){
  document.getElementById('content').innerHTML='<h3 class="sectionTitle">Digital menu</h3><p class="muted">Add categories and manage food/drink items, prices, photos and availability.</p>'+
- '<div class="actions"><button onclick="openCategoryForm()">+ Category</button><button class="ghost" onclick="openItemForm()">+ Menu item</button></div>'+
- state.categories.map(c=>'<div class="item"><div class="row"><strong>'+esc(c.name)+'</strong><span class="pill">'+(c.menu_items?.length||0)+' items</span></div>'+
- (c.menu_items||[]).map(i=>'<div class="item"><div class="row"><strong>'+esc(i.name)+'</strong><span class="pill">ETB '+esc(i.price??'—')+'</span></div><div class="muted">'+esc(i.description||'')+' · '+(i.is_available?'Available':'Unavailable')+'</div><div class="actions"><button class="ghost" onclick="openItemForm('+jsonArg(i)+')">Edit</button><button class="danger" onclick="deleteItem(\''+i.id+'\')">Delete</button></div></div>').join('')+'</div>').join('');
+ '<div class="actions"><button type="button" onclick="openCategoryForm()">+ Category</button><button type="button" class="ghost" onclick="openItemForm()">+ Menu item</button></div>'+
+ state.categories.map(c=>'<div class="item"><div class="row"><strong>'+esc(c.name)+'</strong><span class="pill">'+(c.menu_items?.length||0)+' items</span></div><div class="actions"><button type="button" class="ghost" data-edit-category="'+esc(c.id)+'">Edit category</button></div>'+
+ (c.menu_items||[]).map(i=>'<div class="item"><div class="row"><strong>'+esc(i.name)+'</strong><span class="pill">ETB '+esc(i.price??'—')+'</span></div><div class="muted">'+esc(i.description||'')+' · '+(i.is_available?'Available':'Unavailable')+'</div><div class="actions"><button type="button" class="ghost" data-edit-item="'+esc(i.id)+'">Edit</button><button type="button" class="danger" data-delete-item="'+esc(i.id)+'">Delete</button></div></div>').join('')+'</div>').join('');
+ document.querySelectorAll('[data-edit-category]').forEach(btn=>btn.onclick=()=>{const c=state.categories.find(x=>String(x.id)===String(btn.dataset.editCategory));if(c)openCategoryForm(c)});
+ document.querySelectorAll('[data-edit-item]').forEach(btn=>btn.onclick=()=>{let item=null;for(const c of state.categories){item=(c.menu_items||[]).find(x=>String(x.id)===String(btn.dataset.editItem));if(item)break}if(item)openItemForm(item)});
+ document.querySelectorAll('[data-delete-item]').forEach(btn=>btn.onclick=()=>deleteItem(btn.dataset.deleteItem));
 }
 function openCategoryForm(c=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(c?'Edit category':'Add menu category')+'</h3><div class="muted">Keep the category details together on one page.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
@@ -294,8 +302,10 @@ function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete
 
 function renderRooms(){
  const dates=nextDates(14);
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button onclick="openRoomForm()">+ Room type</button></div>'+
- (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+r.total_rooms+' total</span></div><div class="muted">Capacity '+r.capacity+' · '+(r.public_price!=null?'ETB '+r.public_price:'Rate confirmed by hotel')+'</div><div class="actions"><button class="ghost" onclick="openRoomForm('+jsonArg(r)+')">Edit room</button><button class="danger" onclick="deleteRoom(\''+r.id+'\')">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+r.id+'-'+d+'" type="number" min="0" max="'+r.total_rooms+'" value="'+val+'"><label><input id="b-'+r.id+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button class="ghost" onclick="saveInventory(\''+r.id+'\',\''+d+'\','+r.total_rooms+')">Save</button></div>'}).join('')+'</div></div>').join(''):'<div class="muted">No room types configured.</div>');
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button type="button" onclick="openRoomForm()">+ Room type</button></div>'+
+ (state.rooms.length?state.rooms.map(r=>'<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+esc(r.total_rooms)+' total</span></div><div class="muted">Capacity '+esc(r.capacity)+' · '+(r.public_price!=null?'ETB '+esc(r.public_price):'Rate confirmed by hotel')+'</div><div class="actions"><button type="button" class="ghost" data-edit-room="'+esc(r.id)+'">Edit room</button><button type="button" class="danger" data-delete-room="'+esc(r.id)+'">Delete</button></div><div class="inventory">'+dates.map(d=>{const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);const val=x?.available_rooms??r.total_rooms;return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+esc(r.id)+'-'+d+'" type="number" min="0" max="'+esc(r.total_rooms)+'" value="'+esc(val)+'"><label><input id="b-'+esc(r.id)+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button type="button" class="ghost" onclick="saveInventory(\''+r.id+'\',\''+d+'\','+r.total_rooms+')">Save</button></div>'}).join('')}</div></div>').join(''):'<div class="muted">No room types configured.</div>');
+ document.querySelectorAll('[data-edit-room]').forEach(btn=>btn.onclick=()=>{const room=state.rooms.find(x=>String(x.id)===String(btn.dataset.editRoom));if(room)openRoomForm(room)});
+ document.querySelectorAll('[data-delete-room]').forEach(btn=>btn.onclick=()=>deleteRoom(btn.dataset.deleteRoom));
 }
 async function openRoomForm(r=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(r?'Edit room type':'Add room type')+'</h3><div class="muted">Configure the room completely before saving.</div></div><button class="ghost" type="button" onclick="showTab(\'rooms\')">Back</button></div>'+
@@ -327,8 +337,10 @@ async function saveInventory(roomId,date,total){
 function nextDates(days){const a=[],d=new Date();d.setHours(0,0,0,0);for(let i=0;i<days;i++){const x=new Date(d);x.setDate(x.getDate()+i);a.push(x.toISOString().slice(0,10))}return a}
 
 function renderPromotions(){
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Promotions & posts</h3><p class="muted">Publish real offers only. Expired promotions should not remain active.</p><div class="actions"><button onclick="openPromoForm()">+ Promotion</button></div>'+
- (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button class="ghost" onclick="openPromoForm('+jsonArg(p)+')">Edit</button><button class="danger" onclick="deletePromo(\''+p.id+'\')">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
+ document.getElementById('content').innerHTML='<h3 class="sectionTitle">Promotions & posts</h3><p class="muted">Publish real offers only. Expired promotions should not remain active.</p><div class="actions"><button type="button" onclick="openPromoForm()">+ Promotion</button></div>'+
+ (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button type="button" class="ghost" data-edit-promo="'+esc(p.id)+'">Edit</button><button type="button" class="danger" data-delete-promo="'+esc(p.id)+'">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
+ document.querySelectorAll('[data-edit-promo]').forEach(btn=>btn.onclick=()=>{const promo=state.promotions.find(x=>String(x.id)===String(btn.dataset.editPromo));if(promo)openPromoForm(promo)});
+ document.querySelectorAll('[data-delete-promo]').forEach(btn=>btn.onclick=()=>deletePromo(btn.dataset.deletePromo));
 }
 async function openPromoForm(p=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(p?'Edit promotion':'Add promotion')+'</h3><div class="muted">Create the complete offer in one page.</div></div><button class="ghost" type="button" onclick="showTab(\'promotions\')">Back</button></div>'+
@@ -356,18 +368,22 @@ function deletePromo(id){if(!confirm('Delete this promotion?'))return;api('delet
 
 function renderSettings(){
  const b=state.business||{},s=state.subscription;
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Business profile</h3>'+
- '<div class="grid"><div><label class="label">Business name</label><input id="bn" value="'+attr(b.name)+'"></div><div><label class="label">Phone</label><input id="bp" value="'+attr(b.phone)+'"></div></div>'+
- '<label class="label">About</label><textarea id="ba">'+esc(b.about||'')+'</textarea>'+
- '<div class="grid"><div><label class="label">Cover image URL</label><input id="bc" value="'+attr(b.cover_url)+'"><div class="actions"><button class="ghost" onclick="uploadCoverFromDevice()">Upload cover from device</button></div></div><div><label class="label">Services (comma separated)</label><input id="bs" value="'+attr((b.services||[]).join(', '))+'"></div></div>'+
- '<label class="label">Gallery image URLs (comma separated)</label><textarea id="bg">'+esc((b.gallery_urls||[]).join(', '))+'</textarea><div class="actions"><button class="ghost" onclick="uploadGalleryFromDevice()">Upload gallery photos from device</button></div>'+
- '<label class="label">Opening hours (JSON)</label><textarea id="bo">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea>'+
- '<label class="label">Highlights (comma separated)</label><input id="bh" value="'+attr((b.highlights||[]).join(', '))+'">'+
- '<label class="label">Amenities (comma separated)</label><input id="bam" value="'+attr((b.amenities||[]).join(', '))+'">'+
- '<div class="actions"><button onclick="saveBusiness()">Save business profile</button></div>'+
- '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Plan changes are requested here; FineTime controls activation, price and billing until online billing is integrated.</div><div class="actions"><button class="ghost" onclick="requestPlanChange()">Request plan change</button></div></div>';
+ document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">Business profile</h3><div class="muted">Complete your business details on this page. Your work stays in the form while the workspace refreshes in the background.</div></div><button type="button" class="ghost" onclick="showTab(\'overview\')">Back</button></div>'+
+ '<form id="businessEditor" class="formSection" onsubmit="return saveBusiness(event)">'+
+ '<div class="formGrid">'+
+ '<div class="field"><label>Business name</label><input id="bn" name="name" value="'+attr(b.name)+'"></div><div class="field"><label>Phone</label><input id="bp" name="phone" value="'+attr(b.phone)+'"></div>'+
+ '<div class="field full"><label>About</label><textarea id="ba" name="about">'+esc(b.about||'')+'</textarea></div>'+
+ '<div class="field"><label>Cover image URL</label><input id="bc" name="cover_url" value="'+attr(b.cover_url)+'"><div class="actions"><button type="button" class="ghost" onclick="uploadCoverFromDevice()">Upload cover from device</button></div></div>'+
+ '<div class="field"><label>Services (comma separated)</label><input id="bs" name="services" value="'+attr((b.services||[]).join(', '))+'"></div>'+
+ '<div class="field full"><label>Gallery image URLs (comma separated)</label><textarea id="bg" name="gallery_urls">'+esc((b.gallery_urls||[]).join(', '))+'</textarea><div class="actions"><button type="button" class="ghost" onclick="uploadGalleryFromDevice()">Upload gallery photos from device</button></div></div>'+
+ '<div class="field full"><label>Opening hours (JSON)</label><textarea id="bo" name="opening_hours">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea></div>'+
+ '<div class="field"><label>Highlights (comma separated)</label><input id="bh" name="highlights" value="'+attr((b.highlights||[]).join(', '))+'"></div>'+
+ '<div class="field"><label>Amenities (comma separated)</label><input id="bam" name="amenities" value="'+attr((b.amenities||[]).join(', '))+'"></div>'+
+ '</div><div class="formActions"><button type="submit">Save business profile</button><button type="button" class="ghost" onclick="showTab(\'overview\')">Cancel</button></div></form>'+
+ '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Plan changes are requested here; FineTime controls activation, price and billing until online billing is integrated.</div><div class="actions"><button type="button" class="ghost" onclick="requestPlanChange()">Request plan change</button></div></div>';
 }
-async function saveBusiness(){
+async function saveBusiness(event){
+ event.preventDefault();
  const csv=id=>document.getElementById(id).value.split(',').map(x=>x.trim()).filter(Boolean);
  let opening={};
  try{opening=JSON.parse(document.getElementById('bo').value||'{}')}catch(e){return alert('Opening hours must be valid JSON.')}
