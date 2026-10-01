@@ -273,7 +273,7 @@ function openCategoryForm(c=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(c?'Edit category':'Add menu category')+'</h3><div class="muted">Keep the category details together on one page.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
  '<form id="categoryEditor" onsubmit="return saveCategoryForm(event,'+(c?JSON.stringify(c.id):'null')+')">'+
  '<section class="formSection"><h4>Category details</h4><div class="formGrid">'+
- '<div class="field full"><label>Category name *</label><input name="name" required value="'+attr(c?.name||'')" placeholder="Starters, Main dishes, Drinks…"></div>'+
+ '<div class="field full"><label>Category name *</label><input name="name" required value="'+attr(c?.name||'')+'" placeholder="Starters, Main dishes, Drinks…"></div>'+
  '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(c?.sort_order??0)+'"></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(c?'Save category':'Create category')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
 }
@@ -291,11 +291,11 @@ async function openItemForm(item=null){
  '<form id="itemEditor" onsubmit="return saveItemForm(event,'+(item?JSON.stringify(item.id):'null')+')">'+
  '<section class="formSection"><h4>Menu item</h4><div class="formGrid">'+
  '<div class="field"><label>Category *</label><select name="category_id" required>'+options+'</select></div>'+
- '<div class="field"><label>Item name *</label><input name="name" required value="'+attr(item?.name||'')" placeholder="Doro wat"></div>'+
+ '<div class="field"><label>Item name *</label><input name="name" required value="'+attr(item?.name||'')+'" placeholder="Doro wat"></div>'+
  '<div class="field"><label>Price (ETB) *</label><input name="price" required type="number" min="0" step="0.01" value="'+attr(item?.price??'')+'"></div>'+
  '<div class="field"><label class="check"><input name="is_available" type="checkbox" '+(item?.is_available!==false?'checked':'')+'> Available for ordering</label></div>'+
  '<div class="field full"><label>Description</label><textarea name="description" placeholder="Ingredients, portion, serving details…">'+esc(item?.description||'')+'</textarea></div>'+
- '<div class="field full"><label>Photo</label><input id="itemPhotoUrl" name="photo_url" value="'+attr(item?.photo_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'itemPhotoUrl\',false)">Upload from device</button></div><img id="itemPhotoPreview" class="preview" '+(item?.photo_url?'src="'+attr(item.photo_url)+'"':'style="display:none"')+' alt="Menu item preview"></div>'+
+ '<div class="field full"><label>Photo</label><input id="itemPhotoUrl" name="photo_url" value="'+attr(item?.photo_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'itemPhotoUrl\',false)">Upload from device</button></div><img id="itemPhotoPreview" class="preview" '+(item?.photo_url?'src="'+attr(item.photo_url)+'"':'style="display:none"')+' alt="Menu item preview"></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(item?'Save item':'Create menu item')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
  document.getElementById('itemPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('itemPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
 }
@@ -317,14 +317,14 @@ async function openRoomForm(r=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(r?'Edit room type':'Add room type')+'</h3><div class="muted">Configure the room completely before saving.</div></div><button class="ghost" type="button" onclick="showTab(\'rooms\')">Back</button></div>'+
  '<form id="roomEditor" onsubmit="return saveRoomForm(event,'+(r?JSON.stringify(r.id):'null')+')">'+
  '<section class="formSection"><h4>Room details</h4><div class="formGrid">'+
- '<div class="field"><label>Room type name *</label><input name="name" required value="'+attr(r?.name||'')" placeholder="Deluxe King"></div>'+
+ '<div class="field"><label>Room type name *</label><input name="name" required value="'+attr(r?.name||'')+'" placeholder="Deluxe King"></div>'+
  '<div class="field"><label>Total rooms *</label><input name="total_rooms" required type="number" min="0" step="1" value="'+attr(r?.total_rooms??0)+'"></div>'+
  '<div class="field"><label>Guest capacity *</label><input name="capacity" required type="number" min="1" step="1" value="'+attr(r?.capacity??1)+'"></div>'+
  '<div class="field"><label>Public price (ETB/night)</label><input name="public_price" type="number" min="0" step="0.01" value="'+attr(r?.public_price??'')+'"><span class="help">Leave blank if the hotel confirms rates manually.</span></div>'+
  '<div class="field"><label>Beds</label><input name="beds" value="'+attr(r?.beds||'')+'" placeholder="1 king bed"></div>'+
  '<div class="field"><label>Amenities</label><input name="amenities" value="'+attr((r?.amenities||[]).join(', '))+'" placeholder="Wi‑Fi, AC, TV"></div>'+
  '<div class="field full"><label>Description</label><textarea name="description">'+esc(r?.description||'')+'</textarea></div>'+
- '<div class="field full"><label>Room photo</label><input id="roomPhotoUrl" name="photo_url" value="'+attr(r?.photo_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'roomPhotoUrl\',false)">Upload from device</button></div><img id="roomPhotoPreview" class="preview" '+(r?.photo_url?'src="'+attr(r.photo_url)+'"':'style="display:none"')+' alt="Room preview"></div>'+
+ '<div class="field full"><label>Room photo</label><input id="roomPhotoUrl" name="photo_url" value="'+attr(r?.photo_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'roomPhotoUrl\',false)">Upload from device</button></div><img id="roomPhotoPreview" class="preview" '+(r?.photo_url?'src="'+attr(r.photo_url)+'"':'style="display:none"')+' alt="Room preview"></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(r?'Save room type':'Create room type')+'</button><button type="button" class="ghost" onclick="showTab(\'rooms\')">Cancel</button></div></form>';
  document.getElementById('roomPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('roomPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
 }
@@ -352,14 +352,14 @@ async function openPromoForm(p=null){
  document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(p?'Edit promotion':'Add promotion')+'</h3><div class="muted">Create the complete offer in one page.</div></div><button class="ghost" type="button" onclick="showTab(\'promotions\')">Back</button></div>'+
  '<form id="promoEditor" onsubmit="return savePromoForm(event,'+(p?JSON.stringify(p.id):'null')+')">'+
  '<section class="formSection"><h4>Promotion</h4><div class="formGrid">'+
- '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(p?.title||'')" placeholder="Weekend special"></div>'+
+ '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(p?.title||'')+'" placeholder="Weekend special"></div>'+
  '<div class="field"><label>Badge</label><select name="badge"><option value="25% OFF">25% OFF</option><option value="TODAY">TODAY</option><option value="NEW">NEW</option><option value="FEATURED">FEATURED</option><option value="LIMITED">LIMITED</option><option value="FINE TIME PICK">FINE TIME PICK</option></select></div>'+
  '<div class="field"><label>Status</label><select name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>'+
  '<div class="field"><label>Start date</label><input name="starts_on" type="date" value="'+attr(p?.starts_on||'')+'"></div>'+
  '<div class="field"><label>End date</label><input name="ends_on" type="date" value="'+attr(p?.ends_on||'')+'"></div>'+
  '<div class="field full"><label>Description</label><textarea name="description">'+esc(p?.description||'')+'</textarea></div>'+
  '<div class="field full"><label>Terms</label><textarea name="terms">'+esc(p?.terms||'')+'</textarea></div>'+
- '<div class="field full"><label>Promotion image</label><input id="promoImageUrl" name="image_url" value="'+attr(p?.image_url||'')" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'promoImageUrl\',false)">Upload from device</button></div><img id="promoImagePreview" class="preview" '+(p?.image_url?'src="'+attr(p.image_url)+'"':'style="display:none"')+' alt="Promotion preview"></div>'+
+ '<div class="field full"><label>Promotion image</label><input id="promoImageUrl" name="image_url" value="'+attr(p?.image_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'promoImageUrl\',false)">Upload from device</button></div><img id="promoImagePreview" class="preview" '+(p?.image_url?'src="'+attr(p.image_url)+'"':'style="display:none"')+' alt="Promotion preview"></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(p?'Save promotion':'Create promotion')+'</button><button type="button" class="ghost" onclick="showTab(\'promotions\')">Cancel</button></div></form>';
  if(p?.badge)document.querySelector('#promoEditor [name="badge"]').value=p.badge;
  if(p?.status)document.querySelector('#promoEditor [name="status"]').value=p.status;
