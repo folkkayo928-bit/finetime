@@ -411,4 +411,6 @@ async function savePlanRequest(event){
  event.preventDefault();const fd=new FormData(event.currentTarget);
  try{const d=await api('request_subscription_change',{plan:String(fd.get('plan')),notes:String(fd.get('notes')||'').trim()});alert(d.message||'Subscription request sent to FineTime.');await bootstrap();showTab('overview')}catch(e){alert(e.message||'Could not send request.')}
 }
-
+</script>
+</body>
+</html>
