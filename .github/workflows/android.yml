@@ -77,7 +77,7 @@ jobs:
 
           '''
 
-          if "create("release")" not in text:
+          if 'create("release")' not in text:
               marker = "    buildTypes {"
               if marker not in text:
                   raise SystemExit("Could not find buildTypes block in generated Android Gradle file.")
@@ -95,9 +95,7 @@ jobs:
           rm -f android/key.properties.bak
 
       - name: Build signed release APK
-        run: |
-          flutter clean
-          flutter build apk --release             --build-name="0.1.${{ github.run_number }}"             --build-number="${{ github.run_number }}"             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}"             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+        run: flutter clean && flutter build apk --release --build-name="0.1.${{ github.run_number }}" --build-number="${{ github.run_number }}" --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -114,4 +112,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v0.1.${{ github.run_number }}"
-          gh release create "$TAG" finetime.apk             --title "FineTime $TAG"             --generate-notes
+          gh release create "$TAG" finetime.apk --title "FineTime $TAG" --generate-notes
