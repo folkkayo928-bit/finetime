@@ -19,21 +19,99 @@ jobs:
       - run: rm -f test/widget_test.dart
       - run: flutter analyze
       - run: flutter test
-      - name: Build installable debug APK
-        run: flutter build apk --debug --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+
+      - name: Configure persistent Android signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD ANDROID_STORE_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
+
+          mkdir -p android/keystore
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/finetime-upload.jks
+
+          cat > android/key.properties <<EOF
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=keystore/finetime-upload.jks
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("android/app/build.gradle.kts")
+          text = path.read_text()
+
+          imports = '''import java.io.FileInputStream
+          import java.util.Properties
+
+          val keystoreProperties = Properties()
+          val keystorePropertiesFile = rootProject.file("key.properties")
+          if (keystorePropertiesFile.exists()) {
+              keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+          }
+
+          '''
+
+          if "val keystoreProperties = Properties()" not in text:
+              text = imports + text
+
+          signing = '''    signingConfigs {
+                  create("release") {
+                      keyAlias = keystoreProperties.getProperty("keyAlias")
+                      keyPassword = keystoreProperties.getProperty("keyPassword")
+                      storeFile = keystoreProperties.getProperty("storeFile")?.let { file(it) }
+                      storePassword = keystoreProperties.getProperty("storePassword")
+                  }
+              }
+
+          '''
+
+          if "create("release")" not in text:
+              marker = "    buildTypes {"
+              if marker not in text:
+                  raise SystemExit("Could not find buildTypes block in generated Android Gradle file.")
+              text = text.replace(marker, signing + marker, 1)
+
+          debug_signing = 'signingConfig = signingConfigs.getByName("debug")'
+          release_signing = 'signingConfig = signingConfigs.getByName("release")'
+          if debug_signing not in text:
+              raise SystemExit("Could not find generated debug signing configuration.")
+          text = text.replace(debug_signing, release_signing, 1)
+
+          path.write_text(text)
+          PY
+
+          rm -f android/key.properties.bak
+
+      - name: Build signed release APK
+        run: |
+          flutter clean
+          flutter build apk --release             --build-name="0.1.${{ github.run_number }}"             --build-number="${{ github.run_number }}"             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}"             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+
       - uses: actions/upload-artifact@v4
         with:
           name: finetime-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
+
       - name: Prepare release APK
-        run: cp build/app/outputs/flutter-apk/app-debug.apk finetime.apk
+        run: cp build/app/outputs/flutter-apk/app-release.apk finetime.apk
+
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v0.1.${{ github.run_number }}"
-          gh release create "$TAG" finetime.apk \
-            --title "FineTime $TAG" \
-            --generate-notes
+          gh release create "$TAG" finetime.apk             --title "FineTime $TAG"             --generate-notes
