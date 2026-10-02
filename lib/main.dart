@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
+import 'update_checker.dart';
 import 'screens/welcome.dart';
 import 'screens/root.dart';
 
@@ -36,7 +37,7 @@ class FineTimeApp extends StatelessWidget {
         theme: FT.theme(),
         home: configurationError
             ? const _ConfigurationErrorScreen()
-            : const AuthGate(),
+            : const FineTimeUpdateGate(child: AuthGate()),
       );
 }
 
