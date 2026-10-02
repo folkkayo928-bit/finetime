@@ -107,7 +107,7 @@
   }
   globalThis.supabase={createClient};
 })();
-</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="heroHeader()">Header & Hero</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
+</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="heroHeader()">Home Design</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
 const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',s=supabase.createClient(U,K),view=document.getElementById('view');const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
 async function login(){const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),errEl=document.getElementById('err'),statusEl=document.getElementById('status'),button=document.querySelector('#login button');errEl.textContent='';const emailValue=emailEl.value.trim(),passwordValue=passEl.value;if(!emailValue||!passwordValue){errEl.textContent='Enter both your email and password.';return}if(button){button.disabled=true;button.textContent='Signing in…'}statusEl.textContent='Signing in…';try{const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');if(r.error){errEl.textContent=r.error.message;statusEl.textContent='Sign-in failed.';return}statusEl.textContent='Signed in. Checking admin access…';await boot()}catch(e){errEl.textContent=e.message||'Sign-in failed. Please try again.';statusEl.textContent='Sign-in failed.'}finally{if(button){button.disabled=false;button.textContent='Sign in'}}}
 async function logout(){await s.auth.signOut();location.reload()}
@@ -413,14 +413,15 @@ async function toggleModule(id,v){const r=await s.from('site_modules').update({i
 async function delModule(id){if(!confirm('Delete this module?'))return;const r=await s.from('site_modules').delete().eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function audit(){const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Audit Log</h2>'+(r.data||[]).map(x=>'<div class="item"><b>'+esc(x.action)+'</b><span class="pill">'+esc(x.entity_type)+'</span><div class="muted">'+esc(x.created_at)+' · '+esc(x.entity_id||'')+'</div></div>').join('')||'<div class="card muted">No audit entries.</div>'}
 
-function readImageFile(file, maxDim=1400, quality=0.85){
+function readImageBlob(file, maxDim=1800, quality=0.86){
   return new Promise((resolve, reject)=>{
     if(!file||!file.type.startsWith('image/')) return reject(new Error('Please select an image file.'));
+    if(file.size>25*1024*1024) return reject(new Error('Please choose an image smaller than 25 MB.'));
     const reader=new FileReader();
     reader.onerror=()=>reject(new Error('Failed to read image file.'));
     reader.onload=()=>{
       const img=new Image();
-      img.onerror=()=>resolve(reader.result);
+      img.onerror=()=>reject(new Error('This image could not be decoded.'));
       img.onload=()=>{
         try{
           let w=img.width, h=img.height;
@@ -431,9 +432,13 @@ function readImageFile(file, maxDim=1400, quality=0.85){
           const canvas=document.createElement('canvas');
           canvas.width=w; canvas.height=h;
           const ctx=canvas.getContext('2d');
+          if(!ctx) return reject(new Error('Your browser cannot process this image.'));
           ctx.drawImage(img,0,0,w,h);
-          resolve(canvas.toDataURL('image/jpeg',quality));
-        }catch(_){resolve(reader.result);}
+          canvas.toBlob(blob=>{
+            if(!blob) return reject(new Error('Could not prepare this image for upload.'));
+            resolve(blob);
+          },'image/jpeg',quality);
+        }catch(err){reject(err);}
       };
       img.src=reader.result;
     };
@@ -441,27 +446,58 @@ function readImageFile(file, maxDim=1400, quality=0.85){
   });
 }
 
-async function handleDeviceFile(fileInput, targetInputSelector, previewImgSelector){
+async function uploadSiteMedia(file, folder='site'){
+  const blob=await readImageBlob(file);
+  const sess=await s.auth.getSession();
+  const token=sess?.data?.session?.access_token;
+  if(!token) throw new Error('Your admin session has expired. Please sign in again.');
+  const safeFolder=String(folder||'site').replace(/[^a-zA-Z0-9_-]/g,'-');
+  const unique=(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
+  const path=safeFolder+'/'+unique+'.jpg';
+  const res=await fetch(U+'/storage/v1/object/site-media/'+path,{
+    method:'POST',
+    headers:{
+      apikey:K,
+      Authorization:'Bearer '+token,
+      'Content-Type':'image/jpeg',
+      'x-upsert':'false'
+    },
+    body:blob
+  });
+  const text=await res.text();
+  let data=null;
+  try{data=text?JSON.parse(text):null}catch{}
+  if(!res.ok){
+    const msg=data?.message||data?.error||text||('Upload failed (HTTP '+res.status+')');
+    throw new Error(msg);
+  }
+  return U+'/storage/v1/object/public/site-media/'+path;
+}
+
+async function handleDeviceFile(fileInput, targetInputSelector, previewImgSelector, folder='site'){
   const file=fileInput.files&&fileInput.files[0];
   if(!file)return;
-  const originalText=fileInput.parentElement?.innerText;
+  const label=fileInput.parentElement;
+  const oldText=label?.querySelector('span')?.textContent;
   try{
-    if(fileInput.parentElement) fileInput.parentElement.style.opacity='0.6';
-    const dataUrl=await readImageFile(file,1400,0.85);
+    if(label)label.style.opacity='0.6';
+    if(label?.querySelector('span'))label.querySelector('span').textContent='Uploading…';
+    const publicUrl=await uploadSiteMedia(file,folder);
     const targetInput=document.querySelector(targetInputSelector);
     if(targetInput){
-      targetInput.value=dataUrl;
+      targetInput.value=publicUrl;
       targetInput.dispatchEvent(new Event('input'));
     }
     const preview=document.querySelector(previewImgSelector);
     if(preview){
-      preview.src=dataUrl;
+      preview.src=publicUrl;
       preview.style.display='block';
     }
   }catch(err){
-    alert(err.message||'Could not process image from device.');
+    alert(err.message||'Could not upload image from device.');
   }finally{
-    if(fileInput.parentElement) fileInput.parentElement.style.opacity='1';
+    if(label)label.style.opacity='1';
+    if(label?.querySelector('span'))label.querySelector('span').textContent=oldText||'Choose photo from device';
     fileInput.value='';
   }
 }
@@ -479,7 +515,7 @@ async function heroHeader(){
     is_enabled:true
   };
   
-  view.innerHTML='<div class="formHead"><div><h2>App Header & Hero Banner</h2><p class="muted">Change the header building, promotion photo, ad, or brand logo displayed at the top of the mobile app home screen. You can enter an image URL or choose a photo directly from your device.</p></div><button class="g" type="button" onclick="businesses()">Back</button></div>'+
+  view.innerHTML='<div class="formHead"><div><h2>App Header & Hero Banner</h2><p class="muted">Control the mobile home header visual from one place. Use a building photo, promotion, advertisement, campaign artwork, or your own logo. You can paste an image URL or upload a photo directly from your phone or computer.</p></div><button class="g" type="button" onclick="businesses()">Back</button></div>'+
   '<div class="card" style="margin-bottom:16px;background:#0c0a06;border:1px solid #c9a22744;padding:16px;border-radius:18px">'+
     '<h3 style="color:#c9a227;margin-top:0">Live Mobile Header Mockup</h3>'+
     '<div style="position:relative;height:240px;border-radius:14px;overflow:hidden;border:1px solid #332c24;background:#14110c">'+
@@ -503,12 +539,12 @@ async function heroHeader(){
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
         '<input id="heroImageInput" name="image_url" required value="'+attr(m.image_url)+'" placeholder="https://… or upload from device" style="flex:1;min-width:220px">'+
         '<label style="cursor:pointer;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">'+
-          '<span>📁 Choose photo from device</span>'+
+          '<span>📁 Upload photo from device</span>'+
           '<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this, \'#heroImageInput\', \'#heroPreviewImg\')">'+
         '</label>'+
         '<button type="button" class="g" style="padding:10px 12px;font-size:12px" onclick="document.getElementById(\'heroImageInput\').value=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\';document.getElementById(\'heroPreviewImg\').src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">Reset default</button>'+
       '</div>'+
-      '<span class="help">Tap "Choose photo from device" to pick any photo from your phone or PC. It will be resized and saved directly.</span>'+
+      '<span class="help">Choose any photo from your phone or PC. FineTime compresses it and stores it in Supabase Storage, then saves the public media URL. No huge base64 image is stored in the database.</span>'+
     '</div>'+
   '</div></section>'+
   '<section class="formSection"><h3>Header Text & Promotion Details</h3><div class="formGrid">'+
