@@ -488,22 +488,557 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     super.dispose();
   }
 
+
+  int _profileTab = 0;
+  static const _profileTabs = ['About', 'Highlights', 'Gallery', 'Hours', 'Reviews'];
+
+  void _selectProfileTab(int index) {
+    if (mounted) setState(() => _profileTab = index);
+  }
+
+  Widget _profileTabBar() {
+    return Container(
+      color: const Color(0xFF090B0C),
+      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white10))),
+      child: Row(
+        children: List.generate(_profileTabs.length, (i) {
+          final active = _profileTab == i;
+          return Expanded(
+            child: InkWell(
+              onTap: () => _selectProfileTab(i),
+              child: SizedBox(
+                height: 64,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_profileTabs[i], style: TextStyle(
+                      color: active ? FT.gold : Colors.white60,
+                      fontSize: 13,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    )),
+                    const SizedBox(height: 14),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      height: 3,
+                      width: active ? 48 : 0,
+                      decoration: BoxDecoration(color: FT.gold, borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _sectionHeading(String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Text(text, style: const TextStyle(
+      color: FT.ivory, fontSize: 25, height: 1.15,
+      fontWeight: FontWeight.w800, fontFamily: 'serif',
+    )),
+  );
+
+  Widget _glanceCard(IconData icon, String label) {
+    return Expanded(
+      child: Container(
+        height: 105,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF101416),
+          borderRadius: BorderRadius.circular(17),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, color: FT.gold, size: 25),
+          const SizedBox(height: 12),
+          Text(label, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white70, fontSize: 11.5)),
+        ]),
+      ),
+    );
+  }
+
+  Widget _highlightCard(String value, int index) {
+    const icons = [
+      Icons.spa_outlined, Icons.pool_outlined, Icons.restaurant_outlined,
+      Icons.directions_car_outlined, Icons.wifi_outlined, Icons.star_outline_rounded,
+    ];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF101416),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(children: [
+        Container(
+          width: 58, height: 58,
+          decoration: BoxDecoration(color: const Color(0xFF292316), borderRadius: BorderRadius.circular(17)),
+          child: Icon(icons[index % icons.length], color: FT.gold, size: 28),
+        ),
+        const SizedBox(width: 16),
+        Expanded(child: Text(value, style: const TextStyle(
+          color: FT.ivory, fontSize: 18, fontWeight: FontWeight.w800, fontFamily: 'serif',
+        ))),
+      ]),
+    );
+  }
+
+  Widget _reviewCard(Map<String, dynamic> review, int index) {
+    final rating = num.tryParse(review['rating']?.toString() ?? '')?.toDouble() ?? 0;
+    final body = (review['body'] ?? '').toString().trim();
+    final date = (review['created_at'] ?? '').toString().split('T').first;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF101416),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          CircleAvatar(
+            radius: 21, backgroundColor: const Color(0xFF292316),
+            child: Text(index.isEven ? 'G' : 'F',
+              style: const TextStyle(color: FT.gold, fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Verified guest', style: TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text('★ ' + rating.toStringAsFixed(1), style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
+          ])),
+          if (date.isNotEmpty) Text(date, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+        ]),
+        if (body.isNotEmpty) ...[
+          const SizedBox(height: 17),
+          Text(body, style: const TextStyle(color: FT.cream, fontSize: 15, height: 1.45, fontFamily: 'serif')),
+        ],
+      ]),
+    );
+  }
+
+  Widget _locationBlock(Map<String, dynamic> business) {
+    final place = [
+      city(),
+      if ((business['address'] ?? '').toString().trim().isNotEmpty) business['address'].toString().trim(),
+    ].where((e) => e.isNotEmpty).join(', ');
+    final hasCoords = business['lat'] != null && business['lng'] != null;
+    return Container(
+      height: 170,
+      decoration: BoxDecoration(
+        color: const Color(0xFF172025),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(children: [
+        Positioned.fill(child: CustomPaint(painter: _MapLinesPainter())),
+        const Center(child: Icon(Icons.location_on_outlined, color: FT.gold, size: 30)),
+        Positioned(
+          left: 14, right: 14, bottom: 14,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(color: const Color(0xFF090B0C), borderRadius: BorderRadius.circular(15)),
+            child: Row(children: [
+              Expanded(child: Text(place.isEmpty ? 'Location not provided' : place,
+                maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: FT.ivory, fontWeight: FontWeight.w600))),
+              if (hasCoords)
+                TextButton(
+                  onPressed: () => launchUrlValue(
+                    'https://maps.google.com/?q=' + business['lat'].toString() + ',' + business['lng'].toString(),
+                  ),
+                  child: const Text('Get directions'),
+                ),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _aboutContent(Map<String, dynamic> business, List<String> allHighlights) {
+    final about = (business['about'] ?? '').toString().trim();
+    final subtitle = (business['tagline'] ?? business['short_description'] ?? '').toString().trim();
+    final glance = <Map<String, dynamic>>[];
+    for (final item in allHighlights.take(3)) {
+      glance.add({'icon': Icons.auto_awesome_outlined, 'label': item});
+    }
+    if (glance.length < 3 && isHotel && amenityFallback().contains('Lake view')) {
+      glance.add({'icon': Icons.waves_outlined, 'label': 'Lake view'});
+    }
+    while (glance.length < 3) {
+      const labels = ['FineTime selected', 'Great location', 'Guest favorite'];
+      const icons = [Icons.star_outline, Icons.location_on_outlined, Icons.favorite_outline];
+      glance.add({'icon': icons[glance.length], 'label': labels[glance.length]});
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 34, 22, 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (about.isNotEmpty || subtitle.isNotEmpty)
+          Text(about.isNotEmpty ? about : subtitle, style: const TextStyle(
+            color: FT.cream, fontSize: 17, height: 1.55, fontFamily: 'serif',
+          )),
+        const SizedBox(height: 34),
+        _sectionHeading('At a glance'),
+        Row(children: List.generate(3, (i) => Padding(
+          padding: EdgeInsets.only(right: i == 2 ? 0 : 10),
+          child: _glanceCard(glance[i]['icon'] as IconData, glance[i]['label'].toString()),
+        ))),
+        const SizedBox(height: 34),
+        _sectionHeading('Why FineTime loves it'),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2B190B),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: FT.gold.withValues(alpha: .24)),
+          ),
+          child: Text(
+            (business['fine_time_note'] ?? business['tagline'] ??
+              'A genuine sense of place, thoughtful hospitality, and the kind of detail that stays with you.').toString(),
+            style: const TextStyle(color: FT.cream, fontSize: 16, height: 1.5,
+              fontStyle: FontStyle.italic, fontFamily: 'serif'),
+          ),
+        ),
+        const SizedBox(height: 34),
+        _sectionHeading('Location'),
+        _locationBlock(business),
+      ]),
+    );
+  }
+
+  Widget _highlightsContent(List<String> allHighlights) {
+    final items = allHighlights.isEmpty
+      ? ['FineTime verified hospitality', 'Thoughtful guest service', 'Local experiences']
+      : allHighlights;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(34, 38, 34, 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _sectionHeading('Signature highlights'),
+        ...items.asMap().entries.map((e) => _highlightCard(e.value, e.key)),
+      ]),
+    );
+  }
+
+  Widget _galleryContent(List<String> gallery) {
+    if (gallery.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(34),
+        child: Text('Gallery photos will appear here when this business adds them.',
+          style: TextStyle(color: Colors.white60, fontSize: 15)),
+      );
+    }
+    final first = gallery.first;
+    final rest = gallery.skip(1).take(4).toList();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(34, 38, 34, 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _sectionHeading('A closer look'),
+        SizedBox(
+          height: 430,
+          child: Row(children: [
+            Expanded(flex: 2, child: image(first, height: 430, width: double.infinity)),
+            const SizedBox(width: 10),
+            Expanded(child: Column(children: List.generate(2, (i) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: i == 1 ? 0 : 10),
+                child: rest.length > i
+                  ? image(rest[i], height: double.infinity, width: double.infinity)
+                  : Container(
+                      decoration: BoxDecoration(color: const Color(0xFF101416), borderRadius: BorderRadius.circular(18)),
+                    ),
+              ),
+            )))),
+          ]),
+        ),
+        if (rest.length > 2) ...[
+          const SizedBox(height: 10),
+          Row(children: rest.skip(2).take(2).map((url) => Expanded(
+            child: Padding(padding: const EdgeInsets.only(right: 10),
+              child: image(url, height: 210, width: double.infinity)),
+          )).toList()),
+        ],
+      ]),
+    );
+  }
+
+  Widget _hoursContent(Map<String, dynamic> hours, Map<String, dynamic> business) {
+    final entries = hours.entries.toList();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(34, 38, 34, 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _sectionHeading('Opening hours'),
+        if (entries.isEmpty)
+          const Text('Opening hours have not been added yet.',
+            style: TextStyle(color: Colors.white60, fontSize: 15))
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF101416),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Column(children: entries.map((entry) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+              child: Row(children: [
+                Expanded(child: Text(entry.key.replaceAll('_', ' ').toUpperCase(),
+                  style: const TextStyle(color: FT.ivory, fontSize: 12, fontWeight: FontWeight.w700))),
+                Flexible(child: Text(entry.value.toString(), textAlign: TextAlign.right,
+                  style: const TextStyle(color: Colors.white70))),
+              ]),
+            )).toList()),
+          ),
+        const SizedBox(height: 34),
+        _sectionHeading('Contact'),
+        if ((business['phone'] ?? '').toString().trim().isNotEmpty)
+          infoCard(Icons.call_outlined, 'Phone', business['phone'].toString()),
+        if ((business['address'] ?? '').toString().trim().isNotEmpty) ...[
+          const SizedBox(height: 12),
+          infoCard(Icons.location_on_outlined, 'Address', business['address'].toString()),
+        ],
+      ]),
+    );
+  }
+
+  Widget _reviewsContent() {
+    final ratings = reviews.map((r) => num.tryParse(r['rating']?.toString() ?? ''))
+      .whereType<num>().map((n) => n.toDouble()).toList();
+    final average = ratings.isEmpty ? 0.0 : ratings.reduce((a, b) => a + b) / ratings.length;
+    final counts = <int, int>{for (final n in [5, 4, 3, 2, 1]) n: 0};
+    for (final rating in ratings) {
+      final rounded = rating.round().clamp(1, 5);
+      counts[rounded] = (counts[rounded] ?? 0) + 1;
+    }
+    final maxCount = counts.values.fold<int>(1, (a, b) => a > b ? a : b);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(34, 38, 34, 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(ratings.isEmpty ? '—' : average.toStringAsFixed(1),
+              style: const TextStyle(color: FT.ivory, fontSize: 58, height: .95,
+                fontWeight: FontWeight.w500, fontFamily: 'serif')),
+            const SizedBox(height: 10),
+            Text('★ ' + average.toStringAsFixed(1),
+              style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 18),
+            Text(reviews.length.toString() + ' verified review' + (reviews.length == 1 ? '' : 's'),
+              style: const TextStyle(color: Colors.white54)),
+          ]),
+          const SizedBox(width: 34),
+          Expanded(child: Column(children: [5, 4, 3, 2, 1].map((star) {
+            final count = counts[star] ?? 0;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(children: [
+                SizedBox(width: 14, child: Text('$star', style: const TextStyle(color: Colors.white70, fontSize: 12))),
+                const SizedBox(width: 8),
+                Expanded(child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: count / maxCount,
+                    minHeight: 5,
+                    backgroundColor: const Color(0xFF1C2528),
+                    valueColor: const AlwaysStoppedAnimation<Color>(FT.gold),
+                  ),
+                )),
+              ]),
+            );
+          }).toList())),
+        ]),
+        const SizedBox(height: 42),
+        _sectionHeading('Guest stories'),
+        if (reviews.isEmpty)
+          const Text('No reviews yet. Be the first guest to share your experience.',
+            style: TextStyle(color: Colors.white60, fontSize: 15))
+        else
+          ...reviews.asMap().entries.map((e) => _reviewCard(e.value, e.key)),
+        if (reviewEligible) ...[
+          const SizedBox(height: 4),
+          SizedBox(width: double.infinity, child: OutlinedButton(
+            onPressed: openReview,
+            style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: FT.gold),
+              padding: const EdgeInsets.symmetric(vertical: 15)),
+            child: const Text('Write a review'),
+          )),
+        ],
+      ]),
+    );
+  }
+
+  Widget _profileHero(Map<String, dynamic> business, double? average) {
+    final cover = business['cover_url']?.toString().trim() ?? '';
+    final place = [
+      city(),
+      if ((business['address'] ?? '').toString().trim().isNotEmpty) business['address'].toString().trim(),
+    ].where((e) => e.isNotEmpty).join(', ');
+    return SizedBox(
+      height: 420,
+      child: Stack(fit: StackFit.expand, children: [
+        image(cover, height: 420, width: double.infinity),
+        Positioned.fill(child: IgnorePointer(child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(alpha: .28), Colors.transparent,
+                const Color(0xFF090B0C).withValues(alpha: .88), const Color(0xFF090B0C),
+              ],
+              stops: const [0, .38, .78, 1],
+            ),
+          ),
+        ))),
+        SafeArea(bottom: false, child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          child: Row(children: [
+            _heroIconButton(Icons.arrow_back_ios_new_rounded, () => Navigator.pop(context)),
+            const Spacer(),
+            if (hasFood) _heroIconButton(Icons.qr_code_2_rounded, showQr),
+            const SizedBox(width: 10),
+            _heroIconButton(saved ? Icons.favorite_rounded : Icons.favorite_border_rounded, toggleSave, active: saved),
+          ]),
+        )),
+        Positioned(
+          left: 24, right: 24, bottom: 24,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text((business['category'] ?? 'hospitality').toString().toUpperCase(),
+              style: const TextStyle(color: FT.gold, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2.5)),
+            const SizedBox(height: 9),
+            Text(business['name'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: FT.ivory, fontSize: 36, height: 1, fontWeight: FontWeight.w500, fontFamily: 'serif')),
+            const SizedBox(height: 12),
+            Row(children: [
+              const Icon(Icons.star, color: FT.gold, size: 18),
+              const SizedBox(width: 5),
+              Text(average == null ? 'New' : average.toStringAsFixed(1),
+                style: const TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
+              if (average != null) ...[
+                const SizedBox(width: 4),
+                Text('(' + reviews.length.toString() + ' reviews)', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+              ],
+              const Spacer(),
+              if (place.isNotEmpty) ...[
+                const Icon(Icons.location_on_outlined, color: Colors.white70, size: 17),
+                const SizedBox(width: 4),
+                Flexible(child: Text(place, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12))),
+              ],
+            ]),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _heroIconButton(IconData icon, VoidCallback action, {bool active = false}) {
+    return Material(
+      color: const Color(0xFF090B0C).withValues(alpha: .78),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: action,
+        customBorder: const CircleBorder(),
+        child: SizedBox(width: 48, height: 48,
+          child: Icon(icon, color: active ? FT.gold : FT.ivory, size: 22)),
+      ),
+    );
+  }
+
+  Widget _bottomBookingBar(Map<String, dynamic> business) {
+    final price = isHotel && rooms.isNotEmpty ? rooms.first['public_price'] : null;
+    final priceText = price == null ? (isHotel ? 'Rate on request' : 'Reserve your experience') : 'ETB $price / night';
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(22, 11, 18, 11),
+        decoration: const BoxDecoration(
+          color: Color(0xFF080D0E),
+          border: Border(top: BorderSide(color: Colors.white10)),
+        ),
+        child: Row(children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('From', style: TextStyle(color: Colors.white54, fontSize: 11)),
+            const SizedBox(height: 3),
+            Text(priceText, style: const TextStyle(color: FT.gold, fontSize: 16, fontWeight: FontWeight.w800)),
+          ])),
+          SizedBox(
+            height: 58, width: 205,
+            child: FilledButton(
+              onPressed: openBooking,
+              style: FilledButton.styleFrom(
+                backgroundColor: FT.gold,
+                foregroundColor: const Color(0xFF17120A),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+              ),
+              child: Text(isHotel ? 'Book now →' : 'Reserve now →',
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  List<String> amenityFallback() => strings(b?['amenities']);
+
+  class _MapLinesPainter extends CustomPainter {
+    @override
+    void paint(Canvas canvas, Size size) {
+      final paint = Paint()..color = Colors.white.withValues(alpha: .08)..strokeWidth = 2;
+      final path1 = Path()
+        ..moveTo(-20, size.height * .72)
+        ..lineTo(size.width * .2, size.height * .5)
+        ..lineTo(size.width * .52, size.height * .62)
+        ..lineTo(size.width + 20, size.height * .2);
+      final path2 = Path()
+        ..moveTo(-10, size.height * .28)
+        ..lineTo(size.width * .35, size.height * .48)
+        ..lineTo(size.width * .72, size.height * .34)
+        ..lineTo(size.width + 10, size.height * .52);
+      final path3 = Path()
+        ..moveTo(size.width * .42, -10)
+        ..lineTo(size.width * .48, size.height * .38)
+        ..lineTo(size.width * .4, size.height + 10);
+      canvas.drawPath(path1, paint);
+      canvas.drawPath(path2, paint);
+      canvas.drawPath(path3, paint);
+    }
+    @override
+    bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     if (error != null) {
-      return Scaffold(appBar: AppBar(), body: Center(child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(error!, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          FilledButton(onPressed: load, child: const Text('Retry')),
-        ]),
-      )));
+      return Scaffold(
+        backgroundColor: const Color(0xFF090B0C),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(error!, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            FilledButton(onPressed: load, child: const Text('Retry')),
+          ]),
+        )),
+      );
     }
 
     final business = b;
     if (business == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Color(0xFF090B0C),
+        body: Center(child: CircularProgressIndicator(color: FT.gold)),
+      );
     }
 
     final highlights = strings(business['highlights']);
@@ -511,243 +1046,40 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     final amenities = strings(business['amenities']);
     final gallery = strings(business['gallery_urls']);
     final hours = asMap(business['opening_hours']);
+    final allHighlights = <String>[...highlights, ...services, if (isHotel) ...amenities].toSet().toList();
 
-    final ratings = reviews
-        .map((r) => num.tryParse(r['rating']?.toString() ?? ''))
-        .whereType<num>().toList();
-    final average = ratings.isEmpty ? null : ratings.reduce((a, c) => a + c) / ratings.length;
-    final subtitle = (business['tagline'] ?? business['short_description'] ?? business['about'] ?? '').toString().trim();
+    final ratings = reviews.map((r) => num.tryParse(r['rating']?.toString() ?? ''))
+      .whereType<num>().map((n) => n.toDouble()).toList();
+    final average = ratings.isEmpty ? null : ratings.reduce((a, b) => a + b) / ratings.length;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: const Text('FineTime'),
-        actions: [
-          if (hasFood) IconButton(icon: const Icon(Icons.qr_code_2), onPressed: showQr, tooltip: 'Show QR menu'),
-          IconButton(
-            icon: Icon(saved ? Icons.favorite : Icons.favorite_border, color: saved ? FT.gold : FT.ivory),
-            onPressed: toggleSave,
-            tooltip: saved ? 'Remove from saved' : 'Save place',
-          ),
-        ],
-      ),
-      bottomNavigationBar: bottomActions(),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Stack(children: [
-            image(business['cover_url']?.toString(), height: 290, width: double.infinity),
-            Positioned.fill(child: IgnorePointer(child: DecoratedBox(
-              decoration: BoxDecoration(gradient: LinearGradient(
-                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [Colors.black.withValues(alpha: .12), Colors.black.withValues(alpha: .9)],
-              )),
-            ))),
-          ]),
-          Transform.translate(
-            offset: const Offset(0, -28),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              decoration: const BoxDecoration(
-                color: FT.charcoal,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      backgroundColor: const Color(0xFF090B0C),
+      bottomNavigationBar: _bottomBookingBar(business),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            _profileHero(business, average),
+            _profileTabBar(),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              child: KeyedSubtree(
+                key: ValueKey(_profileTab),
+                child: switch (_profileTab) {
+                  0 => _aboutContent(business, allHighlights),
+                  1 => _highlightsContent(allHighlights),
+                  2 => _galleryContent(gallery),
+                  3 => _hoursContent(hours, business),
+                  4 => _reviewsContent(),
+                  _ => _aboutContent(business, allHighlights),
+                },
               ),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(business['name'] ?? '', style: const TextStyle(fontSize: 29, height: 1.05, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 10),
-                Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 8, runSpacing: 7, children: [
-                  FT.badge((business['category'] ?? 'hospitality').toString().replaceAll('_', ' ').toUpperCase()),
-                  if (average != null) Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.star, color: FT.gold, size: 19),
-                    const SizedBox(width: 4),
-                    Text('${average.toStringAsFixed(1)} · ${ratings.length} review${ratings.length == 1 ? '' : 's'}',
-                      style: const TextStyle(color: Colors.white70)),
-                  ]),
-                ]),
-                if (subtitle.isNotEmpty) Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.35)),
-                ),
-                const SizedBox(height: 18),
-                Wrap(spacing: 10, runSpacing: 10, children: [
-                  FilledButton.icon(
-                    onPressed: business['lat'] == null ? null : () => launchUrlValue(
-                      'https://maps.google.com/?q=${business['lat']},${business['lng']}'),
-                    icon: const Icon(Icons.location_on_outlined),
-                    label: const Text('Get directions'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: business['phone'] == null ? null : () => launchUrlValue('tel:${business['phone']}'),
-                    icon: const Icon(Icons.call_outlined),
-                    label: const Text('Call'),
-                    style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: FT.gold)),
-                  ),
-                  if (hasFood) OutlinedButton.icon(
-                    onPressed: openMenu,
-                    icon: const Icon(Icons.restaurant_menu_outlined),
-                    label: const Text('View digital menu'),
-                    style: OutlinedButton.styleFrom(foregroundColor: FT.ivory, side: const BorderSide(color: Colors.white24)),
-                  ),
-                ]),
-                const SizedBox(height: 30),
-
-                if ((business['about'] ?? '').toString().trim().isNotEmpty) ...[
-                  title('About'),
-                  const SizedBox(height: 10),
-                  Text(business['about'].toString(),
-                    style: const TextStyle(color: Colors.white70, height: 1.55, fontSize: 15)),
-                  const SizedBox(height: 26),
-                ],
-
-                if (highlights.isNotEmpty || services.isNotEmpty || (isHotel && amenities.isNotEmpty)) ...[
-                  title('Highlights & services'),
-                  const SizedBox(height: 10),
-                  Wrap(spacing: 8, runSpacing: 8, children: [
-                    ...highlights.map(pill),
-                    ...services.map(pill),
-                    if (isHotel) ...amenities.map(pill),
-                  ]),
-                  const SizedBox(height: 28),
-                ],
-
-                if (gallery.isNotEmpty) ...[
-                  title('Gallery'),
-                  const SizedBox(height: 12),
-                  SizedBox(height: 190, child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: gallery.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 10),
-                    itemBuilder: (_, i) => image(gallery[i], height: 190, width: 290),
-                  )),
-                  const SizedBox(height: 28),
-                ],
-
-                if (hours.isNotEmpty) ...[
-                  infoCard(Icons.access_time, 'Opening hours',
-                    hours.entries.map((e) => '${e.key}: ${e.value}').join('\\n')),
-                  const SizedBox(height: 12),
-                ],
-                infoCard(
-                  Icons.location_on_outlined,
-                  'Location',
-                  [city(), if ((business['address'] ?? '').toString().trim().isNotEmpty) business['address'].toString().trim()]
-                      .where((e) => e.isNotEmpty).join(', ').isEmpty
-                    ? 'Location not provided'
-                    : [city(), if ((business['address'] ?? '').toString().trim().isNotEmpty) business['address'].toString().trim()]
-                        .where((e) => e.isNotEmpty).join(', '),
-                ),
-                const SizedBox(height: 28),
-
-                if (isHotel && rooms.isNotEmpty) ...[
-                  title('Stay · Rooms'),
-                  const SizedBox(height: 12),
-                  ...rooms.map(roomCard),
-                  const SizedBox(height: 16),
-                ],
-
-                if (hasFood) ...[
-                  title('Dine · Menu', action: 'Order', onAction: openMenu),
-                  const SizedBox(height: 12),
-                  ...menu.map(menuCategory),
-                  const SizedBox(height: 16),
-                ],
-
-                if (promotions.isNotEmpty) ...[
-                  title('Promotions'),
-                  const SizedBox(height: 12),
-                  ...promotions.map((p) => Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      if ((p['image_url'] ?? '').toString().isNotEmpty)
-                        image(p['image_url'].toString(), height: 150, width: double.infinity),
-                      Padding(padding: const EdgeInsets.all(14), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        if ((p['badge'] ?? '').toString().isNotEmpty)
-                          Padding(padding: const EdgeInsets.only(right: 10), child: FT.badge(p['badge'].toString())),
-                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(p['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800)),
-                          if ((p['description'] ?? '').toString().isNotEmpty)
-                            Padding(padding: const EdgeInsets.only(top: 5),
-                              child: Text(p['description'].toString(), style: const TextStyle(color: Colors.white70))),
-                        ])),
-                      ])),
-                    ]),
-                  )),
-                  const SizedBox(height: 16),
-                ],
-
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF151515),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white10),
-                  ),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    title('Reviews'),
-                    const SizedBox(height: 12),
-                    Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      Text(average == null ? '—' : average.toStringAsFixed(1),
-                        style: const TextStyle(fontSize: 38, height: 1, fontWeight: FontWeight.w800)),
-                      const SizedBox(width: 16),
-                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: List.generate(5, (i) => Icon(
-                          i < (average?.round() ?? 0) ? Icons.star : Icons.star_border,
-                          color: FT.gold, size: 19))),
-                        const SizedBox(height: 5),
-                        Text('${reviews.length} review${reviews.length == 1 ? '' : 's'}',
-                          style: const TextStyle(color: Colors.white54)),
-                      ]),
-                      const Spacer(),
-                      if (reviews.isNotEmpty)
-                        TextButton(onPressed: showAllReviews, child: const Text('View all reviews ›')),
-                    ]),
-                    if (reviews.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      const Divider(),
-                      const SizedBox(height: 8),
-                      ...reviews.take(3).map(reviewTile),
-                    ],
-                    const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: openReview,
-                      icon: Icon(reviewEligible ? Icons.rate_review_outlined : Icons.lock_outline),
-                      label: Text(reviewEligible ? 'Write a review' : 'Review after a completed experience'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: reviewEligible ? FT.ivory : Colors.white54,
-                        side: BorderSide(color: reviewEligible ? FT.gold : Colors.white12),
-                      ),
-                    ),
-                  ]),
-                ),
-
-                if (hasFood) ...[
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF17130A),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: FT.gold.withValues(alpha: .35)),
-                    ),
-                    child: Row(children: [
-                      const Icon(Icons.qr_code_2, color: FT.gold, size: 22),
-                      const SizedBox(width: 12),
-                      const Expanded(child: Text(
-                        'Scan the QR code at your table to view the full digital menu and place an order.',
-                        style: TextStyle(color: Colors.white70, height: 1.35))),
-                      IconButton(onPressed: showQr, icon: const Icon(Icons.open_in_new, color: FT.gold)),
-                    ]),
-                  ),
-                ],
-                const SizedBox(height: 24),
-              ]),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 }
