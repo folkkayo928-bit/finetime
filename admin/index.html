@@ -391,7 +391,7 @@ function editModule(x){
  view.innerHTML='<div class="formHead"><div><h2>'+(m.id?'Edit site module':'Create site module')+'</h2><p class="muted">All content is visible here before you save.</p></div><button class="g" type="button" onclick="modules()">Back</button></div>'+
  '<form id="moduleEditor" onsubmit="return saveModuleForm(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
  '<section class="formSection"><h3>Module content</h3><div class="formGrid">'+
- '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'website_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+((m.placement||'website_home')==='website_home'?'selected':'')+'>Public website home</option></select></div>'+
+ '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'website_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+((m.placement||'website_home')==='website_home'?'selected':'')+'>Public website home</option><option value="all" '+(m.placement==='all'?'selected':'')+'>Both app & website</option></select></div>'+
  '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(m.sort_order??0)+'"></div>'+
  '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(m.title)+'"></div>'+
  '<div class="field full"><label>Body</label><textarea name="body">'+esc(m.body||'')+'</textarea></div>'+

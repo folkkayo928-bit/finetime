@@ -7,7 +7,10 @@ import 'dart:io';
 /// or alter the normal Supabase client networking.
 
 class NetDiag {
-  static const _url = String.fromEnvironment('SUPABASE_URL');
+  static const _url = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://atewcbkuzrnfnmzsylze.supabase.co',
+  );
   static String get host => Uri.tryParse(_url)?.host ?? '';
 
   static bool get configured => _url.isNotEmpty;
@@ -52,7 +55,10 @@ class NetDiag {
     // 3. Supabase REST API
     try {
       final client = HttpClient();
-      final key = const String.fromEnvironment('SUPABASE_ANON_KEY');
+      final key = const String.fromEnvironment(
+        'SUPABASE_ANON_KEY',
+        defaultValue: 'sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',
+      );
       final req = await client
           .getUrl(Uri.parse('$_url/rest/v1/'))
           .timeout(const Duration(seconds: 10));
@@ -70,7 +76,10 @@ class NetDiag {
     // 4. Supabase Auth endpoint
     try {
       final client = HttpClient();
-      final key = const String.fromEnvironment('SUPABASE_ANON_KEY');
+      final key = const String.fromEnvironment(
+        'SUPABASE_ANON_KEY',
+        defaultValue: 'sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',
+      );
       final req = await client
           .getUrl(Uri.parse('$_url/auth/v1/settings'))
           .timeout(const Duration(seconds: 10));

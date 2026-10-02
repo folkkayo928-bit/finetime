@@ -200,7 +200,7 @@ class _MeScreenState extends State<MeScreen> {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: FT.charcoal)),
+                      color: FT.ivory)),
               const SizedBox(height: 20),
               TextField(
                   controller: _name,

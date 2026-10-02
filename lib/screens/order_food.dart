@@ -77,8 +77,10 @@ class _OrderFoodScreenState extends State<OrderFoodScreen> {
           'customer_note': _note.text.trim().isEmpty ? null : _note.text.trim(),
         },
       );
-      final rows = List<Map<String, dynamic>>.from(response.data as List);
-      if (rows.isEmpty) throw Exception('The business could not accept this order.');
+      final data = response.data;
+      if (data == null || (data is List && data.isEmpty)) {
+        throw Exception('The business could not accept this order.');
+      }
 
       if (!mounted) return;
       await showDialog<void>(

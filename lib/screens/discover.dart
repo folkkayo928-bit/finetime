@@ -50,7 +50,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final m = await Net.run(() => sb
           .from('site_modules')
           .select('id,placement,title,body,cta_label,cta_url,image_url,sort_order')
-          .eq('placement', 'app_home')
+          .inFilter('placement', ['app_home', 'all'])
           .eq('is_enabled', true)
           .order('sort_order', ascending: true));
       if (mounted) {
@@ -71,10 +71,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future<void> _openModuleUrl(String value) async {
-    final uri = Uri.tryParse(value);
-    if (uri == null) return;
-    if (uri.scheme != 'http' && uri.scheme != 'https') return;
-    await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+    try {
+      final uri = Uri.tryParse(value);
+      if (uri == null) return;
+      if (uri.scheme != 'http' && uri.scheme != 'https') return;
+      await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+    } catch (_) {}
   }
 
   @override

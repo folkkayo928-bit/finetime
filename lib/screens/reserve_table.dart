@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../net.dart';
 
 class ReserveTableScreen extends StatefulWidget {
   final Map<String, dynamic> business;
@@ -83,10 +84,15 @@ class _ReserveTableScreenState extends State<ReserveTableScreen> {
         setState(() => _error = 'Please sign in first (Me tab).');
         return;
       }
+      final token = await Net.userAccessToken(sb);
+      if (token == null || token.isEmpty) {
+        throw Exception('Your FineTime session has expired. Please sign in again.');
+      }
       final prof =
           await sb.from('profiles').select('full_name').eq('id', user.id).single();
       await sb.functions.invoke(
         'request-restaurant-reservation',
+        headers: {'Authorization': 'Bearer $token'},
         body: {
           'business_id': widget.business['id'],
           'reservation_date': _date.toIso8601String().substring(0, 10),

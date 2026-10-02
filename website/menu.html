@@ -4,7 +4,7 @@
 <style>body{margin:0;background:#121212;color:#f5f1e8;font:16px system-ui,-apple-system,sans-serif}main{max-width:760px;margin:auto;padding:24px 18px 50px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px}.muted{color:#a0a0a0}.hero{margin:20px 0 28px}.cover{width:100%;max-height:300px;object-fit:cover;border-radius:18px}.cat{margin-top:28px}.item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #ffffff10}.item img{width:78px;height:78px;object-fit:cover;border-radius:12px}.price{margin-left:auto;color:#c9a227;font-weight:800;white-space:nowrap}.empty{padding:30px 0}.btn{display:inline-block;margin-top:18px;padding:11px 16px;border-radius:11px;background:#c9a227;color:#121212;text-decoration:none;font-weight:800}</style></head>
 <body><main><a class="brand" href="./">FINETIME</a><div id="root">Loading menu…</div></main>
 <script>
-const U='__SUPABASE_URL__',K='__SUPABASE_ANON_KEY__',id=new URLSearchParams(location.search).get('id');
+const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',id=new URLSearchParams(location.search).get('id');
 async function load(){if(!id){root.innerHTML='<div class="empty">Menu not found.</div>';return}try{
 const b=await fetch(U+'/rest/v1/businesses?select=*&id=eq.'+encodeURIComponent(id)+'&is_published=eq.true',{headers:{apikey:K,Authorization:'Bearer '+K}}).then(r=>r.json());
 if(!b.length){root.innerHTML='<div class="empty">This menu is unavailable.</div>';return}

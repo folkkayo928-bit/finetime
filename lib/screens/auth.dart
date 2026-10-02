@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../net.dart';
 import '../theme.dart';
+import 'root.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -135,7 +136,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextField(
                         controller: _name,
                         textCapitalization: TextCapitalization.words,
-                        style: const TextStyle(color: FT.charcoal),
+                        style: const TextStyle(color: FT.ivory),
                         decoration: const InputDecoration(labelText: 'Full real name'),
                       ),
                       const SizedBox(height: 12),
@@ -143,14 +144,14 @@ class _AuthScreenState extends State<AuthScreen> {
                     TextField(
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: FT.charcoal),
+                      style: const TextStyle(color: FT.ivory),
                       decoration: const InputDecoration(labelText: 'Email'),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _password,
                       obscureText: _obscure,
-                      style: const TextStyle(color: FT.charcoal),
+                      style: const TextStyle(color: FT.ivory),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         suffixIcon: IconButton(
@@ -175,6 +176,23 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Text(_create
                           ? 'Already have an account? Sign in'
                           : 'New to FineTime? Create an account'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const RootScreen()),
+                              ),
+                      icon: const Icon(Icons.explore_outlined, color: FT.gold),
+                      label: const Text('Explore as Guest',
+                          style: TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: FT.gold),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ],
                 ),

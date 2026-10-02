@@ -4,8 +4,14 @@ import 'theme.dart';
 import 'screens/auth.dart';
 import 'screens/root.dart';
 
-const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+const defaultSupabaseUrl = 'https://atewcbkuzrnfnmzsylze.supabase.co';
+const defaultSupabaseAnonKey = 'sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
+
+const configuredSupabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const configuredSupabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+final supabaseUrl = configuredSupabaseUrl.isNotEmpty ? configuredSupabaseUrl : defaultSupabaseUrl;
+final supabaseAnonKey = configuredSupabaseAnonKey.isNotEmpty ? configuredSupabaseAnonKey : defaultSupabaseAnonKey;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,8 +47,6 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) => StreamBuilder<AuthState>(
         stream: Supabase.instance.client.auth.onAuthStateChange,
         builder: (context, snapshot) {
-          final session = Supabase.instance.client.auth.currentSession;
-          if (session == null) return const AuthScreen();
           return const RootScreen();
         },
       );

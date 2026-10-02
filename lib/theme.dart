@@ -57,12 +57,22 @@ class FT {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(color: Colors.black54),
-        hintStyle: const TextStyle(color: Colors.black38),
+        fillColor: const Color(0xFF1E1E1E),
+        labelStyle: const TextStyle(color: Colors.white70),
+        hintStyle: const TextStyle(color: Colors.white38),
+        prefixIconColor: gold,
+        suffixIconColor: gold,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: Colors.white12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.white12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: gold, width: 1.5),
         ),
       ),
       dividerColor: Colors.white12,

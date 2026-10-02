@@ -1,0 +1,8 @@
+{
+  "name": "FineTime",
+  "description": "Ethiopia-focused hospitality discovery, stays, table reservations, and menus",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

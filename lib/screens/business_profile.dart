@@ -176,8 +176,15 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
   Future<void> launchUrlValue(String value) async {
-    final uri = Uri.parse(value);
-    if (await launcher.canLaunchUrl(uri)) await launcher.launchUrl(uri);
+    try {
+      final sanitized = value.startsWith('tel:')
+          ? 'tel:${value.substring(4).replaceAll(RegExp(r'[\s()\-–]'), '')}'
+          : value;
+      final uri = Uri.tryParse(sanitized);
+      if (uri != null) {
+        await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+      }
+    } catch (_) {}
   }
 
   Future<void> toggleSave() async {

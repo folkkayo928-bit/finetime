@@ -141,9 +141,18 @@ class _BookHotelScreenState extends State<BookHotelScreen> {
           'guests': _guests,
         },
       );
-      final rows = List<Map<String, dynamic>>.from(response.data as List);
-      if (rows.isEmpty) throw Exception('The hotel could not accept this request.');
-      setState(() => _ref = rows.first['reference'] as String);
+      final data = response.data;
+      String? ref;
+      if (data is List && data.isNotEmpty) {
+        final first = data.first;
+        if (first is Map) ref = first['reference']?.toString();
+      } else if (data is Map) {
+        ref = data['reference']?.toString();
+      }
+      if (ref == null || ref.isEmpty) {
+        throw Exception('The hotel could not accept this request.');
+      }
+      setState(() => _ref = ref);
     } catch (e) {
       // Show the real reason so failures are diagnosable.
       setState(() => _error = e.toString().contains('FunctionsHttpException')
