@@ -351,7 +351,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
                 // Multi-Stop Obsidian Vignette Overlay
                 Container(
-                  height: 430,
+                  height: 420,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -450,7 +450,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           heroTitle,
                           style: const TextStyle(
                             color: FT.ivory,
-                            fontSize: 34,
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'serif',
                             height: 1.15,
@@ -579,7 +579,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             const SizedBox(height: 14),
 
             SizedBox(
-              height: 310,
+              height: 225,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -639,7 +639,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             const SizedBox(height: 14),
 
             SizedBox(
-              height: 180,
+              height: 154,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -666,7 +666,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               child: GestureDetector(
                 onTap: _showCoffeeStory,
                 child: Container(
-                  height: 220,
+                  height: 174,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(color: const Color(0xFF262017), width: 1),
@@ -855,8 +855,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     final isSaved = _savedIds.contains(id);
 
     return Container(
-      width: 245,
-      margin: const EdgeInsets.only(right: 14),
+      width: 204,
+      margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: const Color(0xFF15120D),
         borderRadius: BorderRadius.circular(20),
@@ -870,7 +870,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             child: Stack(
               children: [
                 SizedBox(
-                  height: 165,
+                  height: 122,
                   width: double.infinity,
                   child: Image.network(item['image'], fit: BoxFit.cover),
                 ),
@@ -1036,8 +1036,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             builder: (_) => BusinessProfileScreen(businessId: b['id'])),
       ),
       child: Container(
-        width: 245,
-        margin: const EdgeInsets.only(right: 14),
+        width: 204,
+        margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: const Color(0xFF15120D),
           borderRadius: BorderRadius.circular(20),
@@ -1052,7 +1052,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               child: Stack(
                 children: [
                   SizedBox(
-                    height: 165,
+                    height: 122,
                     width: double.infinity,
                     child: FTImage(
                       url: cover.isNotEmpty ? cover : _defaultBuildingHero,
@@ -1198,8 +1198,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget _curatedPromoCard(Map<String, dynamic> item) {
     return Container(
-      width: 275,
-      margin: const EdgeInsets.only(right: 14),
+      width: 266,
+      margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFF262017), width: 1),
@@ -1283,8 +1283,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     final image = (p['image_url'] ?? '').toString();
 
     return Container(
-      width: 275,
-      margin: const EdgeInsets.only(right: 14),
+      width: 266,
+      margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFF262017), width: 1),
@@ -1425,7 +1425,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 }
 
 /// Robust image loader that gracefully handles:
-/// - Base64 Data URLs (`data:image/...;base64,...`) uploaded from device in Admin Console
+/// - Supabase Storage public URLs uploaded from the Admin Console
+/// - Legacy Base64 Data URLs (`data:image/...;base64,...`) from older admin uploads
 /// - Standard web URLs (`https://...`)
 /// - Graceful fallback container
 class FTImage extends StatelessWidget {
