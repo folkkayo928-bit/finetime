@@ -1057,6 +1057,10 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   }
 
 
+
+
+}
+
 class _MapLinesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1081,7 +1085,4 @@ class _MapLinesPainter extends CustomPainter {
   }
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-
 }
