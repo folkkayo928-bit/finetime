@@ -115,7 +115,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     try {
       final f = await Net.run(() => sb
           .from('businesses')
-          .select('*, cities(name, region)')
+          .select('*, cities(name, region), room_types(name, public_price)')
           .eq('is_published', true)
           .limit(10));
 
@@ -1167,20 +1167,39 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Verified Luxury',
-                        style: TextStyle(
-                          color: Color(0xFFE3A82D),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      Builder(
+                        builder: (_) {
+                          final rooms = b['room_types'] is List
+                              ? List<Map<String, dynamic>>.from(b['room_types'])
+                              : const <Map<String, dynamic>>[];
+                          final price = rooms.isNotEmpty ? rooms.first['public_price'] : null;
+                          final highlights = b['highlights'] is List ? List.from(b['highlights']) : const [];
+                          final tag = highlights.isNotEmpty ? highlights.first.toString() : 'FineTime selection';
+                          return Expanded(
+                            child: Text(
+                              price != null
+                                  ? 'ETB ${price.toStringAsFixed(0)} / night'
+                                  : tag,
+                              style: const TextStyle(
+                                color: Color(0xFFE3A82D),
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        },
                       ),
+                      const SizedBox(width: 8),
                       Text(
-                        'FineTime Exclusive',
-                        style: TextStyle(
+                        (b['category'] ?? 'stay').toString() == 'hotel'
+                            ? 'Lake view'
+                            : 'View place',
+                        style: const TextStyle(
                           color: Color(0xFF756F67),
                           fontSize: 11.5,
                         ),
