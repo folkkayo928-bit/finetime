@@ -70,9 +70,7 @@ class _FineTimeUpdateGateState extends State<FineTimeUpdateGate> {
           backgroundColor: FT.surface,
           title: const Text('FineTime update available'),
           content: Text(
-            'A newer version ($latest) is ready. Your version is $currentFineTimeVersion.
-
-'
+            'A newer version ($latest) is ready. Your version is $currentFineTimeVersion.\n\n'
             'Open the FineTime release to download the update. Android will ask you to confirm the installation.',
           ),
           actions: [
