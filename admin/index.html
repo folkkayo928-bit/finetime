@@ -289,8 +289,9 @@ async function saveBusinessForm(event,id){
  try{
    let businessId=id;
    if(id){
-     const r=await s.from('businesses').update(businessPayload).eq('id',id);
-     if(r.error)throw r.error;
+     const r=await s.from('businesses').update(businessPayload).eq('id',id).select('id').maybeSingle();
+     if(r.error)throw new Error('Business update failed: '+r.error.message);
+     if(!r.data)throw new Error('Business update matched no record. Please refresh and try again.');
    }else{
      const r=await s.from('businesses').insert(businessPayload).select('id').single();
      if(r.error)throw r.error;
@@ -298,10 +299,10 @@ async function saveBusinessForm(event,id){
    }
    const profilePayload={business_id:businessId,menu_slug:String(fd.get('menu_slug')||'').trim()||null,tagline:String(fd.get('tagline')||'').trim()||null,currency:String(fd.get('currency')||'ETB'),address:String(fd.get('address')||'').trim()||null,logo_url:String(fd.get('logo_url')||'').trim()||null,owner_name:String(fd.get('owner_name')||'').trim()||null,owner_email:String(fd.get('owner_email')||'').trim()||null,onboarding_status:String(fd.get('onboarding_status')||'pending'),payment_status:String(fd.get('payment_status')||'trial')};
    const pr=await s.from('business_admin_profiles').upsert(profilePayload,{onConflict:'business_id'});
-   if(pr.error)throw pr.error;
+   if(pr.error)throw new Error('Business profile save failed: '+pr.error.message);
    const subPayload={business_id:businessId,plan:String(fd.get('plan')||'basic'),status:String(fd.get('subscription_status')||'active'),monthly_price:fd.get('monthly_price')===''?null:Number(fd.get('monthly_price')),starts_on:String(fd.get('starts_on')||'')||null,ends_on:String(fd.get('ends_on')||'')||null,notes:String(fd.get('subscription_notes')||'').trim()||null};
    const sr=await s.from('business_subscriptions').upsert(subPayload,{onConflict:'business_id'});
-   if(sr.error)throw sr.error;
+   if(sr.error)throw new Error('Business subscription save failed: '+sr.error.message);
    alert(id?'Business updated.':'Business created.');
    businesses();
  }catch(e){alert(e.message||'Could not save business.')}
