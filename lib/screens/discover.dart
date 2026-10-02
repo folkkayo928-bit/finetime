@@ -112,9 +112,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: FT.gold.withOpacity(0.15),
+                                        color: FT.gold.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: FT.gold.withOpacity(0.4), width: 0.8),
+                                        border: Border.all(color: FT.gold.withValues(alpha: 0.4), width: 0.8),
                                       ),
                                       child: const Text('FT',
                                           style: TextStyle(

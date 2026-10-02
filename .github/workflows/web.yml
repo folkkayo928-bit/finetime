@@ -43,17 +43,32 @@ jobs:
           mkdir -p build/web/partner
           cp partner/index.html build/web/partner/index.html
           cp partner/index.html build/web/partner.html
-          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/partner/index.html build/web/partner.html
+          if [ -n "${{ secrets.SUPABASE_URL }}" ]; then
+            sed -i 's|https://atewcbkuzrnfnmzsylze.supabase.co|${{ secrets.SUPABASE_URL }}|g' build/web/partner/index.html build/web/partner.html
+          fi
+          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            sed -i 's|sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/partner/index.html build/web/partner.html
+          fi
       - name: Add public website
         run: |
           mkdir -p build/web/website
           cp website/index.html website/business.html website/menu.html website/news.html website/robots.txt website/sitemap.xml build/web/website/
-          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/index.html build/web/website/business.html build/web/website/menu.html build/web/website/news.html
+          if [ -n "${{ secrets.SUPABASE_URL }}" ]; then
+            sed -i 's|https://atewcbkuzrnfnmzsylze.supabase.co|${{ secrets.SUPABASE_URL }}|g' build/web/website/*.html
+          fi
+          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            sed -i 's|sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/website/*.html
+          fi
       - name: Add admin console
         run: |
           mkdir -p build/web/admin
           cp admin/index.html build/web/admin/index.html
-          sed -i 's|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g; s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/admin/index.html
+          if [ -n "${{ secrets.SUPABASE_URL }}" ]; then
+            sed -i 's|https://atewcbkuzrnfnmzsylze.supabase.co|${{ secrets.SUPABASE_URL }}|g' build/web/admin/index.html
+          fi
+          if [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            sed -i 's|sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG|${{ secrets.SUPABASE_ANON_KEY }}|g' build/web/admin/index.html
+          fi
       - name: Verify public deployment package
         run: python3 tools/verify_static_deploy.py
       - uses: actions/configure-pages@v5
