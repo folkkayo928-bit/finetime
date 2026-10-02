@@ -990,32 +990,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   List<String> amenityFallback() => strings(b?['amenities']);
 
-  class _MapLinesPainter extends CustomPainter {
-    @override
-    void paint(Canvas canvas, Size size) {
-      final paint = Paint()..color = Colors.white.withValues(alpha: .08)..strokeWidth = 2;
-      final path1 = Path()
-        ..moveTo(-20, size.height * .72)
-        ..lineTo(size.width * .2, size.height * .5)
-        ..lineTo(size.width * .52, size.height * .62)
-        ..lineTo(size.width + 20, size.height * .2);
-      final path2 = Path()
-        ..moveTo(-10, size.height * .28)
-        ..lineTo(size.width * .35, size.height * .48)
-        ..lineTo(size.width * .72, size.height * .34)
-        ..lineTo(size.width + 10, size.height * .52);
-      final path3 = Path()
-        ..moveTo(size.width * .42, -10)
-        ..lineTo(size.width * .48, size.height * .38)
-        ..lineTo(size.width * .4, size.height + 10);
-      canvas.drawPath(path1, paint);
-      canvas.drawPath(path2, paint);
-      canvas.drawPath(path3, paint);
-    }
-    @override
-    bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1081,5 +1055,33 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       ),
     );
   }
+
+
+class _MapLinesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.white.withValues(alpha: .08)..strokeWidth = 2;
+    final path1 = Path()
+      ..moveTo(-20, size.height * .72)
+      ..lineTo(size.width * .2, size.height * .5)
+      ..lineTo(size.width * .52, size.height * .62)
+      ..lineTo(size.width + 20, size.height * .2);
+    final path2 = Path()
+      ..moveTo(-10, size.height * .28)
+      ..lineTo(size.width * .35, size.height * .48)
+      ..lineTo(size.width * .72, size.height * .34)
+      ..lineTo(size.width + 10, size.height * .52);
+    final path3 = Path()
+      ..moveTo(size.width * .42, -10)
+      ..lineTo(size.width * .48, size.height * .38)
+      ..lineTo(size.width * .4, size.height + 10);
+    canvas.drawPath(path1, paint);
+    canvas.drawPath(path2, paint);
+    canvas.drawPath(path3, paint);
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 
 }
