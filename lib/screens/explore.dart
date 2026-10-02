@@ -5,14 +5,15 @@ import '../theme.dart';
 import 'business_profile.dart';
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  final String? initialCategory;
+  const ExploreScreen({super.key, this.initialCategory});
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
   final sb = Supabase.instance.client;
-  String _filter = 'all';
+  late String _filter;
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _places = [];
@@ -21,6 +22,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   void initState() {
     super.initState();
+    _filter = widget.initialCategory ?? 'all';
     _load();
     _subscribeToUpdates();
   }
@@ -75,7 +77,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: ['all', 'hotel', 'restaurant', 'cafe']
+              children: ['all', 'hotel', 'restaurant', 'cafe', 'experience']
                   .map((c) => Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: ChoiceChip(

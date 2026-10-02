@@ -107,7 +107,7 @@
   }
   globalThis.supabase={createClient};
 })();
-</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
+</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="heroHeader()">Header & Hero</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
 const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',s=supabase.createClient(U,K),view=document.getElementById('view');const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
 async function login(){const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),errEl=document.getElementById('err'),statusEl=document.getElementById('status'),button=document.querySelector('#login button');errEl.textContent='';const emailValue=emailEl.value.trim(),passwordValue=passEl.value;if(!emailValue||!passwordValue){errEl.textContent='Enter both your email and password.';return}if(button){button.disabled=true;button.textContent='Signing in…'}statusEl.textContent='Signing in…';try{const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');if(r.error){errEl.textContent=r.error.message;statusEl.textContent='Sign-in failed.';return}statusEl.textContent='Signed in. Checking admin access…';await boot()}catch(e){errEl.textContent=e.message||'Sign-in failed. Please try again.';statusEl.textContent='Sign-in failed.'}finally{if(button){button.disabled=false;button.textContent='Sign in'}}}
 async function logout(){await s.auth.signOut();location.reload()}
@@ -237,8 +237,8 @@ async function businessForm(x){
  '<div class="field"><label>Tagline / short description</label><input name="about_short" value="'+attr(b.about||'')+'" placeholder="Short description shown to customers"></div>'+
  '</div></section>'+
  '<section class="formSection"><h3>Branding & media</h3><div class="formGrid">'+
- '<div class="field"><label>Logo image URL</label><input name="logo_url" value="'+attr(p.logo_url)+'" placeholder="https://…"><img id="logoPreview" class="preview" '+(p.logo_url?'src="'+attr(p.logo_url)+'"':'style="display:none"')+' alt="Logo preview"></div>'+
- '<div class="field"><label>Cover image URL</label><input name="cover_url" value="'+attr(b.cover_url)+'" placeholder="https://…"><img id="coverPreview" class="preview" '+(b.cover_url?'src="'+attr(b.cover_url)+'"':'style="display:none"')+' alt="Cover preview"></div>'+
+ '<div class="field"><label>Logo image</label><div style="display:flex;gap:8px;align-items:center"><input id="bizLogoInput" name="logo_url" value="'+attr(p.logo_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizLogoInput\',\'#logoPreview\')"></label></div><img id="logoPreview" class="preview" '+(p.logo_url?'src="'+attr(p.logo_url)+'"':'style="display:none"')+' alt="Logo preview"></div>'+
+ '<div class="field"><label>Cover image</label><div style="display:flex;gap:8px;align-items:center"><input id="bizCoverInput" name="cover_url" value="'+attr(b.cover_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizCoverInput\',\'#coverPreview\')"></label></div><img id="coverPreview" class="preview" '+(b.cover_url?'src="'+attr(b.cover_url)+'"':'style="display:none"')+' alt="Cover preview"></div>'+
  '<div class="field full"><label>Gallery image URLs</label><textarea name="gallery_urls" placeholder="One image URL per line">'+esc((b.gallery_urls||[]).join('\n'))+'</textarea><span class="help">One public image URL per line.</span></div>'+
  '</div></section>'+
  '<section class="formSection"><h3>Public profile</h3><div class="formGrid">'+
@@ -362,7 +362,7 @@ async function editNews(x){
  '<section class="formSection"><h3>Article</h3><div class="formGrid">'+
  '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(n.title)+'"></div>'+
  '<div class="field"><label>Slug *</label><input name="slug" required value="'+attr(n.slug)+'" placeholder="fine-time-update"><span class="help">Use lowercase words separated by hyphens.</span></div>'+
- '<div class="field"><label>Cover image URL</label><input name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://…"></div>'+
+ '<div class="field"><label>Cover image</label><div style="display:flex;gap:8px;align-items:center"><input id="newsCoverInput" name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#newsCoverInput\',\'#newsPreview\')"></label></div><img id="newsPreview" class="preview" '+(n.cover_url?'src="'+attr(n.cover_url)+'"':'style="display:none"')+' alt="Cover preview"></div>'+
  '<div class="field full"><label>Summary</label><textarea name="summary">'+esc(n.summary||'')+'</textarea></div>'+
  '<div class="field full"><label>Body</label><textarea name="body" style="min-height:260px">'+esc(n.body||'')+'</textarea></div>'+
  '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+((n.id?n.is_published:true)?'checked':'')+'> Publish now</label></div>'+
@@ -397,7 +397,7 @@ function editModule(x){
  '<div class="field full"><label>Body</label><textarea name="body">'+esc(m.body||'')+'</textarea></div>'+
  '<div class="field"><label>CTA label</label><input name="cta_label" value="'+attr(m.cta_label)+'" placeholder="Learn more"></div>'+
  '<div class="field"><label>CTA URL</label><input name="cta_url" type="url" value="'+attr(m.cta_url)+'" placeholder="https://…"></div>'+
- '<div class="field full"><label>Image URL</label><input name="image_url" value="'+attr(m.image_url)+'" placeholder="https://…"></div>'+
+ '<div class="field full"><label>Image</label><div style="display:flex;gap:8px;align-items:center"><input id="modImageInput" name="image_url" value="'+attr(m.image_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#modImageInput\',\'#modPreview\')"></label></div><img id="modPreview" class="preview" '+(m.image_url?'src="'+attr(m.image_url)+'"':'style="display:none"')+' alt="Module preview"></div>'+
  '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+((m.id?m.is_enabled:true)?'checked':'')+'> Enable immediately</label></div>'+
  '</div></section><div class="formActions"><button type="submit">'+(m.id?'Save changes':'Create module')+'</button><button type="button" class="g" onclick="modules()">Cancel</button></div></form>';
 }
@@ -412,5 +412,163 @@ async function saveModuleForm(event,id){
 async function toggleModule(id,v){const r=await s.from('site_modules').update({is_enabled:v}).eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function delModule(id){if(!confirm('Delete this module?'))return;const r=await s.from('site_modules').delete().eq('id',id);if(r.error)alert(r.error.message);else modules()}
 async function audit(){const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Audit Log</h2>'+(r.data||[]).map(x=>'<div class="item"><b>'+esc(x.action)+'</b><span class="pill">'+esc(x.entity_type)+'</span><div class="muted">'+esc(x.created_at)+' · '+esc(x.entity_id||'')+'</div></div>').join('')||'<div class="card muted">No audit entries.</div>'}
+
+function readImageFile(file, maxDim=1400, quality=0.85){
+  return new Promise((resolve, reject)=>{
+    if(!file||!file.type.startsWith('image/')) return reject(new Error('Please select an image file.'));
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Failed to read image file.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>resolve(reader.result);
+      img.onload=()=>{
+        try{
+          let w=img.width, h=img.height;
+          if(w>maxDim||h>maxDim){
+            if(w>h){h=Math.round(h*(maxDim/w)); w=maxDim;}
+            else{w=Math.round(w*(maxDim/h)); h=maxDim;}
+          }
+          const canvas=document.createElement('canvas');
+          canvas.width=w; canvas.height=h;
+          const ctx=canvas.getContext('2d');
+          ctx.drawImage(img,0,0,w,h);
+          resolve(canvas.toDataURL('image/jpeg',quality));
+        }catch(_){resolve(reader.result);}
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleDeviceFile(fileInput, targetInputSelector, previewImgSelector){
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  const originalText=fileInput.parentElement?.innerText;
+  try{
+    if(fileInput.parentElement) fileInput.parentElement.style.opacity='0.6';
+    const dataUrl=await readImageFile(file,1400,0.85);
+    const targetInput=document.querySelector(targetInputSelector);
+    if(targetInput){
+      targetInput.value=dataUrl;
+      targetInput.dispatchEvent(new Event('input'));
+    }
+    const preview=document.querySelector(previewImgSelector);
+    if(preview){
+      preview.src=dataUrl;
+      preview.style.display='block';
+    }
+  }catch(err){
+    alert(err.message||'Could not process image from device.');
+  }finally{
+    if(fileInput.parentElement) fileInput.parentElement.style.opacity='1';
+    fileInput.value='';
+  }
+}
+
+async function heroHeader(){
+  view.innerHTML='<div class="card muted">Loading header settings…</div>';
+  const r=await s.from('site_modules').select('*').eq('placement','app_hero').limit(1);
+  const m=(r.data&&r.data[0])||{
+    id:null,
+    title:'Your next Ethiopian story',
+    body:'Exceptional places, chosen with care.',
+    cta_label:'CURATED FOR YOU',
+    cta_url:'',
+    image_url:'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+    is_enabled:true
+  };
+  
+  view.innerHTML='<div class="formHead"><div><h2>App Header & Hero Banner</h2><p class="muted">Change the header building, promotion photo, ad, or brand logo displayed at the top of the mobile app home screen. You can enter an image URL or choose a photo directly from your device.</p></div><button class="g" type="button" onclick="businesses()">Back</button></div>'+
+  '<div class="card" style="margin-bottom:16px;background:#0c0a06;border:1px solid #c9a22744;padding:16px;border-radius:18px">'+
+    '<h3 style="color:#c9a227;margin-top:0">Live Mobile Header Mockup</h3>'+
+    '<div style="position:relative;height:240px;border-radius:14px;overflow:hidden;border:1px solid #332c24;background:#14110c">'+
+      '<img id="heroPreviewImg" src="'+attr(m.image_url)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">'+
+      '<div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(12,10,6,0.2) 40%, rgba(12,10,6,0.95) 100%)"></div>'+
+      '<div style="position:absolute;top:14px;left:16px;display:flex;align-items:center;gap:8px">'+
+        '<div style="background:linear-gradient(135deg,#e3a82d,#c99220);color:#111;font-weight:900;font-style:italic;font-family:serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px">F</div>'+
+        '<span style="color:#f5f1e8;font-weight:900;font-size:16px">FineTime<span style="color:#e3a82d">.cc</span></span>'+
+      '</div>'+
+      '<div style="position:absolute;bottom:14px;left:16px;right:16px">'+
+        '<div id="previewBadge" style="color:#e3a82d;font-size:10px;font-weight:800;letter-spacing:1.5px">'+esc(m.cta_label||'CURATED FOR YOU')+'</div>'+
+        '<div id="previewTitle" style="color:#f5f1e8;font-size:20px;font-weight:800;font-family:serif;margin:4px 0">'+esc(m.title||'Your next Ethiopian story')+'</div>'+
+        '<div id="previewSubtitle" style="color:#ddd8d0;font-size:12px">'+esc(m.body||'Exceptional places, chosen with care.')+'</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<form id="heroForm" onsubmit="return saveHeroHeader(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
+  '<section class="formSection"><h3>Header Media & Visuals</h3><div class="formGrid">'+
+    '<div class="field full">'+
+      '<label>Header Photo (Building / Promotion / Ad / Logo) *</label>'+
+      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
+        '<input id="heroImageInput" name="image_url" required value="'+attr(m.image_url)+'" placeholder="https://… or upload from device" style="flex:1;min-width:220px">'+
+        '<label style="cursor:pointer;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">'+
+          '<span>📁 Choose photo from device</span>'+
+          '<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this, \'#heroImageInput\', \'#heroPreviewImg\')">'+
+        '</label>'+
+        '<button type="button" class="g" style="padding:10px 12px;font-size:12px" onclick="document.getElementById(\'heroImageInput\').value=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\';document.getElementById(\'heroPreviewImg\').src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">Reset default</button>'+
+      '</div>'+
+      '<span class="help">Tap "Choose photo from device" to pick any photo from your phone or PC. It will be resized and saved directly.</span>'+
+    '</div>'+
+  '</div></section>'+
+  '<section class="formSection"><h3>Header Text & Promotion Details</h3><div class="formGrid">'+
+    '<div class="field"><label>Tagline badge</label><input id="heroBadgeInput" name="cta_label" value="'+attr(m.cta_label||'CURATED FOR YOU')+'" placeholder="CURATED FOR YOU"><span class="help">Small uppercase badge shown directly above the main title.</span></div>'+
+    '<div class="field"><label>Main headline *</label><input id="heroTitleInput" name="title" required value="'+attr(m.title||'Your next Ethiopian story')+'" placeholder="Your next Ethiopian story"></div>'+
+    '<div class="field full"><label>Subtitle</label><input id="heroSubtitleInput" name="body" value="' + attr(m.body || 'Exceptional places, chosen with care.') + '" placeholder="Exceptional places, chosen with care."></div>'+
+    '<div class="field"><label>Promotion / Link destination (optional)</label><input name="cta_url" value="'+attr(m.cta_url||'')+'" placeholder="https://… or business slug"></div>'+
+    '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+(m.is_enabled?'checked':'')+'> Display header banner in app</label></div>'+
+  '</div></section>'+
+  '<div class="formActions"><button type="submit">Save Header Banner</button><button type="button" class="g" onclick="businesses()">Cancel</button></div></form>';
+
+  document.getElementById('heroImageInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('heroPreviewImg');
+    if(el)el.src=e.target.value;
+  });
+  document.getElementById('heroBadgeInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewBadge');
+    if(el)el.textContent=e.target.value.toUpperCase();
+  });
+  document.getElementById('heroTitleInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewTitle');
+    if(el)el.textContent=e.target.value;
+  });
+  document.getElementById('heroSubtitleInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewSubtitle');
+    if(el)el.textContent=e.target.value;
+  });
+}
+
+async function saveHeroHeader(event, id){
+  event.preventDefault();
+  const form=event.currentTarget, fd=new FormData(form);
+  const title=String(fd.get('title')||'').trim();
+  const imageUrl=String(fd.get('image_url')||'').trim();
+  if(!title)return alert('Main headline is required.');
+  if(!imageUrl)return alert('Header photo is required.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true; button.textContent='Saving…';}
+  const payload={
+    placement:'app_hero',
+    title:title,
+    body:String(fd.get('body')||'').trim()||null,
+    cta_label:String(fd.get('cta_label')||'').trim()||null,
+    cta_url:String(fd.get('cta_url')||'').trim()||null,
+    image_url:imageUrl,
+    is_enabled:fd.get('is_enabled')==='on',
+    sort_order:0
+  };
+  try{
+    const r=id
+      ? await s.from('site_modules').update(payload).eq('id',id).select().single()
+      : await s.from('site_modules').insert(payload).select().single();
+    if(r.error)throw r.error;
+    alert('Header & Hero banner updated! The mobile app and website will update immediately.');
+    await heroHeader();
+  }catch(e){
+    alert(e.message||'Could not save header banner.');
+  }finally{
+    if(button){button.disabled=false; button.textContent='Save Header Banner';}
+  }
+}
 (async()=>{try{const recovered=await s.auth.recoverFromHash();await boot();if(recovered)setTimeout(()=>security(),0)}catch(e){console.warn('Recovery session could not be restored',e);boot()}})();
 </script></body></html>

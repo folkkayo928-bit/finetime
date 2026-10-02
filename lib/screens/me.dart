@@ -193,7 +193,7 @@ class _MeScreenState extends State<MeScreen> {
   Widget build(BuildContext context) {
     final u = sb.auth.currentUser;
     return Scaffold(
-      appBar: AppBar(title: const Text('Me')),
+      appBar: AppBar(title: const Text('Profile')),
       body: u == null
           ? ListView(padding: const EdgeInsets.all(16), children: [
               const Text('Welcome to FineTime',

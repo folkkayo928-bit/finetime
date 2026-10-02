@@ -102,6 +102,147 @@ class _AuthScreenState extends State<AuthScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
   }
 
+  Future<void> _forgotPassword() async {
+    final resetController = TextEditingController(text: _email.text.trim());
+    bool sending = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: FT.obsidian,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: FT.gold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.lock_reset_rounded, color: FT.gold, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Reset Password',
+                            style: TextStyle(
+                              color: FT.ivory,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            )),
+                        SizedBox(height: 2),
+                        Text('We will send you a reset link',
+                            style: TextStyle(color: FT.muted, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Enter the email address registered with your FineTime account. You will receive an email with instructions to reset your password.',
+                style: TextStyle(color: FT.cream, fontSize: 14, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: resetController,
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(color: FT.ivory),
+                decoration: const InputDecoration(
+                  labelText: 'Email address',
+                  prefixIcon: Icon(Icons.mail_outline_rounded, color: FT.gold),
+                ),
+              ),
+              const SizedBox(height: 22),
+              GestureDetector(
+                onTap: sending
+                    ? null
+                    : () async {
+                        final email = resetController.text.trim();
+                        if (!email.contains('@')) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(content: Text('Please enter a valid email address.')),
+                            );
+                          }
+                          return;
+                        }
+                        setModalState(() => sending = true);
+                        try {
+                          await sb.auth.resetPasswordForEmail(email);
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                          }
+                          _message('Password reset email sent! Check your inbox.');
+                        } on AuthException catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(content: Text(Net.friendly(e))),
+                            );
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(content: Text(Net.friendly(e))),
+                            );
+                          }
+                        } finally {
+                          if (ctx.mounted) setModalState(() => sending = false);
+                        }
+                      },
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: sending ? null : FT.goldGradient,
+                    color: sending ? Colors.white12 : null,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    sending ? 'Sending reset link…' : 'Send Reset Link',
+                    style: TextStyle(
+                      color: sending ? Colors.white54 : const Color(0xFF1E1607),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: FT.obsidian,
@@ -167,7 +308,29 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    if (!_create) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _busy ? null : _forgotPassword,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: FT.gold,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
                     GestureDetector(
                       onTap: _busy ? null : _submit,
                       child: Container(
