@@ -2,423 +2,1754 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>FineTime Partner · build 20261001h</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>FineTime Partner Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
 
 <style>
-:root{--charcoal:#121212;--panel:#1b1b1b;--panel2:#222;--gold:#c9a227;--ivory:#f5f1e8;--muted:#a0a0a0;--danger:#7b3020}
-*{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--ivory);font:15px system-ui,-apple-system,sans-serif}
-main{max-width:900px;margin:auto;padding:18px 14px 44px}.brand{color:var(--gold);font-weight:900;letter-spacing:3px;font-size:22px}.sub{color:var(--muted);margin-top:4px}
-.card{background:var(--panel);border:1px solid #ffffff12;border-radius:16px;padding:16px;margin-top:14px}
-input,textarea,select,button{font:inherit;border-radius:11px;padding:11px 12px}input,textarea,select{width:100%;border:0;background:#fff;color:#121212;margin-top:6px}textarea{min-height:80px;resize:vertical}
-button{border:0;background:var(--gold);color:#121212;font-weight:800;cursor:pointer}.ghost{background:transparent;color:var(--ivory);border:1px solid #ffffff22}.danger{background:var(--danger);color:#fff}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}.nav button{padding:10px 6px}.nav button.active{outline:2px solid var(--gold)}
-.item{padding:14px 0;border-bottom:1px solid #ffffff10}.item:last-child{border-bottom:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.pill{font-size:11px;background:#ffffff10;padding:5px 8px;border-radius:999px}.muted{color:var(--muted);font-size:13px}.hidden{display:none}.error{color:#ffb4a8;margin-top:10px}.ok{color:#9fd6a4;margin-top:10px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px}.sectionTitle{margin:0 0 5px}.label{display:block;color:var(--muted);font-size:12px;margin-top:8px}
-.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.day{background:#ffffff08;border:1px solid #ffffff10;border-radius:12px;padding:10px}.day button{width:100%;padding:8px}.day label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:5px}.formHead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #ffffff12;border-radius:13px;padding:14px;margin:12px 0}.formSection h4{margin:0 0 10px;color:var(--gold)}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{color:#ddd;font-size:12px;font-weight:700}.help{color:var(--muted);font-size:11px}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.check{display:flex!important;flex-direction:row!important;align-items:center;gap:7px}.check input{width:auto;margin:0}.preview{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid #ffffff12}@media(max-width:620px){.grid,.grid3,.formGrid{grid-template-columns:1fr}.nav{grid-template-columns:repeat(2,1fr)}.inventory{grid-template-columns:1fr}}
+:root {
+  --obsidian: #0C0A06;
+  --surface: #17140F;
+  --surface-card: #1D1913;
+  --surface-light: #26211A;
+  --border: rgba(227, 168, 45, 0.18);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --gold: #E3A82D;
+  --gold-light: #EEB843;
+  --gold-dark: #B48728;
+  --gold-glow: rgba(227, 168, 45, 0.35);
+  --gold-gradient: linear-gradient(135deg, #E3A82D 0%, #EEB843 100%);
+  --ivory: #F5F1E8;
+  --cream: #D2D0CA;
+  --muted: #8E8982;
+  --danger: #9E3524;
+  --danger-bg: rgba(158, 53, 36, 0.15);
+  --success: #3EB868;
+  --success-bg: rgba(62, 184, 104, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-gold: 0 4px 18px rgba(227, 168, 45, 0.28);
+}
 
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0;
+  background-color: var(--obsidian);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(227, 168, 45, 0.08) 0%, transparent 65%),
+    radial-gradient(ellipse at 100% 100%, rgba(227, 168, 45, 0.04) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--ivory);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding-bottom: 50px;
+}
+
+main {
+  max-width: 680px;
+  margin: auto;
+  padding: 16px 14px 40px;
+}
+
+/* Header & Brand */
+.brand-header {
+  padding: 6px 4px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 3.5px;
+  color: var(--ivory);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.brand-title span.dot {
+  color: var(--gold);
+  font-size: 18px;
+}
+.brand-tagline {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.portal-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(227, 168, 45, 0.12);
+  color: var(--gold);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-top: 14px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.card.gold-border {
+  border-color: var(--border);
+}
+
+/* Business Hero Card */
+.business-card {
+  background: linear-gradient(145deg, #1C1812 0%, #15120D 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-top: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.business-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; width: 140px; height: 140px;
+  background: radial-gradient(circle at 100% 0%, rgba(227, 168, 45, 0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.biz-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ivory);
+  letter-spacing: -0.2px;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+.biz-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--cream);
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--success);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px var(--success);
+}
+
+/* Nav Tabs */
+.nav-container {
+  overflow-x: auto;
+  padding: 8px 0 4px;
+  margin-top: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav-container::-webkit-scrollbar { display: none; }
+.nav-pills {
+  display: flex;
+  gap: 8px;
+  min-width: max-content;
+}
+.nav-pills button {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-pills button:active {
+  transform: scale(0.97);
+}
+.nav-pills button.active {
+  background: var(--gold-gradient);
+  color: #1E1607;
+  border-color: transparent;
+  box-shadow: var(--shadow-gold);
+  font-weight: 800;
+}
+.nav-pills button .badge {
+  background: #1E1607;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.nav-pills button.active .badge {
+  background: #1E1607;
+  color: var(--gold-light);
+}
+
+/* KPI Overview Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.kpi-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  text-align: center;
+  transition: transform 0.15s ease;
+}
+.kpi-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+.kpi-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Section Headings */
+.sectionTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ivory);
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+.subText {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 14px;
+}
+
+/* Lists & Items */
+.item-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 15px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease;
+}
+.item-card:hover {
+  border-color: var(--border);
+}
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.item-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ivory);
+}
+.item-desc {
+  color: var(--cream);
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+.item-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Badges & Pills */
+.pill {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.pill.gold {
+  background: rgba(227, 168, 45, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(227, 168, 45, 0.35);
+}
+.pill.active, .pill.confirmed {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(62, 184, 104, 0.3);
+}
+.pill.requested, .pill.placed {
+  background: rgba(238, 184, 67, 0.15);
+  color: var(--gold-light);
+  border: 1px solid rgba(238, 184, 67, 0.4);
+}
+.pill.cancelled, .pill.rejected {
+  background: var(--danger-bg);
+  color: #FF8A7A;
+  border: 1px solid rgba(158, 53, 36, 0.3);
+}
+
+/* Promotion Image Preview in Card */
+.promo-preview-thumb {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+button {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+button:active {
+  transform: scale(0.97);
+}
+.btn-gold {
+  background: var(--gold-gradient);
+  color: #1E1607;
+  font-weight: 800;
+  box-shadow: 0 3px 12px rgba(227, 168, 45, 0.25);
+}
+.btn-gold:hover {
+  box-shadow: var(--shadow-gold);
+}
+.btn-ghost {
+  background: var(--surface-light);
+  color: var(--ivory);
+  border: 1px solid var(--border-subtle);
+}
+.btn-ghost:hover {
+  border-color: var(--border);
+  color: var(--gold);
+}
+.btn-danger {
+  background: var(--danger-bg);
+  color: #FF9B8E;
+  border: 1px solid rgba(158, 53, 36, 0.4);
+}
+.btn-danger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-sm {
+  padding: 7px 13px;
+  font-size: 12px;
+}
+
+/* Forms & Inputs */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 14px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  border: 1px solid var(--border-subtle);
+  background: #14110C;
+  color: var(--ivory);
+  margin-top: 5px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(227, 168, 45, 0.2);
+}
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.formSection {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 14px 0;
+}
+.formSection h4 {
+  margin: 0 0 12px;
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+}
+.field.full {
+  grid-column: 1 / -1;
+}
+.field label {
+  color: var(--cream);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.field .help {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+.check {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--gold);
+}
+.preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  border: 1px solid var(--border);
+}
+
+/* 14-Day Calendar Inventory */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.day-cell {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 12px;
+}
+.day-cell strong {
+  color: var(--gold);
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.error { color: #FF9B8E; font-size: 13px; margin-top: 8px; }
+.ok { color: var(--success); font-size: 13px; margin-top: 8px; }
+
+@media (max-width: 520px) {
+  .formGrid, .inventory-grid { grid-template-columns: 1fr; }
+  .kpi-grid { gap: 6px; }
+  .kpi-value { font-size: 20px; }
+}
 </style>
 </head>
 <body>
 <main>
-<div class="brand">FINETIME</div><div class="sub">Unified Partner · Hotel · Restaurant · Café</div>
+  <!-- Header Branding -->
+  <header class="brand-header">
+    <div>
+      <div class="brand-title">
+        FINETIME<span class="dot">✦</span>CC
+      </div>
+      <div class="brand-tagline sub-title">PARTNER WORKSPACE</div>
+    </div>
+    <div class="portal-badge">
+      <span>●</span> LIVE PORTAL
+    </div>
+  </header>
 
-<section id="connect" class="card">
-<h2>Connect your business</h2>
-<p class="muted">Use the activation code supplied by FineTime Admin. Your Telegram identity is bound to the authorized business.</p>
-<form id="connectForm">
-<input id="code" placeholder="Activation code" autocomplete="off">
-<div class="actions"><button id="connectBusinessButton" type="submit">Connect Business</button></div>
-</form>
-<div id="connectError" class="error"></div>
-</section>
+  <!-- Connect Section -->
+  <section id="connect" class="card gold-border">
+    <h2 class="sectionTitle">Connect your business</h2>
+    <p class="subText">Enter the secure activation code issued by FineTime Admin. Your Telegram account will be securely linked to your venue.</p>
+    <form id="connectForm">
+      <input id="code" placeholder="Enter activation code (e.g. SKY-2026)" autocomplete="off">
+      <div class="actions" style="margin-top:14px">
+        <button id="connectBusinessButton" type="submit" class="btn-gold">Connect Business ➔</button>
+      </div>
+    </form>
+    <div id="connectError" class="error"></div>
+  </section>
 
-<section id="app" class="hidden">
-<div id="business" class="card"></div>
-<div id="nav" class="nav"></div>
-<div id="content" class="card"></div>
-</section>
+  <!-- Main App Section -->
+  <section id="app" class="hidden">
+    <!-- Business Hero Card -->
+    <div id="business" class="business-card"></div>
+
+    <!-- Navigation Pills -->
+    <div class="nav-container">
+      <div id="nav" class="nav-pills"></div>
+    </div>
+
+    <!-- Active Tab Content Card -->
+    <div id="content" class="card"></div>
+  </section>
 </main>
 
 <script>
-const SUPABASE_URL='https://atewcbkuzrnfnmzsylze.supabase.co';
-const SUPABASE_KEY='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
-const tg=window.Telegram?.WebApp;
-tg?.ready();tg?.expand();
+const SUPABASE_URL = 'https://atewcbkuzrnfnmzsylze.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
+const tg = window.Telegram?.WebApp;
+tg?.ready();
+tg?.expand();
 
-let state={business:null,bookings:[],reservations:[],orders:[],rooms:[],inventory:[],categories:[],promotions:[],subscription:null};
-let tab='overview';
-let firstBootstrap=true;
-let previousRequestKey='';
-let pollTimer=null;
+let state = {
+  business: null,
+  bookings: [],
+  reservations: [],
+  orders: [],
+  rooms: [],
+  inventory: [],
+  categories: [],
+  promotions: [],
+  subscription: null
+};
+let tab = 'overview';
+let firstBootstrap = true;
+let previousRequestKey = '';
+let pollTimer = null;
 
-function initData(){return tg?.initData||''}
-function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
-function attr(value){return esc(value)}
-function editorOpen(){return !!document.querySelector('#content form')}
-async function api(action,extra={}){
- const telegramInitData=initData();
- if(!telegramInitData) throw new Error('This Partner Mini App must be opened from Telegram. Open FineTime Partner from the Telegram bot, then enter your activation code.');
- const controller=new AbortController();
- const timeout=setTimeout(()=>controller.abort(),12000);
- let r;
- try{r=await fetch(SUPABASE_URL+'/functions/v1/partner-api',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,initData:telegramInitData,...extra}),signal:controller.signal});}catch(e){if(e?.name==='AbortError')throw new Error('Partner service timed out. Check your connection and reopen the Mini App.');throw e}finally{clearTimeout(timeout)}
- const text=await r.text();
- let d;
- try{d=JSON.parse(text)}catch(_){throw new Error('Partner service returned an invalid response. Please reopen the Mini App and try again.')}
- if(!r.ok)throw new Error(d.error||'Request failed');
- return d;
+function haptic(type = 'light') {
+  try {
+    if (tg?.HapticFeedback) {
+      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+      else if (type === 'warning') tg.HapticFeedback.notificationOccurred('warning');
+      else tg.HapticFeedback.impactOccurred(type);
+    }
+  } catch (_) {}
 }
-async function uploadImageFile(file){
- if(!file)return null;
- if(!file.type.startsWith('image/'))throw new Error('Please choose an image file.');
- if(file.size>5*1024*1024)throw new Error('Image must be 5 MB or smaller.');
- const meta=await api('create_media_upload',{file_name:file.name,mime_type:file.type});
- const cleanPath=String(meta.path||'').split('/').filter(Boolean).map(encodeURIComponent).join('/');
- const signedUrl=SUPABASE_URL+'/storage/v1/object/upload/sign/business-media/'+cleanPath+'?token='+encodeURIComponent(meta.token);
- const form=new FormData();
- form.append('cacheControl','3600');
- form.append('',file,file.name);
- const controller=new AbortController();
- const timeout=setTimeout(()=>controller.abort(),20000);
- try{
-  const response=await fetch(signedUrl,{method:'PUT',headers:{apikey:SUPABASE_KEY,'x-upsert':'false'},body:form,signal:controller.signal});
-  const text=await response.text();
-  let data=null;try{data=text?JSON.parse(text):null}catch{}
-  if(!response.ok)throw new Error(data?.message||data?.error||text||('Image upload failed ('+response.status+').'));
- }catch(e){
-  if(e?.name==='AbortError')throw new Error('Image upload timed out. Please try again.');
-  throw e;
- }finally{clearTimeout(timeout)}
- return meta.public_url;
+
+function initData() { return tg?.initData || ''; }
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
 }
-function pickImages(multiple=false){
- return new Promise((resolve,reject)=>{
-  const input=document.createElement('input');
-  input.type='file'; input.accept='image/jpeg,image/png,image/webp,image/gif'; input.multiple=multiple;
-  input.onchange=async()=>{
-   try{
-    const files=Array.from(input.files||[]);
-    if(!files.length){resolve([]);return}
-    const urls=[];
-    for(const file of files) urls.push(await uploadImageFile(file));
-    resolve(urls);
-   }catch(e){reject(e)}
-  };
-  input.click();
- });
-}
-async function uploadInto(fieldId,multiple=false){
- try{
-  const urls=await pickImages(multiple);
-  if(urls[0]){
-   const el=document.getElementById(fieldId);
-   el.value=multiple?[...(el.value?el.value.split(',').map(x=>x.trim()).filter(Boolean):[]),...urls].join(', '):urls[0];
-   el.dispatchEvent(new Event('input',{bubbles:true}));
+function attr(value) { return esc(value); }
+function editorOpen() { return !!document.querySelector('#content form'); }
+
+async function api(action, extra = {}) {
+  const telegramInitData = initData();
+  if (!telegramInitData) {
+    throw new Error('Please open this Partner Mini App directly from the FineTime Telegram Bot.');
   }
- }catch(e){alert(e.message||'Could not upload image.')}
-}
-async function uploadCoverFromDevice(){
- try{
-  const urls=await pickImages(false);
-  if(urls[0])document.getElementById('bc').value=urls[0];
- }catch(e){alert(e.message||'Could not upload image.')}
-}
-async function uploadGalleryFromDevice(){
- try{
-  const urls=await pickImages(true);
-  if(urls.length){
-   const current=document.getElementById('bg').value.split(',').map(x=>x.trim()).filter(Boolean);
-   document.getElementById('bg').value=[...current,...urls].join(', ');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 14000);
+  let r;
+  try {
+    r = await fetch(SUPABASE_URL + '/functions/v1/partner-api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({ action, initData: telegramInitData, ...extra }),
+      signal: controller.signal
+    });
+  } catch (e) {
+    if (e?.name === 'AbortError') throw new Error('Request timed out. Please check your connection.');
+    throw e;
+  } finally {
+    clearTimeout(timeout);
   }
- }catch(e){alert(e.message||'Could not upload images.')}
+
+  const text = await r.text();
+  let d;
+  try { d = JSON.parse(text); } catch (_) {
+    throw new Error('Invalid response from partner service. Please try again.');
+  }
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
 }
-async function activate(event){
+
+async function uploadImageFile(file) {
+  if (!file) return null;
+  if (!file.type.startsWith('image/')) throw new Error('Please choose an image file (JPEG, PNG, WebP).');
+  if (file.size > 8 * 1024 * 1024) throw new Error('Image must be 8 MB or smaller.');
+  const meta = await api('create_media_upload', { file_name: file.name, mime_type: file.type });
+  const cleanPath = String(meta.path || '').split('/').filter(Boolean).map(encodeURIComponent).join('/');
+  const signedUrl = SUPABASE_URL + '/storage/v1/object/upload/sign/business-media/' + cleanPath + '?token=' + encodeURIComponent(meta.token);
+  const form = new FormData();
+  form.append('cacheControl', '3600');
+  form.append('', file, file.name);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
+  try {
+    const response = await fetch(signedUrl, {
+      method: 'PUT',
+      headers: { apikey: SUPABASE_KEY, 'x-upsert': 'false' },
+      body: form,
+      signal: controller.signal
+    });
+    const text = await response.text();
+    let data = null; try { data = text ? JSON.parse(text) : null; } catch {}
+    if (!response.ok) throw new Error(data?.message || data?.error || text || ('Image upload failed (' + response.status + ').'));
+  } catch (e) {
+    if (e?.name === 'AbortError') throw new Error('Image upload timed out. Please try again.');
+    throw e;
+  } finally {
+    clearTimeout(timeout);
+  }
+  return meta.public_url;
+}
+
+function pickImages(multiple = false) {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+    input.multiple = multiple;
+    input.onchange = async () => {
+      try {
+        const files = Array.from(input.files || []);
+        if (!files.length) { resolve([]); return; }
+        const urls = [];
+        for (const file of files) urls.push(await uploadImageFile(file));
+        resolve(urls);
+      } catch (e) { reject(e); }
+    };
+    input.click();
+  });
+}
+
+async function uploadInto(fieldId, multiple = false) {
+  haptic('medium');
+  try {
+    const urls = await pickImages(multiple);
+    if (urls[0]) {
+      const el = document.getElementById(fieldId);
+      el.value = multiple ? [...(el.value ? el.value.split(',').map(x => x.trim()).filter(Boolean) : []), ...urls].join(', ') : urls[0];
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      haptic('success');
+    }
+  } catch (e) {
+    haptic('warning');
+    alert(e.message || 'Could not upload image.');
+  }
+}
+
+async function uploadCoverFromDevice() {
+  haptic('medium');
+  try {
+    const urls = await pickImages(false);
+    if (urls[0]) {
+      document.getElementById('bc').value = urls[0];
+      haptic('success');
+    }
+  } catch (e) {
+    haptic('warning');
+    alert(e.message || 'Could not upload image.');
+  }
+}
+
+async function uploadGalleryFromDevice() {
+  haptic('medium');
+  try {
+    const urls = await pickImages(true);
+    if (urls.length) {
+      const current = document.getElementById('bg').value.split(',').map(x => x.trim()).filter(Boolean);
+      document.getElementById('bg').value = [...current, ...urls].join(', ');
+      haptic('success');
+    }
+  } catch (e) {
+    haptic('warning');
+    alert(e.message || 'Could not upload images.');
+  }
+}
+
+async function activate(event) {
   event?.preventDefault();
- const error=document.getElementById('connectError');
- const button=document.getElementById('connectBusinessButton');
- const code=document.getElementById('code').value.trim();
- error.className='muted';
- error.textContent='Connecting…';
- if(button){button.disabled=true;button.textContent='Connecting…';}
- try{
-  if(!code)throw new Error('Enter your activation code.');
-  try{
-   await api('activate',{code});
-  }catch(e){
-   if(!e?.message?.toLowerCase().includes('already connected'))throw e;
+  haptic('medium');
+  const error = document.getElementById('connectError');
+  const button = document.getElementById('connectBusinessButton');
+  const code = document.getElementById('code').value.trim();
+  error.className = 'muted';
+  error.textContent = 'Connecting to FineTime…';
+  if (button) { button.disabled = true; button.textContent = 'Connecting…'; }
+  try {
+    if (!code) throw new Error('Please enter your activation code.');
+    try {
+      await api('activate', { code });
+    } catch (e) {
+      if (!e?.message?.toLowerCase().includes('already connected')) throw e;
+    }
+    await bootstrap();
+    haptic('success');
+    error.textContent = '';
+  } catch (e) {
+    haptic('warning');
+    error.className = 'error';
+    error.textContent = e.message || 'Could not connect. Please verify your activation code.';
+  } finally {
+    if (button) { button.disabled = false; button.textContent = 'Connect Business ➔'; }
   }
-  await bootstrap();
-  error.textContent='';
- }catch(e){
-  error.className='error';
-  error.textContent=e.message||'Could not connect. Please try again.';
- }finally{
-  if(button){button.disabled=false;button.textContent='Connect Business';}
- }
 }
-document.getElementById('connectForm')?.addEventListener('submit',activate);
-window.activate=activate;
+document.getElementById('connectForm')?.addEventListener('submit', activate);
+window.activate = activate;
 
-async function autoConnect(){
- try{
-  document.getElementById('connectError').className='muted';
-  document.getElementById('connectError').textContent=initData()?'Checking Telegram connection…':'Open this page from the FineTime Partner button inside Telegram.';
-  if(!initData()) return;
-  await bootstrap();
-  document.getElementById('connectError').textContent='';
- }catch(e){
-  document.getElementById('connectError').className='error';
-  document.getElementById('connectError').textContent=e.message||'Please enter your activation code.';
- }
-}
-async function bootstrap(){
- try{
-  const d=await api('bootstrap');
-  const nextState={business:d.business||null,bookings:d.bookings||[],reservations:d.reservations||[],orders:d.orders||[],rooms:d.rooms||[],inventory:d.inventory||[],categories:d.categories||[],promotions:d.promotions||[],subscription:d.subscription||null};
-  const requestKey=[...nextState.bookings.filter(x=>x.status==='requested').map(x=>'b:'+x.id),...nextState.reservations.filter(x=>x.status==='requested').map(x=>'r:'+x.id),...nextState.orders.filter(x=>x.status==='placed').map(x=>'o:'+x.id)].sort().join('|');
-  if(!firstBootstrap && requestKey!==previousRequestKey) notifyNewRequest();
-  previousRequestKey=requestKey;
-  firstBootstrap=false;
-  const keepEditor=editorOpen();
-  state=nextState;
-  document.getElementById('connect').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
-  document.getElementById('business').innerHTML='<h2>'+esc(state.business?.name||'FineTime Partner')+'</h2><div class="muted">'+esc(state.business?.category||'')+' · '+(state.business?.is_published?'Published':'Not published')+'</div>';
-  renderNav();
-  if(!keepEditor) render();
-  if(!pollTimer) pollTimer=setInterval(()=>bootstrap().catch(()=>{}),10000);
- }catch(e){
-  const message=e?.message||'Partner connection failed.';
-  document.getElementById('connectError').className='error';
-  document.getElementById('connectError').textContent=message;
-  throw e;
- }
-}
-function renderNav(){
- const category=String(state.business?.category||'').toLowerCase();
- const isHotel=category==='hotel';
- const hasFood=(state.categories||[]).length>0;
- const pending=(isHotel?state.bookings.filter(x=>x.status==='requested').length:state.reservations.filter(x=>x.status==='requested').length)+((!isHotel||hasFood)?state.orders.filter(x=>x.status==='placed').length:0);
- const tabs=[['overview','Overview']];
- if(isHotel) tabs.push(['bookings','Bookings'],['rooms','Rooms']);
- else tabs.push(['reservations','Reservations']);
- if(!isHotel||hasFood) tabs.push(['orders','Orders'],['menu','Menu']);
- tabs.push(['promotions','Promotions'],['settings','Business']);
- document.getElementById('nav').innerHTML=tabs.map(([id,label])=>'<button class="'+(tab===id?'active':'ghost')+'" data-tab="'+id+'">'+label+(id==='overview'&&pending?' <span class="pill">'+pending+' NEW</span>':'')+'</button>').join('');
- document.querySelectorAll('#nav [data-tab]').forEach(button=>button.onclick=()=>showTab(button.dataset.tab));
- const brandSub=document.querySelector('.sub');
- if(brandSub) brandSub.textContent=isHotel?'Hotel Partner · FineTime':'Restaurant & Café Partner · FineTime';
-}
-function showTab(t){tab=t;renderNav();render()}
-function render(){const f={overview:renderOverview,bookings:()=>renderList('bookings'),reservations:()=>renderList('reservations'),orders:()=>renderList('orders'),menu:renderMenu,rooms:renderRooms,promotions:renderPromotions,settings:renderSettings};f[tab]()}
-function renderOverview(){
- const b=state.business||{};const s=state.subscription;
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Partner overview</h3>'+
- '<div class="grid3"><div class="item"><strong>'+state.bookings.length+'</strong><div class="muted">Recent bookings</div></div><div class="item"><strong>'+state.reservations.length+'</strong><div class="muted">Reservations</div></div><div class="item"><strong>'+state.orders.length+'</strong><div class="muted">Orders</div></div></div>'+
- '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+'</div></div>'+
- '<div class="item"><strong>Public profile</strong><div class="muted">'+(b.is_published?'Published on FineTime':'Not published yet')+'</div></div>'+
- '<div class="actions"><button onclick="showTab(\'settings\')">Edit business</button><button class="ghost" onclick="showTab(\'menu\')">Manage menu</button><button class="ghost" onclick="showTab(\'promotions\')">Post promotion</button></div>';
-}
-function renderList(kind){
- const rows=state[kind]||[];
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">'+kind[0].toUpperCase()+kind.slice(1)+'</h3>'+
- (rows.length?rows.map(x=>{
-  const name=esc(x.profiles?.full_name||'Customer');
-  const detail=kind==='bookings'?esc(x.check_in+' → '+x.check_out+' · '+x.guests+' guest(s) · '+(x.room_types?.name||'room')):kind==='reservations'?esc(x.reservation_date+' · '+x.reservation_time+' · '+x.party_size+' guest(s) · '+(x.profiles?.phone||x.contact_phone||'')):esc('ETB '+(x.total??0)+(x.table_number?' · Table '+x.table_number:''));
-  let actions='';
-  if(kind==='bookings'||kind==='reservations'){
-    if(x.status==='requested') actions='<div class="actions"><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'confirmed\')">Accept</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Reject</button><button class="ghost" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'changed\')">Request change</button></div>';
-    else if(x.status==='confirmed') actions='<div class="actions"><button class="ghost" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'changed\')">Change</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Cancel</button><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'completed\')">Complete</button></div>';
-    else if(x.status==='changed') actions='<div class="actions"><button onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'confirmed\')">Accept change</button><button class="danger" onclick="updateStatus(\''+kind+'\',\''+x.id+'\',\'cancelled\')">Reject</button></div>';
-  } else {
-    if(x.status==='placed') actions='<div class="actions"><button onclick="updateStatus(\'orders\',\''+x.id+'\',\'confirmed\')">Accept order</button><button class="danger" onclick="updateStatus(\'orders\',\''+x.id+'\',\'cancelled\')">Reject order</button></div>';
-    else if(x.status==='confirmed') actions='<div class="muted">Order accepted. The customer will receive status updates when the order progresses.</div>';
+async function autoConnect() {
+  try {
+    document.getElementById('connectError').className = 'muted';
+    document.getElementById('connectError').textContent = initData() ? 'Verifying Telegram credentials…' : 'Open this page from the FineTime Partner button in Telegram.';
+    if (!initData()) return;
+    await bootstrap();
+    document.getElementById('connectError').textContent = '';
+  } catch (e) {
+    document.getElementById('connectError').className = 'error';
+    document.getElementById('connectError').textContent = e.message || 'Please enter your activation code.';
   }
-  return '<div class="item"><div class="row"><strong>'+name+'</strong><span class="pill">'+esc(x.status)+'</span></div><div class="muted">'+detail+'</div>'+(x.special_request?'<div class="muted">Request: '+esc(x.special_request)+'</div>':'')+(x.customer_note?'<div class="muted">Note: '+esc(x.customer_note)+'</div>':'')+actions+'</div>';
- }).join(''):'<div class="muted">Nothing here yet.</div>');
-}
-async function updateStatus(kind,id,status){
- const action=kind==='bookings'?'update_booking':kind==='reservations'?'update_reservation':'update_order';
- const labels={confirmed:'Accept',cancelled:'Reject/Cancel',changed:'Request change',completed:'Complete',preparing:'Mark preparing',ready:'Mark ready',delivered:'Mark delivered'};
- const label=labels[status]||'Update';
- if(!confirm(label+' this '+(kind==='bookings'?'booking':kind==='reservations'?'reservation':'order')+'?')) return;
- try{
-  await api(action,{id,status});
-  await bootstrap();
-  showTab(kind);
- }catch(e){ alert(e.message||'Could not update request.'); }
 }
 
-function notifyNewRequest(){
- try{
-  const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  if(AudioCtx){const ac=new AudioCtx();const now=ac.currentTime;[0,0.18].forEach((delay,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=i?880:660;g.gain.setValueAtTime(0.0001,now+delay);g.gain.exponentialRampToValueAtTime(0.18,now+delay+0.02);g.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.16);o.connect(g);g.connect(ac.destination);o.start(now+delay);o.stop(now+delay+0.18)});setTimeout(()=>ac.close(),600)}
-  }catch(_){}
-  try{tg?.HapticFeedback?.notificationOccurred('warning')}catch(_){}
-  if(tg) tg.showAlert?.('New FineTime request received. Open the request to accept or reject it.');
-  document.title='🔔 New request · FineTime Partner';
-  setTimeout(()=>document.title='FineTime Partner',3000);
-}
-function renderMenu(){
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Digital menu</h3><p class="muted">Add categories and manage food/drink items, prices, photos and availability.</p>'+
- '<div class="actions"><button type="button" onclick="openCategoryForm()">+ Category</button><button type="button" class="ghost" onclick="openItemForm()">+ Menu item</button></div>'+
- state.categories.map(c=>'<div class="item"><div class="row"><strong>'+esc(c.name)+'</strong><span class="pill">'+(c.menu_items?.length||0)+' items</span></div><div class="actions"><button type="button" class="ghost" data-edit-category="'+esc(c.id)+'">Edit category</button></div>'+
- (c.menu_items||[]).map(i=>'<div class="item"><div class="row"><strong>'+esc(i.name)+'</strong><span class="pill">ETB '+esc(i.price??'—')+'</span></div><div class="muted">'+esc(i.description||'')+' · '+(i.is_available?'Available':'Unavailable')+'</div><div class="actions"><button type="button" class="ghost" data-edit-item="'+esc(i.id)+'">Edit</button><button type="button" class="danger" data-delete-item="'+esc(i.id)+'">Delete</button></div></div>').join('')+'</div>').join('');
- document.querySelectorAll('[data-edit-category]').forEach(btn=>btn.onclick=()=>{const c=state.categories.find(x=>String(x.id)===String(btn.dataset.editCategory));if(c)openCategoryForm(c)});
- document.querySelectorAll('[data-edit-item]').forEach(btn=>btn.onclick=()=>{let item=null;for(const c of state.categories){item=(c.menu_items||[]).find(x=>String(x.id)===String(btn.dataset.editItem));if(item)break}if(item)openItemForm(item)});
- document.querySelectorAll('[data-delete-item]').forEach(btn=>btn.onclick=()=>deleteItem(btn.dataset.deleteItem));
-}
-function openCategoryForm(c=null){
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(c?'Edit category':'Add menu category')+'</h3><div class="muted">Keep the category details together on one page.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
- '<form id="categoryEditor" onsubmit="return saveCategoryForm(event,'+(c?JSON.stringify(c.id):'null')+')">'+
- '<section class="formSection"><h4>Category details</h4><div class="formGrid">'+
- '<div class="field full"><label>Category name *</label><input name="name" required value="'+attr(c?.name||'')+'" placeholder="Starters, Main dishes, Drinks…"></div>'+
- '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(c?.sort_order??0)+'"></div>'+
- '</div></section><div class="formActions"><button type="submit">'+(c?'Save category':'Create category')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
-}
-async function saveCategoryForm(event,id){
- event.preventDefault();
- const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),sort=Number(fd.get('sort_order')||0);
- if(!name)return alert('Category name is required.');
- try{await api('upsert_category',{id,name,sort_order:Number.isFinite(sort)?sort:0});await bootstrap();showTab('menu')}catch(e){alert(e.message||'Could not save category.')}
-}
-async function openItemForm(item=null){
- const categoryId=item?.category_id||state.categories[0]?.id;
- if(!categoryId)return alert('Create a category first.');
- const options=state.categories.map(c=>'<option value="'+c.id+'" '+(String(c.id)===String(categoryId)?'selected':'')+'>'+esc(c.name)+'</option>').join('');
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(item?'Edit menu item':'Add menu item')+'</h3><div class="muted">Enter the full menu item once, including its photo and availability.</div></div><button class="ghost" type="button" onclick="showTab(\'menu\')">Back</button></div>'+
- '<form id="itemEditor" onsubmit="return saveItemForm(event,'+(item?JSON.stringify(item.id):'null')+')">'+
- '<section class="formSection"><h4>Menu item</h4><div class="formGrid">'+
- '<div class="field"><label>Category *</label><select name="category_id" required>'+options+'</select></div>'+
- '<div class="field"><label>Item name *</label><input name="name" required value="'+attr(item?.name||'')+'" placeholder="Doro wat"></div>'+
- '<div class="field"><label>Price (ETB) *</label><input name="price" required type="number" min="0" step="0.01" value="'+attr(item?.price??'')+'"></div>'+
- '<div class="field"><label class="check"><input name="is_available" type="checkbox" '+(item?.is_available!==false?'checked':'')+'> Available for ordering</label></div>'+
- '<div class="field full"><label>Description</label><textarea name="description" placeholder="Ingredients, portion, serving details…">'+esc(item?.description||'')+'</textarea></div>'+
- '<div class="field full"><label>Photo</label><input id="itemPhotoUrl" name="photo_url" value="'+attr(item?.photo_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'itemPhotoUrl\',false)">Upload from device</button></div><img id="itemPhotoPreview" class="preview" '+(item?.photo_url?'src="'+attr(item.photo_url)+'"':'style="display:none"')+' alt="Menu item preview"></div>'+
- '</div></section><div class="formActions"><button type="submit">'+(item?'Save item':'Create menu item')+'</button><button type="button" class="ghost" onclick="showTab(\'menu\')">Cancel</button></div></form>';
- document.getElementById('itemPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('itemPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
-}
-async function saveItemForm(event,id){
- event.preventDefault();const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),price=Number(fd.get('price'));
- if(!name||!Number.isFinite(price)||price<0)return alert('Enter a valid item name and price.');
- try{await api('upsert_menu_item',{id,category_id:String(fd.get('category_id')),name,price,description:String(fd.get('description')||'').trim()||null,is_available:fd.get('is_available')==='on',photo_url:String(fd.get('photo_url')||'').trim()||null});await bootstrap();showTab('menu')}catch(e){alert(e.message||'Could not save menu item.')}
-}
-function deleteItem(id){if(!confirm('Delete this menu item?'))return;api('delete_menu_item',{id}).then(bootstrap).catch(e=>alert(e.message))}
+async function bootstrap() {
+  try {
+    const d = await api('bootstrap');
+    const nextState = {
+      business: d.business || null,
+      bookings: d.bookings || [],
+      reservations: d.reservations || [],
+      orders: d.orders || [],
+      rooms: d.rooms || [],
+      inventory: d.inventory || [],
+      categories: d.categories || [],
+      promotions: d.promotions || [],
+      subscription: d.subscription || null
+    };
 
-function renderRooms(){
- const dates=nextDates(14);
- const rows=state.rooms.map(r=>{
-  const days=dates.map(d=>{
-   const x=state.inventory.find(v=>String(v.room_type_id)===String(r.id)&&v.inventory_date===d);
-   const val=x?.available_rooms??r.total_rooms;
-   return '<div class="day"><strong>'+d.slice(5)+'</strong><input id="a-'+esc(r.id)+'-'+d+'" type="number" min="0" max="'+esc(r.total_rooms)+'" value="'+esc(val)+'"><label><input id="b-'+esc(r.id)+'-'+d+'" type="checkbox" '+(x?.blocked?'checked':'')+'> Block</label><button type="button" class="ghost" data-save-inventory="'+esc(r.id)+'" data-date="'+d+'" data-total="'+esc(r.total_rooms)+'">Save</button></div>';
+    const requestKey = [
+      ...nextState.bookings.filter(x => x.status === 'requested').map(x => 'b:' + x.id),
+      ...nextState.reservations.filter(x => x.status === 'requested').map(x => 'r:' + x.id),
+      ...nextState.orders.filter(x => x.status === 'placed').map(x => 'o:' + x.id)
+    ].sort().join('|');
+
+    if (!firstBootstrap && requestKey !== previousRequestKey) notifyNewRequest();
+    previousRequestKey = requestKey;
+    firstBootstrap = false;
+
+    const keepEditor = editorOpen();
+    state = nextState;
+
+    document.getElementById('connect').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+
+    const b = state.business || {};
+    const categoryName = (b.category || 'Partner').toUpperCase();
+    const isPub = b.is_published;
+
+    document.getElementById('business').innerHTML = 
+      '<div class="biz-name">' + esc(b.name || 'FineTime Partner') + '</div>' +
+      '<div class="biz-meta">' +
+        '<span class="pill gold">' + esc(categoryName) + '</span>' +
+        '<span><span class="live-dot" style="background:' + (isPub ? 'var(--success)' : '#E3A82D') + '"></span> ' + (isPub ? 'Live on FineTime' : 'Draft / Unpublished') + '</span>' +
+      '</div>';
+
+    renderNav();
+    if (!keepEditor) render();
+    if (!pollTimer) pollTimer = setInterval(() => bootstrap().catch(() => {}), 10000);
+  } catch (e) {
+    const message = e?.message || 'Partner connection failed.';
+    document.getElementById('connectError').className = 'error';
+    document.getElementById('connectError').textContent = message;
+    throw e;
+  }
+}
+
+function renderNav() {
+  const category = String(state.business?.category || '').toLowerCase();
+  const isHotel = category === 'hotel';
+  const hasFood = (state.categories || []).length > 0;
+  const pending = (isHotel ? state.bookings.filter(x => x.status === 'requested').length : state.reservations.filter(x => x.status === 'requested').length) +
+                  ((!isHotel || hasFood) ? state.orders.filter(x => x.status === 'placed').length : 0);
+
+  const tabs = [['overview', 'Overview']];
+  if (isHotel) tabs.push(['bookings', 'Bookings'], ['rooms', 'Rooms']);
+  else tabs.push(['reservations', 'Reservations']);
+  if (!isHotel || hasFood) tabs.push(['orders', 'Orders'], ['menu', 'Menu']);
+  tabs.push(['promotions', 'Promotions'], ['settings', 'Business']);
+
+  document.getElementById('nav').innerHTML = tabs.map(([id, label]) => {
+    const hasBadge = id === 'overview' && pending > 0;
+    return '<button class="' + (tab === id ? 'active' : '') + '" data-tab="' + id + '">' +
+      label + (hasBadge ? ' <span class="badge">' + pending + ' NEW</span>' : '') +
+    '</button>';
   }).join('');
-  return '<div class="item"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill">'+esc(r.total_rooms)+' total</span></div><div class="muted">Capacity '+esc(r.capacity)+' · '+(r.public_price!=null?'ETB '+esc(r.public_price):'Rate confirmed by hotel')+'</div><div class="actions"><button type="button" class="ghost" data-edit-room="'+esc(r.id)+'">Edit room</button><button type="button" class="danger" data-delete-room="'+esc(r.id)+'">Delete</button></div><div class="inventory">'+days+'</div></div>';
- }).join('');
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Hotel rooms</h3><div class="actions"><button type="button" onclick="openRoomForm()">+ Room type</button></div>'+(rows||'<div class="muted">No room types configured.</div>');
- document.querySelectorAll('[data-edit-room]').forEach(btn=>btn.onclick=()=>{const room=state.rooms.find(x=>String(x.id)===String(btn.dataset.editRoom));if(room)openRoomForm(room)});
- document.querySelectorAll('[data-delete-room]').forEach(btn=>btn.onclick=()=>deleteRoom(btn.dataset.deleteRoom));
- document.querySelectorAll('[data-save-inventory]').forEach(btn=>btn.onclick=()=>saveInventory(btn.dataset.saveInventory,btn.dataset.date,Number(btn.dataset.total)));
-}
-async function openRoomForm(r=null){
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(r?'Edit room type':'Add room type')+'</h3><div class="muted">Configure the room completely before saving.</div></div><button class="ghost" type="button" onclick="showTab(\'rooms\')">Back</button></div>'+
- '<form id="roomEditor" onsubmit="return saveRoomForm(event,'+(r?JSON.stringify(r.id):'null')+')">'+
- '<section class="formSection"><h4>Room details</h4><div class="formGrid">'+
- '<div class="field"><label>Room type name *</label><input name="name" required value="'+attr(r?.name||'')+'" placeholder="Deluxe King"></div>'+
- '<div class="field"><label>Total rooms *</label><input name="total_rooms" required type="number" min="0" step="1" value="'+attr(r?.total_rooms??0)+'"></div>'+
- '<div class="field"><label>Guest capacity *</label><input name="capacity" required type="number" min="1" step="1" value="'+attr(r?.capacity??1)+'"></div>'+
- '<div class="field"><label>Public price (ETB/night)</label><input name="public_price" type="number" min="0" step="0.01" value="'+attr(r?.public_price??'')+'"><span class="help">Leave blank if the hotel confirms rates manually.</span></div>'+
- '<div class="field"><label>Beds</label><input name="beds" value="'+attr(r?.beds||'')+'" placeholder="1 king bed"></div>'+
- '<div class="field"><label>Amenities</label><input name="amenities" value="'+attr((r?.amenities||[]).join(', '))+'" placeholder="Wi‑Fi, AC, TV"></div>'+
- '<div class="field full"><label>Description</label><textarea name="description">'+esc(r?.description||'')+'</textarea></div>'+
- '<div class="field full"><label>Room photo</label><input id="roomPhotoUrl" name="photo_url" value="'+attr(r?.photo_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'roomPhotoUrl\',false)">Upload from device</button></div><img id="roomPhotoPreview" class="preview" '+(r?.photo_url?'src="'+attr(r.photo_url)+'"':'style="display:none"')+' alt="Room preview"></div>'+
- '</div></section><div class="formActions"><button type="submit">'+(r?'Save room type':'Create room type')+'</button><button type="button" class="ghost" onclick="showTab(\'rooms\')">Cancel</button></div></form>';
- document.getElementById('roomPhotoUrl').addEventListener('input',e=>{const p=document.getElementById('roomPhotoPreview');p.src=e.target.value;p.style.display=e.target.value?'block':'none'});
-}
-async function saveRoomForm(event,id){
- event.preventDefault();const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),total=Number(fd.get('total_rooms')),capacity=Number(fd.get('capacity')),priceRaw=String(fd.get('public_price')||'');
- if(!name||!Number.isInteger(total)||total<0||!Number.isInteger(capacity)||capacity<1)return alert('Enter valid room name, total rooms and capacity.');
- const price=priceRaw===''?null:Number(priceRaw);if(price!==null&&(!Number.isFinite(price)||price<0))return alert('Enter a valid room price.');
- try{await api('upsert_room',{id,name,total_rooms:total,capacity,public_price:price,description:String(fd.get('description')||'').trim()||null,beds:String(fd.get('beds')||'').trim()||null,amenities:String(fd.get('amenities')||'').split(',').map(x=>x.trim()).filter(Boolean),photo_url:String(fd.get('photo_url')||'').trim()||null});await bootstrap();showTab('rooms')}catch(e){alert(e.message||'Could not save room type.')}
-}
-function deleteRoom(id){if(!confirm('Delete this room type?'))return;api('delete_room',{id}).then(bootstrap).catch(e=>alert(e.message))}
-async function saveInventory(roomId,date,total){
- const value=Number(document.getElementById('a-'+roomId+'-'+date).value),blocked=document.getElementById('b-'+roomId+'-'+date).checked;
- if(!Number.isInteger(value)||value<0||value>total)return alert('Available rooms must be between 0 and '+total+'.');
- try{await api('update_inventory',{room_type_id:roomId,inventory_date:date,available_rooms:value,blocked});await bootstrap();showTab('rooms')}catch(e){alert(e.message)}
-}
-function nextDates(days){const a=[],d=new Date();d.setHours(0,0,0,0);for(let i=0;i<days;i++){const x=new Date(d);x.setDate(x.getDate()+i);a.push(x.toISOString().slice(0,10))}return a}
 
-function renderPromotions(){
- document.getElementById('content').innerHTML='<h3 class="sectionTitle">Promotions & posts</h3><p class="muted">Publish real offers only. Expired promotions should not remain active.</p><div class="actions"><button type="button" onclick="openPromoForm()">+ Promotion</button></div>'+
- (state.promotions.length?state.promotions.map(p=>'<div class="item"><div class="row"><strong>'+esc(p.title)+'</strong><span class="pill">'+esc(p.badge||p.status||'')+'</span></div><div class="muted">'+esc(p.description||'')+'</div><div class="muted">'+esc(p.starts_on||'')+' → '+esc(p.ends_on||'')+'</div><div class="actions"><button type="button" class="ghost" data-edit-promo="'+esc(p.id)+'">Edit</button><button type="button" class="danger" data-delete-promo="'+esc(p.id)+'">Delete</button></div></div>').join(''):'<div class="muted">No promotions yet.</div>');
- document.querySelectorAll('[data-edit-promo]').forEach(btn=>btn.onclick=()=>{const promo=state.promotions.find(x=>String(x.id)===String(btn.dataset.editPromo));if(promo)openPromoForm(promo)});
- document.querySelectorAll('[data-delete-promo]').forEach(btn=>btn.onclick=()=>deletePromo(btn.dataset.deletePromo));
-}
-async function openPromoForm(p=null){
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">'+(p?'Edit promotion':'Add promotion')+'</h3><div class="muted">Create the complete offer in one page.</div></div><button class="ghost" type="button" onclick="showTab(\'promotions\')">Back</button></div>'+
- '<form id="promoEditor" onsubmit="return savePromoForm(event,'+(p?JSON.stringify(p.id):'null')+')">'+
- '<section class="formSection"><h4>Promotion</h4><div class="formGrid">'+
- '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(p?.title||'')+'" placeholder="Weekend special"></div>'+
- '<div class="field"><label>Badge</label><select name="badge"><option value="25% OFF">25% OFF</option><option value="TODAY">TODAY</option><option value="NEW">NEW</option><option value="FEATURED">FEATURED</option><option value="LIMITED">LIMITED</option><option value="FINE TIME PICK">FINE TIME PICK</option></select></div>'+
- '<div class="field"><label>Status</label><select name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>'+
- '<div class="field"><label>Start date</label><input name="starts_on" type="date" value="'+attr(p?.starts_on||'')+'"></div>'+
- '<div class="field"><label>End date</label><input name="ends_on" type="date" value="'+attr(p?.ends_on||'')+'"></div>'+
- '<div class="field full"><label>Description</label><textarea name="description">'+esc(p?.description||'')+'</textarea></div>'+
- '<div class="field full"><label>Terms</label><textarea name="terms">'+esc(p?.terms||'')+'</textarea></div>'+
- '<div class="field full"><label>Promotion image</label><input id="promoImageUrl" name="image_url" value="'+attr(p?.image_url||'')+'" placeholder="https://…"><div class="actions"><button type="button" class="ghost" onclick="uploadInto(\'promoImageUrl\',false)">Upload from device</button></div><img id="promoImagePreview" class="preview" '+(p?.image_url?'src="'+attr(p.image_url)+'"':'style="display:none"')+' alt="Promotion preview"></div>'+
- '</div></section><div class="formActions"><button type="submit">'+(p?'Save promotion':'Create promotion')+'</button><button type="button" class="ghost" onclick="showTab(\'promotions\')">Cancel</button></div></form>';
- if(p?.badge)document.querySelector('#promoEditor [name="badge"]').value=p.badge;
- if(p?.status)document.querySelector('#promoEditor [name="status"]').value=p.status;
- document.getElementById('promoImageUrl').addEventListener('input',e=>{const q=document.getElementById('promoImagePreview');q.src=e.target.value;q.style.display=e.target.value?'block':'none'});
-}
-async function savePromoForm(event,id){
- event.preventDefault();const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim(),badge=String(fd.get('badge')||'FEATURED');
- if(!title)return alert('Promotion title is required.');
- try{await api('upsert_promotion',{id,title,description:String(fd.get('description')||'').trim()||null,badge,starts_on:String(fd.get('starts_on')||'')||null,ends_on:String(fd.get('ends_on')||'')||null,status:String(fd.get('status')||'active'),image_url:String(fd.get('image_url')||'').trim()||null,terms:String(fd.get('terms')||'').trim()||null});await bootstrap();showTab('promotions')}catch(e){alert(e.message||'Could not save promotion.')}
-}
-function deletePromo(id){if(!confirm('Delete this promotion?'))return;api('delete_promotion',{id}).then(bootstrap).catch(e=>alert(e.message))}
+  document.querySelectorAll('#nav [data-tab]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('light');
+      showTab(btn.dataset.tab);
+    };
+  });
 
-function renderSettings(){
- const b=state.business||{},s=state.subscription;
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">Business profile</h3><div class="muted">Complete your business details on this page. Your work stays in the form while the workspace refreshes in the background.</div></div><button type="button" class="ghost" onclick="showTab(\'overview\')">Back</button></div>'+
- '<form id="businessEditor" class="formSection" onsubmit="return saveBusiness(event)">'+
- '<div class="formGrid">'+
- '<div class="field"><label>Business name</label><input id="bn" name="name" value="'+attr(b.name)+'"></div><div class="field"><label>Phone</label><input id="bp" name="phone" value="'+attr(b.phone)+'"></div>'+
- '<div class="field full"><label>About</label><textarea id="ba" name="about">'+esc(b.about||'')+'</textarea></div>'+
- '<div class="field"><label>Cover image URL</label><input id="bc" name="cover_url" value="'+attr(b.cover_url)+'"><div class="actions"><button type="button" class="ghost" onclick="uploadCoverFromDevice()">Upload cover from device</button></div></div>'+
- '<div class="field"><label>Services (comma separated)</label><input id="bs" name="services" value="'+attr((b.services||[]).join(', '))+'"></div>'+
- '<div class="field full"><label>Gallery image URLs (comma separated)</label><textarea id="bg" name="gallery_urls">'+esc((b.gallery_urls||[]).join(', '))+'</textarea><div class="actions"><button type="button" class="ghost" onclick="uploadGalleryFromDevice()">Upload gallery photos from device</button></div></div>'+
- '<div class="field full"><label>Opening hours (JSON)</label><textarea id="bo" name="opening_hours">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea></div>'+
- '<div class="field"><label>Highlights (comma separated)</label><input id="bh" name="highlights" value="'+attr((b.highlights||[]).join(', '))+'"></div>'+
- '<div class="field"><label>Amenities (comma separated)</label><input id="bam" name="amenities" value="'+attr((b.amenities||[]).join(', '))+'"></div>'+
- '</div><div class="formActions"><button type="submit">Save business profile</button><button type="button" class="ghost" onclick="showTab(\'overview\')">Cancel</button></div></form>'+
- '<div class="item"><strong>Subscription</strong><div class="muted">'+esc(s?.plan||'Not configured')+' · '+esc(s?.status||'Contact FineTime')+(s?.monthly_price!=null?' · ETB '+s.monthly_price+'/month':'')+'</div><div class="muted">Plan changes are requested here; FineTime controls activation, price and billing until online billing is integrated.</div><div class="actions"><button type="button" class="ghost" onclick="requestPlanChange()">Request plan change</button></div></div>';
+  const brandSub = document.querySelector('.sub-title');
+  if (brandSub) brandSub.textContent = isHotel ? 'HOTEL PARTNER WORKSPACE' : 'RESTAURANT & CAFÉ WORKSPACE';
 }
-async function saveBusiness(event){
- event.preventDefault();
- const csv=id=>document.getElementById(id).value.split(',').map(x=>x.trim()).filter(Boolean);
- let opening={};
- try{opening=JSON.parse(document.getElementById('bo').value||'{}')}catch(e){return alert('Opening hours must be valid JSON.')}
- try{
-  await api('update_business',{name:document.getElementById('bn').value,phone:document.getElementById('bp').value,about:document.getElementById('ba').value,cover_url:document.getElementById('bc').value,gallery_urls:csv('bg'),services:csv('bs'),opening_hours:opening,highlights:csv('bh'),amenities:csv('bam')});
-  await bootstrap();
-  showTab('overview');
- }catch(e){alert(e.message||'Could not save business profile.')}
+
+function showTab(t) {
+  tab = t;
+  renderNav();
+  render();
 }
-function requestPlanChange(){
- const current=state.subscription?.plan||'basic';
- document.getElementById('content').innerHTML='<div class="formHead"><div><h3 class="sectionTitle">Request plan change</h3><div class="muted">Send the request to FineTime Admin without popup prompts.</div></div><button class="ghost" type="button" onclick="showTab(\'settings\')">Back</button></div>'+
- '<form id="planEditor" class="formSection" onsubmit="return savePlanRequest(event)"><div class="formGrid">'+
- '<div class="field"><label>Requested plan</label><select name="plan"><option value="basic" '+(current==='basic'?'selected':'')+'>Basic</option><option value="premium" '+(current==='premium'?'selected':'')+'>Premium</option></select></div>'+
- '<div class="field full"><label>Note to FineTime Admin</label><textarea name="notes">Please review my subscription request.</textarea></div>'+
- '</div><div class="formActions"><button type="submit">Send request</button><button type="button" class="ghost" onclick="showTab(\'settings\')">Cancel</button></div></form>';
+
+function render() {
+  const f = {
+    overview: renderOverview,
+    bookings: () => renderList('bookings'),
+    reservations: () => renderList('reservations'),
+    orders: () => renderList('orders'),
+    menu: renderMenu,
+    rooms: renderRooms,
+    promotions: renderPromotions,
+    settings: renderSettings
+  };
+  if (f[tab]) f[tab]();
 }
-async function savePlanRequest(event){
- event.preventDefault();const fd=new FormData(event.currentTarget);
- try{const d=await api('request_subscription_change',{plan:String(fd.get('plan')),notes:String(fd.get('notes')||'').trim()});alert(d.message||'Subscription request sent to FineTime.');await bootstrap();showTab('overview')}catch(e){alert(e.message||'Could not send request.')}
+
+function renderOverview() {
+  const b = state.business || {};
+  const s = state.subscription;
+  const isHotel = String(b.category || '').toLowerCase() === 'hotel';
+
+  const countPrimary = isHotel ? state.bookings.length : state.reservations.length;
+  const labelPrimary = isHotel ? 'Bookings' : 'Reservations';
+
+  document.getElementById('content').innerHTML = 
+    '<h3 class="sectionTitle">Partner Performance</h3>' +
+    '<p class="subText">Real-time overview of guest activity, promotions, and venue visibility.</p>' +
+    
+    '<div class="kpi-grid">' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-icon">' + (isHotel ? '🏨' : '🍽️') + '</div>' +
+        '<div class="kpi-value">' + countPrimary + '</div>' +
+        '<div class="kpi-label">' + labelPrimary + '</div>' +
+      '</div>' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-icon">📦</div>' +
+        '<div class="kpi-value">' + state.orders.length + '</div>' +
+        '<div class="kpi-label">Orders</div>' +
+      '</div>' +
+      '<div class="kpi-card">' +
+        '<div class="kpi-icon">📢</div>' +
+        '<div class="kpi-value">' + state.promotions.length + '</div>' +
+        '<div class="kpi-label">Promos</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="item-card" style="margin-top:16px">' +
+      '<div class="item-header">' +
+        '<div>' +
+          '<div class="item-title">FineTime Membership</div>' +
+          '<div class="item-meta">Plan: ' + esc(s?.plan || 'Standard Partner') + ' · ' + esc(s?.status || 'Active') + '</div>' +
+        '</div>' +
+        '<span class="pill gold">Active</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="item-card">' +
+      '<div class="item-header">' +
+        '<div>' +
+          '<div class="item-title">Public Discover Listing</div>' +
+          '<div class="item-meta">' + (b.is_published ? 'Visible to all FineTime travelers and guests' : 'Private preview mode') + '</div>' +
+        '</div>' +
+        '<span class="pill ' + (b.is_published ? 'active' : 'requested') + '">' + (b.is_published ? 'Published' : 'Draft') + '</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="margin-top:20px">' +
+      '<div style="font-weight:700;margin-bottom:8px;color:var(--ivory);font-size:13px">QUICK ACTIONS</div>' +
+      '<div class="actions">' +
+        '<button class="btn-gold" onclick="haptic(\'medium\');showTab(\'promotions\')">✨ Post Promotion</button>' +
+        '<button class="btn-ghost" onclick="haptic(\'light\');showTab(\'' + (isHotel ? 'rooms' : 'menu') + '\')">' + (isHotel ? 'Manage Rooms' : 'Manage Menu') + '</button>' +
+        '<button class="btn-ghost" onclick="haptic(\'light\');showTab(\'settings\')">Edit Profile</button>' +
+      '</div>' +
+    '</div>';
 }
+
+function renderList(kind) {
+  const rows = state[kind] || [];
+  const title = kind === 'bookings' ? 'Guest Bookings' : kind === 'reservations' ? 'Table Reservations' : 'Customer Orders';
+
+  document.getElementById('content').innerHTML = 
+    '<h3 class="sectionTitle">' + title + '</h3>' +
+    '<p class="subText">Review incoming requests and update confirmation status in real time.</p>' +
+    (rows.length ? rows.map(x => {
+      const name = esc(x.profiles?.full_name || 'Guest Customer');
+      const detail = kind === 'bookings' 
+        ? esc(x.check_in + ' → ' + x.check_out + ' · ' + x.guests + ' guest(s) · ' + (x.room_types?.name || 'Room'))
+        : kind === 'reservations'
+          ? esc(x.reservation_date + ' at ' + x.reservation_time + ' · ' + x.party_size + ' guests · ' + (x.profiles?.phone || x.contact_phone || 'No phone'))
+          : esc('ETB ' + (x.total ?? 0) + (x.table_number ? ' · Table ' + x.table_number : ''));
+
+      let actions = '';
+      if (kind === 'bookings' || kind === 'reservations') {
+        if (x.status === 'requested') {
+          actions = '<div class="actions">' +
+            '<button class="btn-gold btn-sm" onclick="haptic(\'success\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'confirmed\')">Accept</button>' +
+            '<button class="btn-danger btn-sm" onclick="haptic(\'warning\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'cancelled\')">Decline</button>' +
+            '<button class="btn-ghost btn-sm" onclick="haptic(\'light\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'changed\')">Request Change</button>' +
+          '</div>';
+        } else if (x.status === 'confirmed') {
+          actions = '<div class="actions">' +
+            '<button class="btn-ghost btn-sm" onclick="haptic(\'success\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'completed\')">Mark Completed</button>' +
+            '<button class="btn-danger btn-sm" onclick="haptic(\'warning\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'cancelled\')">Cancel</button>' +
+          '</div>';
+        } else if (x.status === 'changed') {
+          actions = '<div class="actions">' +
+            '<button class="btn-gold btn-sm" onclick="haptic(\'success\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'confirmed\')">Accept Change</button>' +
+            '<button class="btn-danger btn-sm" onclick="haptic(\'warning\');updateStatus(\'' + kind + '\',\'' + x.id + '\',\'cancelled\')">Reject</button>' +
+          '</div>';
+        }
+      } else {
+        if (x.status === 'placed') {
+          actions = '<div class="actions">' +
+            '<button class="btn-gold btn-sm" onclick="haptic(\'success\');updateStatus(\'orders\',\'' + x.id + '\',\'confirmed\')">Accept Order</button>' +
+            '<button class="btn-danger btn-sm" onclick="haptic(\'warning\');updateStatus(\'orders\',\'' + x.id + '\',\'cancelled\')">Decline</button>' +
+          '</div>';
+        } else if (x.status === 'confirmed') {
+          actions = '<div class="muted" style="margin-top:8px;font-size:12px">✓ Order accepted and in preparation.</div>';
+        }
+      }
+
+      return '<div class="item-card">' +
+        '<div class="item-header">' +
+          '<div>' +
+            '<div class="item-title">' + name + '</div>' +
+            '<div class="item-desc">' + detail + '</div>' +
+          '</div>' +
+          '<span class="pill ' + esc(x.status) + '">' + esc(x.status).toUpperCase() + '</span>' +
+        '</div>' +
+        (x.special_request ? '<div class="item-meta" style="color:var(--gold)">Request: ' + esc(x.special_request) + '</div>' : '') +
+        (x.customer_note ? '<div class="item-meta">Note: ' + esc(x.customer_note) + '</div>' : '') +
+        actions +
+      '</div>';
+    }).join('') : '<div class="card" style="text-align:center;padding:32px 16px"><div style="font-size:28px;margin-bottom:8px">📋</div><div class="muted">No ' + kind + ' recorded yet. New guest requests will appear here automatically.</div></div>');
+}
+
+async function updateStatus(kind, id, status) {
+  const action = kind === 'bookings' ? 'update_booking' : kind === 'reservations' ? 'update_reservation' : 'update_order';
+  const labels = {
+    confirmed: 'Accept', cancelled: 'Decline/Cancel', changed: 'Request change',
+    completed: 'Mark completed', preparing: 'Mark preparing', ready: 'Mark ready', delivered: 'Mark delivered'
+  };
+  const label = labels[status] || 'Update';
+  if (!confirm(label + ' this ' + (kind === 'bookings' ? 'booking' : kind === 'reservations' ? 'reservation' : 'order') + '?')) return;
+  try {
+    await api(action, { id, status });
+    await bootstrap();
+    showTab(kind);
+  } catch (e) {
+    alert(e.message || 'Could not update request.');
+  }
+}
+
+function notifyNewRequest() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ac = new AudioCtx();
+      const now = ac.currentTime;
+      [0, 0.18].forEach((delay, i) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.value = i ? 880 : 660;
+        g.gain.setValueAtTime(0.0001, now + delay);
+        g.gain.exponentialRampToValueAtTime(0.18, now + delay + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.16);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start(now + delay);
+        o.stop(now + delay + 0.18);
+      });
+      setTimeout(() => ac.close(), 600);
+    }
+  } catch (_) {}
+  try { tg?.HapticFeedback?.notificationOccurred('warning'); } catch (_) {}
+  if (tg) tg.showAlert?.('New FineTime request received. Open the request to accept or reject it.');
+  document.title = '🔔 New request · FineTime Partner';
+  setTimeout(() => document.title = 'FineTime Partner Portal', 3000);
+}
+
+/* =========================================================================
+   PROMOTIONS SECTION (Fully modernized, beautiful, working edit/delete)
+   ========================================================================= */
+function renderPromotions() {
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px">' +
+      '<div>' +
+        '<h3 class="sectionTitle">Promotions & Campaigns</h3>' +
+        '<p class="subText" style="margin:0">Create limited-time offers to attract travelers on the FineTime discover feed.</p>' +
+      '</div>' +
+      '<button type="button" class="btn-gold" onclick="haptic(\'medium\');openPromoForm()">+ New Promotion</button>' +
+    '</div>' +
+    (state.promotions.length ? state.promotions.map(p => {
+      const isAct = p.status === 'active';
+      return '<div class="item-card">' +
+        (p.image_url ? '<img src="' + attr(p.image_url) + '" class="promo-preview-thumb" alt="' + attr(p.title) + '">' : '') +
+        '<div class="item-header">' +
+          '<div>' +
+            '<div class="item-title">' + esc(p.title) + '</div>' +
+            '<div class="item-meta">📅 ' + esc(p.starts_on || 'Immediate') + ' → ' + esc(p.ends_on || 'Ongoing') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;align-items:center">' +
+            (p.badge ? '<span class="pill gold">' + esc(p.badge) + '</span>' : '') +
+            '<span class="pill ' + (isAct ? 'active' : 'cancelled') + '">' + (isAct ? 'ACTIVE' : 'INACTIVE') + '</span>' +
+          '</div>' +
+        '</div>' +
+        (p.description ? '<div class="item-desc">' + esc(p.description) + '</div>' : '') +
+        (p.terms ? '<div class="item-meta" style="color:var(--muted);font-size:11px">Terms: ' + esc(p.terms) + '</div>' : '') +
+        '<div class="actions" style="margin-top:14px">' +
+          '<button type="button" class="btn-ghost btn-sm" data-edit-promo="' + esc(p.id) + '">✏️ Edit</button>' +
+          '<button type="button" class="btn-danger btn-sm" data-delete-promo="' + esc(p.id) + '">🗑️ Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') : 
+    '<div class="card" style="text-align:center;padding:36px 16px">' +
+      '<div style="font-size:32px;margin-bottom:10px">📢</div>' +
+      '<div style="font-weight:700;font-size:16px;color:var(--ivory);margin-bottom:6px">No Active Promotions</div>' +
+      '<div class="muted" style="margin-bottom:18px">Publish special weekend discounts, complimentary amenities, or seasonal menus to boost reservations.</div>' +
+      '<button type="button" class="btn-gold" onclick="haptic(\'medium\');openPromoForm()">Create First Promotion</button>' +
+    '</div>');
+
+  document.querySelectorAll('[data-edit-promo]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('light');
+      const promo = state.promotions.find(x => String(x.id) === String(btn.dataset.editPromo));
+      if (promo) openPromoForm(promo);
+    };
+  });
+  document.querySelectorAll('[data-delete-promo]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('warning');
+      deletePromo(btn.dataset.deletePromo);
+    };
+  });
+}
+
+async function openPromoForm(p = null) {
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<div>' +
+        '<h3 class="sectionTitle">' + (p ? 'Edit Promotion' : 'Create Promotion') + '</h3>' +
+        '<p class="subText" style="margin:0">FineTime Discover displays these campaigns prominently to travelers.</p>' +
+      '</div>' +
+      '<button class="btn-ghost btn-sm" type="button" onclick="haptic(\'light\');showTab(\'promotions\')">✕ Cancel</button>' +
+    '</div>' +
+    '<form id="promoEditor" onsubmit="return savePromoForm(event,' + (p ? JSON.stringify(p.id) : 'null') + ')">' +
+      '<div class="formSection">' +
+        '<h4>Campaign Details</h4>' +
+        '<div class="formGrid">' +
+          '<div class="field full">' +
+            '<label>Offer Title *</label>' +
+            '<input name="title" required value="' + attr(p?.title || '') + '" placeholder="e.g. 20% Off Weekend Dinner & Stay">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Promotional Badge</label>' +
+            '<select name="badge">' +
+              '<option value="25% OFF">25% OFF</option>' +
+              '<option value="SPECIAL OFFER">SPECIAL OFFER</option>' +
+              '<option value="WEEKEND DEAL">WEEKEND DEAL</option>' +
+              '<option value="TODAY ONLY">TODAY ONLY</option>' +
+              '<option value="NEW">NEW</option>' +
+              '<option value="FEATURED">FEATURED</option>' +
+              '<option value="COMPLIMENTARY">COMPLIMENTARY</option>' +
+              '<option value="FINE TIME PICK">FINE TIME PICK</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Publication Status</label>' +
+            '<select name="status">' +
+              '<option value="active">Active (Visible)</option>' +
+              '<option value="inactive">Inactive (Paused)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Start Date</label>' +
+            '<input name="starts_on" type="date" value="' + attr(p?.starts_on || '') + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>End Date</label>' +
+            '<input name="ends_on" type="date" value="' + attr(p?.ends_on || '') + '">' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Campaign Description</label>' +
+            '<textarea name="description" placeholder="Describe the offer, discount conditions, or included benefits…">' + esc(p?.description || '') + '</textarea>' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Terms & Conditions</label>' +
+            '<textarea name="terms" placeholder="e.g. Valid for advance bookings only. Cannot be combined with other offers.">' + esc(p?.terms || '') + '</textarea>' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Banner Photo</label>' +
+            '<input id="promoImageUrl" name="image_url" value="' + attr(p?.image_url || '') + '" placeholder="https://… or upload photo from device">' +
+            '<div class="actions" style="margin-top:8px">' +
+              '<button type="button" class="btn-ghost btn-sm" onclick="uploadInto(\'promoImageUrl\',false)">📷 Upload from device</button>' +
+            '</div>' +
+            '<img id="promoImagePreview" class="preview-img" ' + (p?.image_url ? 'src="' + attr(p.image_url) + '"' : 'style="display:none"') + ' alt="Promotion preview">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions" style="margin-top:16px">' +
+        '<button type="submit" class="btn-gold">' + (p ? 'Save Changes' : 'Publish Promotion') + '</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'promotions\')">Cancel</button>' +
+      '</div>' +
+    '</form>';
+
+  if (p?.badge) document.querySelector('#promoEditor [name="badge"]').value = p.badge;
+  if (p?.status) document.querySelector('#promoEditor [name="status"]').value = p.status;
+  document.getElementById('promoImageUrl').addEventListener('input', e => {
+    const q = document.getElementById('promoImagePreview');
+    q.src = e.target.value;
+    q.style.display = e.target.value ? 'block' : 'none';
+  });
+}
+
+async function savePromoForm(event, id) {
+  event.preventDefault();
+  haptic('medium');
+  const fd = new FormData(event.currentTarget);
+  const title = String(fd.get('title') || '').trim();
+  const badge = String(fd.get('badge') || 'FEATURED');
+  if (!title) return alert('Promotion title is required.');
+
+  try {
+    await api('upsert_promotion', {
+      id,
+      title,
+      description: String(fd.get('description') || '').trim() || null,
+      badge,
+      starts_on: String(fd.get('starts_on') || '') || null,
+      ends_on: String(fd.get('ends_on') || '') || null,
+      status: String(fd.get('status') || 'active'),
+      image_url: String(fd.get('image_url') || '').trim() || null,
+      terms: String(fd.get('terms') || '').trim() || null
+    });
+    haptic('success');
+    await bootstrap();
+    showTab('promotions');
+  } catch (e) {
+    haptic('warning');
+    alert(e.message || 'Could not save promotion.');
+  }
+}
+
+async function deletePromo(id) {
+  if (!confirm('Are you sure you want to delete this promotion? This action cannot be undone.')) return;
+  haptic('warning');
+  try {
+    await api('delete_promotion', { id });
+    haptic('success');
+    await bootstrap();
+    showTab('promotions');
+  } catch (e) {
+    alert(e.message || 'Could not delete promotion.');
+  }
+}
+
+/* =========================================================================
+   MENU SECTION
+   ========================================================================= */
+function renderMenu() {
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px">' +
+      '<div>' +
+        '<h3 class="sectionTitle">Digital Menu</h3>' +
+        '<p class="subText" style="margin:0">Manage categories, dishes, drink selections, and live availability.</p>' +
+      '</div>' +
+      '<div class="actions" style="margin-top:0">' +
+        '<button type="button" class="btn-ghost btn-sm" onclick="haptic(\'light\');openCategoryForm()">+ Category</button>' +
+        '<button type="button" class="btn-gold btn-sm" onclick="haptic(\'medium\');openItemForm()">+ Dish / Drink</button>' +
+      '</div>' +
+    '</div>' +
+    (state.categories.length ? state.categories.map(c => 
+      '<div class="item-card" style="background:#14110C;margin-bottom:16px">' +
+        '<div class="item-header">' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            '<span style="font-weight:800;font-size:16px;color:var(--ivory)">' + esc(c.name) + '</span>' +
+            '<span class="pill gold">' + (c.menu_items?.length || 0) + ' items</span>' +
+          '</div>' +
+          '<button type="button" class="btn-ghost btn-sm" data-edit-category="' + esc(c.id) + '">Edit</button>' +
+        '</div>' +
+        ((c.menu_items || []).length ? (c.menu_items || []).map(i => 
+          '<div style="background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px;margin-top:8px">' +
+            '<div class="item-header">' +
+              '<div style="font-weight:700;color:var(--ivory)">' + esc(i.name) + '</div>' +
+              '<span class="pill gold">ETB ' + esc(i.price ?? '—') + '</span>' +
+            '</div>' +
+            (i.description ? '<div class="item-desc" style="font-size:12px">' + esc(i.description) + '</div>' : '') +
+            '<div class="item-meta">' +
+              '<span class="pill ' + (i.is_available ? 'active' : 'cancelled') + '">' + (i.is_available ? 'Available' : 'Unavailable') + '</span>' +
+            '</div>' +
+            '<div class="actions" style="margin-top:10px">' +
+              '<button type="button" class="btn-ghost btn-sm" data-edit-item="' + esc(i.id) + '">✏️ Edit</button>' +
+              '<button type="button" class="btn-danger btn-sm" data-delete-item="' + esc(i.id) + '">🗑️ Delete</button>' +
+            '</div>' +
+          '</div>'
+        ).join('') : '<div class="muted" style="padding:10px 0;font-size:12px">No items in this category.</div>') +
+      '</div>'
+    ).join('') : '<div class="card" style="text-align:center;padding:32px 16px"><div style="font-size:28px;margin-bottom:8px">🍽️</div><div class="muted">No categories created yet. Click "+ Category" above to begin your menu.</div></div>');
+
+  document.querySelectorAll('[data-edit-category]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('light');
+      const c = state.categories.find(x => String(x.id) === String(btn.dataset.editCategory));
+      if (c) openCategoryForm(c);
+    };
+  });
+  document.querySelectorAll('[data-edit-item]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('light');
+      let item = null;
+      for (const c of state.categories) {
+        item = (c.menu_items || []).find(x => String(x.id) === String(btn.dataset.editItem));
+        if (item) break;
+      }
+      if (item) openItemForm(item);
+    };
+  });
+  document.querySelectorAll('[data-delete-item]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('warning');
+      deleteItem(btn.dataset.deleteItem);
+    };
+  });
+}
+
+function openCategoryForm(c = null) {
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<h3 class="sectionTitle">' + (c ? 'Edit Category' : 'Add Category') + '</h3>' +
+      '<button class="btn-ghost btn-sm" type="button" onclick="haptic(\'light\');showTab(\'menu\')">✕ Cancel</button>' +
+    '</div>' +
+    '<form id="categoryEditor" onsubmit="return saveCategoryForm(event,' + (c ? JSON.stringify(c.id) : 'null') + ')">' +
+      '<div class="formSection">' +
+        '<h4>Category Information</h4>' +
+        '<div class="formGrid">' +
+          '<div class="field full">' +
+            '<label>Category Name *</label>' +
+            '<input name="name" required value="' + attr(c?.name || '') + '" placeholder="e.g. Appetizers, Traditional Mains, Signature Cocktails…">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Sort Order Index</label>' +
+            '<input name="sort_order" type="number" value="' + attr(c?.sort_order ?? 0) + '">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button type="submit" class="btn-gold">' + (c ? 'Save Category' : 'Create Category') + '</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'menu\')">Cancel</button>' +
+      '</div>' +
+    '</form>';
+}
+
+async function saveCategoryForm(event, id) {
+  event.preventDefault();
+  haptic('medium');
+  const fd = new FormData(event.currentTarget), name = String(fd.get('name') || '').trim(), sort = Number(fd.get('sort_order') || 0);
+  if (!name) return alert('Category name is required.');
+  try {
+    await api('upsert_category', { id, name, sort_order: Number.isFinite(sort) ? sort : 0 });
+    haptic('success');
+    await bootstrap();
+    showTab('menu');
+  } catch (e) {
+    alert(e.message || 'Could not save category.');
+  }
+}
+
+async function openItemForm(item = null) {
+  const categoryId = item?.category_id || state.categories[0]?.id;
+  if (!categoryId) return alert('Create a category first.');
+  const options = state.categories.map(c => '<option value="' + c.id + '" ' + (String(c.id) === String(categoryId) ? 'selected' : '') + '>' + esc(c.name) + '</option>').join('');
+
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<h3 class="sectionTitle">' + (item ? 'Edit Dish / Item' : 'New Dish / Item') + '</h3>' +
+      '<button class="btn-ghost btn-sm" type="button" onclick="haptic(\'light\');showTab(\'menu\')">✕ Cancel</button>' +
+    '</div>' +
+    '<form id="itemEditor" onsubmit="return saveItemForm(event,' + (item ? JSON.stringify(item.id) : 'null') + ')">' +
+      '<div class="formSection">' +
+        '<h4>Item Details</h4>' +
+        '<div class="formGrid">' +
+          '<div class="field">' +
+            '<label>Menu Category *</label>' +
+            '<select name="category_id" required>' + options + '</select>' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Dish Name *</label>' +
+            '<input name="name" required value="' + attr(item?.name || '') + '" placeholder="e.g. Special Tibs / Doro Wat">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Price (ETB) *</label>' +
+            '<input name="price" required type="number" min="0" step="0.01" value="' + attr(item?.price ?? '') + '" placeholder="550">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label class="check" style="margin-top:24px"><input name="is_available" type="checkbox" ' + (item?.is_available !== false ? 'checked' : '') + '> Available for Ordering</label>' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Description & Ingredients</label>' +
+            '<textarea name="description" placeholder="Served with fresh injera, ayib, and side salad…">' + esc(item?.description || '') + '</textarea>' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Dish Photo</label>' +
+            '<input id="itemPhotoUrl" name="photo_url" value="' + attr(item?.photo_url || '') + '" placeholder="https://… or upload photo from device">' +
+            '<div class="actions" style="margin-top:8px">' +
+              '<button type="button" class="btn-ghost btn-sm" onclick="uploadInto(\'itemPhotoUrl\',false)">📷 Upload from device</button>' +
+            '</div>' +
+            '<img id="itemPhotoPreview" class="preview-img" ' + (item?.photo_url ? 'src="' + attr(item.photo_url) + '"' : 'style="display:none"') + ' alt="Menu item preview">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button type="submit" class="btn-gold">' + (item ? 'Save Dish' : 'Add to Menu') + '</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'menu\')">Cancel</button>' +
+      '</div>' +
+    '</form>';
+
+  document.getElementById('itemPhotoUrl').addEventListener('input', e => {
+    const p = document.getElementById('itemPhotoPreview');
+    p.src = e.target.value;
+    p.style.display = e.target.value ? 'block' : 'none';
+  });
+}
+
+async function saveItemForm(event, id) {
+  event.preventDefault();
+  haptic('medium');
+  const fd = new FormData(event.currentTarget), name = String(fd.get('name') || '').trim(), price = Number(fd.get('price'));
+  if (!name || !Number.isFinite(price) || price < 0) return alert('Enter a valid item name and price.');
+  try {
+    await api('upsert_menu_item', {
+      id,
+      category_id: String(fd.get('category_id')),
+      name,
+      price,
+      description: String(fd.get('description') || '').trim() || null,
+      is_available: fd.get('is_available') === 'on',
+      photo_url: String(fd.get('photo_url') || '').trim() || null
+    });
+    haptic('success');
+    await bootstrap();
+    showTab('menu');
+  } catch (e) {
+    alert(e.message || 'Could not save menu item.');
+  }
+}
+
+function deleteItem(id) {
+  if (!confirm('Are you sure you want to delete this menu item?')) return;
+  haptic('warning');
+  api('delete_menu_item', { id }).then(bootstrap).catch(e => alert(e.message));
+}
+
+/* =========================================================================
+   ROOMS & 14-DAY INVENTORY SECTION
+   ========================================================================= */
+function renderRooms() {
+  const dates = nextDates(14);
+  const rows = state.rooms.map(r => {
+    const days = dates.map(d => {
+      const x = state.inventory.find(v => String(v.room_type_id) === String(r.id) && v.inventory_date === d);
+      const val = x?.available_rooms ?? r.total_rooms;
+      return '<div class="day-cell">' +
+        '<div><strong>' + d.slice(5) + '</strong> (' + (x?.blocked ? '<span style="color:#FF9B8E">Blocked</span>' : 'Open') + ')</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;margin-top:6px">' +
+          '<input id="a-' + esc(r.id) + '-' + d + '" type="number" style="padding:6px;margin:0;width:70px" min="0" max="' + esc(r.total_rooms) + '" value="' + esc(val) + '">' +
+          '<label class="check" style="margin:0"><input id="b-' + esc(r.id) + '-' + d + '" type="checkbox" ' + (x?.blocked ? 'checked' : '') + '> Block</label>' +
+        '</div>' +
+        '<button type="button" class="btn-ghost btn-sm" style="width:100%;margin-top:6px;padding:5px" data-save-inventory="' + esc(r.id) + '" data-date="' + d + '" data-total="' + esc(r.total_rooms) + '">Save</button>' +
+      '</div>';
+    }).join('');
+
+    return '<div class="item-card">' +
+      '<div class="item-header">' +
+        '<div>' +
+          '<div class="item-title">' + esc(r.name) + '</div>' +
+          '<div class="item-meta">👥 Capacity ' + esc(r.capacity) + ' guests · ' + (r.public_price != null ? 'ETB ' + esc(r.public_price) + ' / night' : 'Rate confirmed upon request') + '</div>' +
+        '</div>' +
+        '<span class="pill gold">' + esc(r.total_rooms) + ' Total</span>' +
+      '</div>' +
+      '<div class="actions" style="margin:10px 0">' +
+        '<button type="button" class="btn-ghost btn-sm" data-edit-room="' + esc(r.id) + '">✏️ Edit Room</button>' +
+        '<button type="button" class="btn-danger btn-sm" data-delete-room="' + esc(r.id) + '">🗑️ Delete</button>' +
+      '</div>' +
+      '<div style="font-weight:700;font-size:12px;color:var(--cream);margin-top:12px">14-DAY INVENTORY & BLOCKS</div>' +
+      '<div class="inventory-grid">' + days + '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px">' +
+      '<div>' +
+        '<h3 class="sectionTitle">Room Types & Inventory</h3>' +
+        '<p class="subText" style="margin:0">Configure room capacity, rates, and control daily live availability.</p>' +
+      '</div>' +
+      '<button type="button" class="btn-gold" onclick="haptic(\'medium\');openRoomForm()">+ New Room Type</button>' +
+    '</div>' +
+    (rows || '<div class="card" style="text-align:center;padding:32px 16px"><div style="font-size:28px;margin-bottom:8px">🏨</div><div class="muted">No room types configured. Add your suites and rooms above.</div></div>');
+
+  document.querySelectorAll('[data-edit-room]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('light');
+      const room = state.rooms.find(x => String(x.id) === String(btn.dataset.editRoom));
+      if (room) openRoomForm(room);
+    };
+  });
+  document.querySelectorAll('[data-delete-room]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('warning');
+      deleteRoom(btn.dataset.deleteRoom);
+    };
+  });
+  document.querySelectorAll('[data-save-inventory]').forEach(btn => {
+    btn.onclick = () => {
+      haptic('medium');
+      saveInventory(btn.dataset.saveInventory, btn.dataset.date, Number(btn.dataset.total));
+    };
+  });
+}
+
+async function openRoomForm(r = null) {
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<h3 class="sectionTitle">' + (r ? 'Edit Room Type' : 'Add Room Type') + '</h3>' +
+      '<button class="btn-ghost btn-sm" type="button" onclick="haptic(\'light\');showTab(\'rooms\')">✕ Cancel</button>' +
+    '</div>' +
+    '<form id="roomEditor" onsubmit="return saveRoomForm(event,' + (r ? JSON.stringify(r.id) : 'null') + ')">' +
+      '<div class="formSection">' +
+        '<h4>Room Specifications</h4>' +
+        '<div class="formGrid">' +
+          '<div class="field">' +
+            '<label>Room Type Name *</label>' +
+            '<input name="name" required value="' + attr(r?.name || '') + '" placeholder="e.g. Executive King Suite">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Total Units of This Type *</label>' +
+            '<input name="total_rooms" required type="number" min="0" step="1" value="' + attr(r?.total_rooms ?? 1) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Guest Capacity *</label>' +
+            '<input name="capacity" required type="number" min="1" step="1" value="' + attr(r?.capacity ?? 2) + '">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Rate (ETB / Night)</label>' +
+            '<input name="public_price" type="number" min="0" step="0.01" value="' + attr(r?.public_price ?? '') + '" placeholder="e.g. 8500">' +
+            '<span class="help">Leave empty if rates are confirmed manually with guests.</span>' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Bed Configuration</label>' +
+            '<input name="beds" value="' + attr(r?.beds || '') + '" placeholder="1 King bed / 2 Queen beds">' +
+          '</div>' +
+          '<div class="field">' +
+            '<label>Amenities (comma separated)</label>' +
+            '<input name="amenities" value="' + attr((r?.amenities || []).join(', ')) + '" placeholder="Balcony, Wi-Fi, City View, Bathtub">' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Description</label>' +
+            '<textarea name="description" placeholder="Spacious master suite featuring panoramic skyline views…">' + esc(r?.description || '') + '</textarea>' +
+          '</div>' +
+          '<div class="field full">' +
+            '<label>Room Photo</label>' +
+            '<input id="roomPhotoUrl" name="photo_url" value="' + attr(r?.photo_url || '') + '" placeholder="https://… or upload photo from device">' +
+            '<div class="actions" style="margin-top:8px">' +
+              '<button type="button" class="btn-ghost btn-sm" onclick="uploadInto(\'roomPhotoUrl\',false)">📷 Upload from device</button>' +
+            '</div>' +
+            '<img id="roomPhotoPreview" class="preview-img" ' + (r?.photo_url ? 'src="' + attr(r.photo_url) + '"' : 'style="display:none"') + ' alt="Room preview">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions">' +
+        '<button type="submit" class="btn-gold">' + (r ? 'Save Room Type' : 'Create Room Type') + '</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'rooms\')">Cancel</button>' +
+      '</div>' +
+    '</form>';
+
+  document.getElementById('roomPhotoUrl').addEventListener('input', e => {
+    const p = document.getElementById('roomPhotoPreview');
+    p.src = e.target.value;
+    p.style.display = e.target.value ? 'block' : 'none';
+  });
+}
+
+async function saveRoomForm(event, id) {
+  event.preventDefault();
+  haptic('medium');
+  const fd = new FormData(event.currentTarget), name = String(fd.get('name') || '').trim(), total = Number(fd.get('total_rooms')), capacity = Number(fd.get('capacity')), priceRaw = String(fd.get('public_price') || '');
+  if (!name || !Number.isInteger(total) || total < 0 || !Number.isInteger(capacity) || capacity < 1) return alert('Enter valid room name, total units, and capacity.');
+  const price = priceRaw === '' ? null : Number(priceRaw);
+  if (price !== null && (!Number.isFinite(price) || price < 0)) return alert('Enter a valid room price.');
+  try {
+    await api('upsert_room', {
+      id,
+      name,
+      total_rooms: total,
+      capacity,
+      public_price: price,
+      description: String(fd.get('description') || '').trim() || null,
+      beds: String(fd.get('beds') || '').trim() || null,
+      amenities: String(fd.get('amenities') || '').split(',').map(x => x.trim()).filter(Boolean),
+      photo_url: String(fd.get('photo_url') || '').trim() || null
+    });
+    haptic('success');
+    await bootstrap();
+    showTab('rooms');
+  } catch (e) {
+    alert(e.message || 'Could not save room type.');
+  }
+}
+
+function deleteRoom(id) {
+  if (!confirm('Are you sure you want to delete this room type?')) return;
+  haptic('warning');
+  api('delete_room', { id }).then(bootstrap).catch(e => alert(e.message));
+}
+
+async function saveInventory(roomId, date, total) {
+  const value = Number(document.getElementById('a-' + roomId + '-' + date).value);
+  const blocked = document.getElementById('b-' + roomId + '-' + date).checked;
+  if (!Number.isInteger(value) || value < 0 || value > total) return alert('Available rooms must be between 0 and ' + total + '.');
+  try {
+    await api('update_inventory', { room_type_id: roomId, inventory_date: date, available_rooms: value, blocked });
+    haptic('success');
+    await bootstrap();
+    showTab('rooms');
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function nextDates(days) {
+  const a = [], d = new Date();
+  d.setHours(0, 0, 0, 0);
+  for (let i = 0; i < days; i++) {
+    const x = new Date(d);
+    x.setDate(x.getDate() + i);
+    a.push(x.toISOString().slice(0, 10));
+  }
+  return a;
+}
+
+/* =========================================================================
+   BUSINESS SETTINGS SECTION
+   ========================================================================= */
+function renderSettings() {
+  const b = state.business || {}, s = state.subscription;
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<h3 class="sectionTitle">Business Profile</h3>' +
+      '<button type="button" class="btn-ghost btn-sm" onclick="haptic(\'light\');showTab(\'overview\')">✕ Close</button>' +
+    '</div>' +
+    '<form id="businessEditor" class="formSection" onsubmit="return saveBusiness(event)">' +
+      '<div class="formGrid">' +
+        '<div class="field">' +
+          '<label>Venue Name *</label>' +
+          '<input id="bn" name="name" value="' + attr(b.name) + '">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Contact Phone</label>' +
+          '<input id="bp" name="phone" value="' + attr(b.phone) + '">' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>About the Venue</label>' +
+          '<textarea id="ba" name="about">' + esc(b.about || '') + '</textarea>' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>Cover Image URL</label>' +
+          '<input id="bc" name="cover_url" value="' + attr(b.cover_url) + '">' +
+          '<div class="actions" style="margin-top:8px">' +
+            '<button type="button" class="btn-ghost btn-sm" onclick="uploadCoverFromDevice()">📷 Upload cover photo from device</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Services (comma separated)</label>' +
+          '<input id="bs" name="services" value="' + attr((b.services || []).join(', ')) + '" placeholder="Fine Dining, Valet Parking, Rooftop">' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Signature Highlights</label>' +
+          '<input id="bh" name="highlights" value="' + attr((b.highlights || []).join(', ')) + '" placeholder="Panoramic Views, Live Jazz, Michelin-Trained Chef">' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>Gallery Images (comma separated URLs)</label>' +
+          '<textarea id="bg" name="gallery_urls">' + esc((b.gallery_urls || []).join(', ')) + '</textarea>' +
+          '<div class="actions" style="margin-top:8px">' +
+            '<button type="button" class="btn-ghost btn-sm" onclick="uploadGalleryFromDevice()">📷 Add gallery photos from device</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>Amenities (comma separated)</label>' +
+          '<input id="bam" name="amenities" value="' + attr((b.amenities || []).join(', ')) + '" placeholder="Wi-Fi, Pool, Spa, Conference Rooms">' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>Opening Hours (JSON format)</label>' +
+          '<textarea id="bo" name="opening_hours">' + esc(typeof b.opening_hours === 'string' ? b.opening_hours : JSON.stringify(b.opening_hours || {}, null, 2)) + '</textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions" style="margin-top:16px">' +
+        '<button type="submit" class="btn-gold">Save Profile Updates</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'overview\')">Cancel</button>' +
+      '</div>' +
+    '</form>' +
+
+    '<div class="item-card" style="margin-top:20px">' +
+      '<div class="item-header">' +
+        '<div>' +
+          '<div class="item-title">FineTime Partner Plan</div>' +
+          '<div class="item-meta">Current Plan: ' + esc(s?.plan || 'Standard') + ' · ' + esc(s?.status || 'Active') + (s?.monthly_price != null ? ' · ETB ' + s.monthly_price + ' / month' : '') + '</div>' +
+        '</div>' +
+        '<span class="pill gold">' + esc(s?.status || 'Active').toUpperCase() + '</span>' +
+      '</div>' +
+      '<div class="actions" style="margin-top:12px">' +
+        '<button type="button" class="btn-ghost btn-sm" onclick="requestPlanChange()">Request Plan Upgrade</button>' +
+      '</div>' +
+    '</div>';
+}
+
+async function saveBusiness(event) {
+  event.preventDefault();
+  haptic('medium');
+  const csv = id => document.getElementById(id).value.split(',').map(x => x.trim()).filter(Boolean);
+  let opening = {};
+  try {
+    opening = JSON.parse(document.getElementById('bo').value || '{}');
+  } catch (e) {
+    return alert('Opening hours must be valid JSON format.');
+  }
+
+  try {
+    await api('update_business', {
+      name: document.getElementById('bn').value,
+      phone: document.getElementById('bp').value,
+      about: document.getElementById('ba').value,
+      cover_url: document.getElementById('bc').value,
+      gallery_urls: csv('bg'),
+      services: csv('bs'),
+      opening_hours: opening,
+      highlights: csv('bh'),
+      amenities: csv('bam')
+    });
+    haptic('success');
+    await bootstrap();
+    showTab('overview');
+  } catch (e) {
+    alert(e.message || 'Could not save business profile.');
+  }
+}
+
+function requestPlanChange() {
+  const current = state.subscription?.plan || 'basic';
+  document.getElementById('content').innerHTML = 
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+      '<h3 class="sectionTitle">Request Plan Upgrade</h3>' +
+      '<button class="btn-ghost btn-sm" type="button" onclick="haptic(\'light\');showTab(\'settings\')">✕ Cancel</button>' +
+    '</div>' +
+    '<form id="planEditor" class="formSection" onsubmit="return savePlanRequest(event)">' +
+      '<div class="formGrid">' +
+        '<div class="field">' +
+          '<label>Select Target Plan</label>' +
+          '<select name="plan">' +
+            '<option value="basic" ' + (current === 'basic' ? 'selected' : '') + '>Basic Partner (Standard Listing)</option>' +
+            '<option value="premium" ' + (current === 'premium' ? 'selected' : '') + '>Premium Partner (Featured Discover & Lower Commission)</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="field full">' +
+          '<label>Note to FineTime Admin</label>' +
+          '<textarea name="notes">We would like to upgrade our partnership to access featured promotion placement and enhanced booking management.</textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="actions" style="margin-top:16px">' +
+        '<button type="submit" class="btn-gold">Send Request</button>' +
+        '<button type="button" class="btn-ghost" onclick="haptic(\'light\');showTab(\'settings\')">Cancel</button>' +
+      '</div>' +
+    '</form>';
+}
+
+async function savePlanRequest(event) {
+  event.preventDefault();
+  haptic('medium');
+  const fd = new FormData(event.currentTarget);
+  try {
+    const d = await api('request_subscription_change', {
+      plan: String(fd.get('plan')),
+      notes: String(fd.get('notes') || '').trim()
+    });
+    haptic('success');
+    alert(d.message || 'Subscription request sent to FineTime Admin.');
+    await bootstrap();
+    showTab('overview');
+  } catch (e) {
+    alert(e.message || 'Could not send request.');
+  }
+}
+
+// Auto-run connection check on load
+autoConnect();
 </script>
 </body>
 </html>

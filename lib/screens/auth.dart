@@ -5,7 +5,8 @@ import '../theme.dart';
 import 'root.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  final bool startWithSignIn;
+  const AuthScreen({super.key, this.startWithSignIn = false});
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
@@ -15,9 +16,15 @@ class _AuthScreenState extends State<AuthScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  bool _create = true;
+  late bool _create;
   bool _busy = false;
   bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _create = !widget.startWithSignIn;
+  }
 
   @override
   void dispose() {
@@ -97,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: FT.charcoal,
+        backgroundColor: FT.obsidian,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -107,18 +114,18 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('FINETIME',
+                    const Text('FINETIME.CC',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: FT.gold,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
+                            color: FT.ivory,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
                             letterSpacing: 4)),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     const Text('Discover. Dine. Stay.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: FT.ivory, fontSize: 16)),
-                    const SizedBox(height: 40),
+                        style: TextStyle(color: FT.cream, fontSize: 14)),
+                    const SizedBox(height: 36),
                     Text(_create ? 'Create your account' : 'Welcome back',
                         style: const TextStyle(
                             color: FT.ivory,
@@ -129,7 +136,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       _create
                           ? 'Your name is reused for bookings and reservations.'
                           : 'Sign in to continue to FineTime.',
-                      style: const TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: FT.muted),
                     ),
                     const SizedBox(height: 20),
                     if (_create) ...[
@@ -156,26 +163,55 @@ class _AuthScreenState extends State<AuthScreen> {
                         labelText: 'Password',
                         suffixIcon: IconButton(
                           onPressed: () => setState(() => _obscure = !_obscure),
-                          icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                          icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off, color: FT.gold),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: Text(_busy
-                          ? 'Please wait…'
-                          : _create
-                              ? 'Create Account'
-                              : 'Sign In'),
+                    const SizedBox(height: 24),
+                    GestureDetector(
+                      onTap: _busy ? null : _submit,
+                      child: Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          gradient: _busy ? null : FT.goldGradient,
+                          color: _busy ? Colors.white12 : null,
+                          borderRadius: BorderRadius.circular(27),
+                          boxShadow: _busy
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: FT.gold.withValues(alpha: 0.3),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          _busy
+                              ? 'Please wait…'
+                              : _create
+                                  ? 'Create Account'
+                                  : 'Sign In',
+                          style: TextStyle(
+                            color: _busy ? Colors.white54 : const Color(0xFF1E1607),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 12),
                     TextButton(
                       onPressed: _busy
                           ? null
                           : () => setState(() => _create = !_create),
                       child: Text(_create
                           ? 'Already have an account? Sign in'
-                          : 'New to FineTime? Create an account'),
+                          : 'New to FineTime? Create an account',
+                          style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w600)),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
@@ -190,8 +226,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       label: const Text('Explore as Guest',
                           style: TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: FT.gold),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Color(0xFF332C24)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ],

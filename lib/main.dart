@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
-import 'screens/auth.dart';
+import 'screens/welcome.dart';
 import 'screens/root.dart';
 
 const defaultSupabaseUrl = 'https://atewcbkuzrnfnmzsylze.supabase.co';
@@ -47,7 +47,11 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) => StreamBuilder<AuthState>(
         stream: Supabase.instance.client.auth.onAuthStateChange,
         builder: (context, snapshot) {
-          return const RootScreen();
+          final session = snapshot.data?.session ?? Supabase.instance.client.auth.currentSession;
+          if (session != null) {
+            return const RootScreen();
+          }
+          return const WelcomeScreen();
         },
       );
 }
