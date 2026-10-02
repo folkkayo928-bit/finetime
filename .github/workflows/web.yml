@@ -30,6 +30,7 @@ jobs:
           pub-cache: true
       - name: Generate missing Flutter web files
         run: flutter create . --platforms=web --org com.finetime --project-name finetime --no-pub
+      - run: mkdir -p assets
       - name: Remove generated placeholder test
         run: rm -f test/widget_test.dart
       - run: flutter pub get

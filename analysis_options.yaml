@@ -16,6 +16,7 @@ analyzer:
     - android/**
   errors:
     deprecated_member_use: ignore
+    asset_directory_does_not_exist: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the
