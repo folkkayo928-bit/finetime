@@ -1,104 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../theme.dart';
 import 'business_profile.dart';
 
-class SavedScreen extends StatefulWidget {
-  const SavedScreen({super.key});
-  @override
-  State<SavedScreen> createState() => _SavedScreenState();
+class SavedScreen extends StatefulWidget{const SavedScreen({super.key});@override State<SavedScreen> createState()=>_SavedScreenState();}
+class _SavedScreenState extends State<SavedScreen>{
+ final sb=Supabase.instance.client;List<Map<String,dynamic>> _saved=[];bool _loading=true;String? _error;String _filter='all';
+ @override void initState(){super.initState();_load();}
+ Future<void> _load()async{final u=sb.auth.currentUser;if(u==null){if(mounted)setState(()=>_loading=false);return;}try{final r=await sb.from('saved_places').select('*, businesses(*)').eq('user_id',u.id).order('created_at',ascending:false);if(mounted)setState(()=>{_saved=List<Map<String,dynamic>>.from(r),_loading=false,_error=null});}catch(_){if(mounted)setState(()=>{_error='Could not load saved places. Check your connection.',_loading=false});}}
+ Future<void> _unsave(Map s)async{final u=sb.auth.currentUser;if(u==null)return;await sb.from('saved_places').delete().eq('user_id',u.id).eq('business_id',s['business_id']);if(mounted)setState(()=>_saved.remove(s));}
+ String _img(Map b){for(final k in ['image_url','cover_image_url','hero_image_url','photo_url']){final v=b[k]?.toString()??'';if(v.isNotEmpty)return v;}return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80';}
+ String _city(Map b){final c=b['cities'];return c is Map?(c['name']??b['city']??'Ethiopia').toString():(b['city']??'Ethiopia').toString();}
+ @override Widget build(BuildContext context){final filtered=_filter=='all'?_saved:_saved.where((s)=>(s['businesses']?['category']??'').toString().toLowerCase()==_filter).toList();return Scaffold(backgroundColor:FT.obsidian,body:SafeArea(bottom:false,child:RefreshIndicator(onRefresh:_load,color:FT.gold,child:ListView(padding:const EdgeInsets.fromLTRB(24,22,24,30),children:[
+ const Text('Saved places',style:TextStyle(color:FT.ivory,fontSize:38,fontWeight:FontWeight.w800,fontFamily:'serif')),const SizedBox(height:5),Text(_saved.length.toString()+' place'+(_saved.length==1?'':'s')+' in your collection',style:const TextStyle(color:FT.muted,fontSize:14)),const SizedBox(height:20),
+ SizedBox(height:42,child:ListView(scrollDirection:Axis.horizontal,children:['all','hotel','restaurant','cafe','experience'].map((c)=>Padding(padding:const EdgeInsets.only(right:8),child:ChoiceChip(label:Text(c=='all'?'All':c[0].toUpperCase()+c.substring(1)),selected:_filter==c,selectedColor:FT.gold,backgroundColor:FT.surface,side:const BorderSide(color:Color(0xFF282B2D)),labelStyle:TextStyle(color:_filter==c?const Color(0xFF1B1407):FT.cream,fontSize:12,fontWeight:FontWeight.w600),onSelected:(_)=>setState(()=>_filter=c)))).toList())),
+ const SizedBox(height:20),
+ if(sb.auth.currentUser==null)const _SavedEmpty('Sign in to save places.') else if(_loading)const Padding(padding:EdgeInsets.all(50),child:Center(child:CircularProgressIndicator(color:FT.gold))) else if(_error!=null)...[Text(_error!,style:const TextStyle(color:FT.muted)),FilledButton(onPressed:_load,child:const Text('Retry'))] else if(filtered.isEmpty)const _SavedEmpty('Your saved places will appear here.') else ...filtered.map(_card)
+ ]))));
+ }
+ Widget _card(Map<String,dynamic> s){final b=Map<String,dynamic>.from(s['businesses']??{});final rating=b['rating']??b['average_rating']??'4.9';return Padding(padding:const EdgeInsets.only(bottom:16),child:GestureDetector(onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>BusinessProfileScreen(businessId:b['id'].toString()))).then((_){_load();}),child:Container(decoration:BoxDecoration(color:const Color(0xFF111518),borderRadius:BorderRadius.circular(20),border:Border.all(color:const Color(0xFF252A2D))),clipBehavior:Clip.antiAlias,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+ Stack(children:[SizedBox(height:225,width:double.infinity,child:Image.network(_img(b),fit:BoxFit.cover,errorBuilder:(_,__,___)=>Container(color:FT.surface))),Positioned(left:12,bottom:10,child:Container(padding:const EdgeInsets.symmetric(horizontal:9,vertical:5),decoration:BoxDecoration(color:Colors.black.withValues(alpha:.72),borderRadius:BorderRadius.circular(9)),child:Text((b['category']??'place').toString(),style:const TextStyle(color:FT.ivory,fontSize:10)))),Positioned(right:10,top:10,child:Container(width:42,height:42,decoration:BoxDecoration(color:Colors.black.withValues(alpha:.55),shape:BoxShape.circle),child:IconButton(padding:EdgeInsets.zero,onPressed:()=>_unsave(s),icon:const Icon(Icons.favorite,color:FT.gold,size:22))))]),
+ Padding(padding:const EdgeInsets.fromLTRB(15,13,15,16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Text(b['name']??'',style:const TextStyle(color:FT.ivory,fontSize:20,fontWeight:FontWeight.w800,fontFamily:'serif'))),const Icon(Icons.star,color:FT.gold,size:17),const SizedBox(width:3),Text(rating.toString(),style:const TextStyle(color:FT.cream,fontSize:12))]),const SizedBox(height:5),Row(children:[const Icon(Icons.location_on_outlined,color:FT.muted,size:14),const SizedBox(width:3),Expanded(child:Text(_city(b),style:const TextStyle(color:FT.muted,fontSize:11)))]),const SizedBox(height:10),Text(b['price']!=null?'ETB '+b['price'].toString():'View details',style:const TextStyle(color:FT.goldLight,fontWeight:FontWeight.w800,fontSize:14))])
+ ]))));}
 }
-
-class _SavedScreenState extends State<SavedScreen> {
-  final sb = Supabase.instance.client;
-  List _saved = [];
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final u = sb.auth.currentUser;
-    if (u == null) {
-      if (mounted) setState(() => _loading = false);
-      return;
-    }
-    setState(() => _error = null);
-    try {
-      final r = await sb
-          .from('saved_places')
-          .select('*, businesses(*)')
-          .eq('user_id', u.id)
-          .order('created_at', ascending: false);
-      if (mounted) setState(() { _saved = r; _loading = false; });
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _error = 'Could not load saved places. Check your connection.';
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _unsave(Map s) async {
-    await sb.from('saved_places').delete()
-        .eq('user_id', sb.auth.currentUser!.id)
-        .eq('business_id', s['business_id']);
-    if (mounted) setState(() => _saved.remove(s));
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Saved')),
-    body: sb.auth.currentUser == null
-      ? const Center(child: Text('Sign in to save places.'))
-      : _loading
-        ? const Center(child: CircularProgressIndicator())
-        : _error != null
-          ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(_error!),
-              const SizedBox(height: 12),
-              FilledButton(onPressed: _load, child: const Text('Retry')),
-            ]))
-          : _saved.isEmpty
-            ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.favorite_border, size: 56, color: Colors.white38),
-                SizedBox(height: 12),
-                Text('Your saved places will appear here.'),
-              ]))
-            : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView(children: _saved.map((s) {
-                final biz = s['businesses'];
-                return ListTile(
-                  leading: Icon(_iconFor(biz?['category']), color: const Color(0xFFC6A664)),
-                  title: Text(biz?['name'] ?? ''),
-                  subtitle: Text(biz?['category'] ?? '', style: const TextStyle(color: Colors.white70)),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.favorite, color: Color(0xFFC6A664)),
-                    tooltip: 'Remove from saved',
-                    onPressed: () => _unsave(s)),
-                  onTap: () {
-                    final id = biz?['id'];
-                    if (id != null) {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => BusinessProfileScreen(businessId: id))).then((_) => _load());
-                    }
-                  },
-                );
-              }).toList()),
-            ),
-  );
-
-  IconData _iconFor(String? category) {
-    switch (category) {
-      case 'hotel': return Icons.hotel;
-      case 'restaurant': return Icons.restaurant;
-      case 'cafe': return Icons.local_cafe;
-      default: return Icons.place;
-    }
-  }
-}
+class _SavedEmpty extends StatelessWidget{final String text;const _SavedEmpty(this.text);@override Widget build(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(vertical:55),child:Column(children:[const Icon(Icons.favorite_border,color:FT.muted,size:55),const SizedBox(height:14),Text(text,textAlign:TextAlign.center,style:const TextStyle(color:FT.muted))]));}
