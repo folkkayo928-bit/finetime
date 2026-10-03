@@ -32,11 +32,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
         );
         Navigator.pop(context, true);
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review could not be submitted. A completed FineTime experience is required.')),
-        );
+        final text = e.toString().contains('REVIEW_LIMIT_REACHED')
+            ? 'You can leave up to 2 reviews for this place.'
+            : 'Review could not be submitted. A completed FineTime experience is required.';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
