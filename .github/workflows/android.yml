@@ -97,6 +97,14 @@ jobs:
       - name: Build signed release APK
         run: flutter clean && flutter build apk --release --target-platform android-arm64 --build-name="0.1.${{ github.run_number }}" --build-number="${{ github.run_number }}" --dart-define=APP_VERSION="0.1.${{ github.run_number }}" --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
 
+      - name: Verify release APK
+        run: |
+          set -euo pipefail
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          ZIPALIGN="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -n 1)"
+          "$ZIPALIGN" -c -v build/app/outputs/flutter-apk/app-release.apk
+          "$APKSIGNER" verify --verbose build/app/outputs/flutter-apk/app-release.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: finetime-apk
