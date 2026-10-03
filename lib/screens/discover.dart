@@ -5,6 +5,7 @@ import '../theme.dart';
 import 'business_profile.dart';
 import 'explore.dart';
 import 'search.dart';
+import 'guest_reviews.dart';
 import '../net.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -563,7 +564,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ExploreScreen())),
+                            builder: (_) => const GuestReviewsScreen())),
                     child: const Text(
                       'View all >',
                       style: TextStyle(
