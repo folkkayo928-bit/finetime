@@ -1,12 +1,304 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineTime News</title><style>body{margin:0;background:#121212;color:#f5f1e8;font:16px system-ui}main{max-width:900px;margin:auto;padding:24px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:15px;padding:18px;margin:14px 0}.muted{color:#aaa}img{max-width:100%;max-height:360px;border-radius:12px}</style></head><body><main><a class="brand" href="./">FINETIME</a><h1>News</h1><p class="muted">FineTime updates and hospitality stories.</p><div id="list" class="muted">Loading…</div></main><script>
-const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',newsList=document.getElementById('list'),e=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-async function loadNews(){
- try{
-   const r=await fetch(U+'/rest/v1/news?select=*&is_published=eq.true&order=published_at.desc',{cache:'no-store',headers:{apikey:K}});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  const a=await r.json();
-  newsList.innerHTML=a.length?a.map(n=>'<article class="card">'+(n.cover_url?'<img src="'+e(n.cover_url)+'">':'')+'<h2>'+e(n.title)+'</h2><p class="muted">'+e(n.published_at?new Date(n.published_at).toLocaleDateString():'')+'</p><p>'+e(n.summary||'')+'</p><div>'+e(n.body||'').replace(/\n/g,'<br>')+'</div></article>').join(''):'<div class="card">No published news yet.</div>';
- }catch(err){newsList.innerHTML='<div class="card">News is temporarily unavailable. Please try again shortly.</div>'}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FineTime Dispatch — Stories, Culinary Journals & Hospitality News</title>
+<meta name="description" content="Read the latest editorial stories, culinary features, hotel debuts and curated travel guides from FineTime across Ethiopia and Africa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0B0E;
+  --surface:#12151D;
+  --card:#181D27;
+  --gold:#D4AF37;
+  --gold-light:#F5D77F;
+  --gold-glow:rgba(212,175,55,0.18);
+  --gold-border:rgba(212,175,55,0.28);
+  --text:#F7F5F0;
+  --text-muted:#9EA6B5;
+  --text-dim:#6B7485;
+  --border:rgba(255,255,255,0.08);
+  --radius-md:14px;
+  --radius-lg:22px;
+  --max-w:1080px;
 }
-loadNews();setInterval(loadNews,5000);
-</script></body></html>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:900;
+  background:rgba(10,11,14,0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-wrap{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  letter-spacing:4px;
+  font-size:20px;
+  color:var(--gold-light);
+}
+.brand-icon{
+  width:28px;
+  height:28px;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  color:var(--bg);
+  font-size:14px;
+  font-weight:900;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 18px;
+  border-radius:var(--radius-md);
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s ease;
+  border:1px solid transparent;
+}
+.btn-gold{
+  background:linear-gradient(135deg,#F5D77F,#D4AF37);
+  color:#0B0C0E;
+}
+.btn-outline{
+  background:rgba(255,255,255,0.04);
+  color:var(--text);
+  border-color:var(--border);
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:rgba(212,175,55,0.12);
+  color:var(--gold-light);
+  border:1px solid var(--gold-border);
+}
+
+main{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:50px 24px 80px;
+}
+.news-hero{
+  text-align:center;
+  max-width:700px;
+  margin:0 auto 50px;
+}
+.news-hero h1{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(34px,5vw,52px);
+  margin:14px 0;
+  line-height:1.15;
+}
+.news-hero p{
+  color:var(--text-muted);
+  font-size:17px;
+}
+
+.news-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:32px;
+}
+.news-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  transition:all .3s ease;
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:0;
+}
+.news-card:hover{
+  border-color:var(--gold-border);
+  transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,0.4);
+}
+.news-cover{
+  width:100%;
+  height:100%;
+  min-height:280px;
+  object-fit:cover;
+  background:#141720;
+}
+.news-content{
+  padding:32px 36px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.news-meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:12px;
+  color:var(--text-dim);
+  margin-bottom:12px;
+}
+.news-title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:24px;
+  font-weight:700;
+  color:#fff;
+  line-height:1.3;
+  margin-bottom:12px;
+}
+.news-summary{
+  font-size:14px;
+  color:var(--text-muted);
+  line-height:1.6;
+  margin-bottom:16px;
+}
+.news-body-text{
+  font-size:14px;
+  color:#D3D8E2;
+  line-height:1.7;
+  border-top:1px solid var(--border);
+  padding-top:16px;
+  margin-top:auto;
+}
+
+@media(max-width:800px){
+  .news-card{grid-template-columns:1fr}
+  .news-cover{max-height:220px}
+  .news-content{padding:24px}
+}
+
+footer{
+  background:#07080A;
+  border-top:1px solid var(--border);
+  padding:40px 24px;
+  text-align:center;
+  color:var(--text-dim);
+  font-size:13px;
+}
+footer a{color:var(--gold-light)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="./">
+      <div class="brand-icon">F</div>
+      <span>FINETIME</span>
+    </a>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a class="btn btn-outline" href="./">← Back to Discover</a>
+      <a class="btn btn-gold" href="../">Open App</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="news-hero">
+    <span class="badge">EDITORIAL & CHRONICLES</span>
+    <h1>The FineTime Dispatch</h1>
+    <p>Curated stories from African culinary legends, hotel openings, mixology culture and hospitality guides.</p>
+  </div>
+
+  <div id="list" class="news-grid">
+    <p style="text-align:center;color:var(--text-muted);padding:40px 0;">Loading editorial stories…</p>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 FineTime Hospitality Technologies. Curating Africa's finest stays and dining.</p>
+  <p style="margin-top:6px;"><a href="./">Home</a> · <a href="./#venues">Venues</a> · <a href="./#faqs">FAQs</a> · <a href="mailto:support@finetime.cc">support@finetime.cc</a></p>
+</footer>
+
+<script>
+const U='https://atewcbkuzrnfnmzsylze.supabase.co';
+const K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
+const newsList=document.getElementById('list');
+
+const fallbackCovers=[
+  'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
+];
+
+function e(s){
+  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+async function loadNews(){
+  try{
+    const r=await fetch(U+'/rest/v1/news?select=*&is_published=eq.true&order=published_at.desc',{
+      cache:'no-store',
+      headers:{apikey:K}
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const articles=await r.json();
+    
+    if(!articles.length){
+      newsList.innerHTML='<div style="text-align:center;padding:60px 20px;background:var(--card);border-radius:var(--radius-lg);border:1px solid var(--border);"><p style="font-size:18px;color:#fff;margin-bottom:8px;">No news stories published yet</p><p style="color:var(--text-muted);font-size:14px;">Check back soon for new articles from the FineTime editorial team.</p></div>';
+      return;
+    }
+
+    newsList.innerHTML=articles.map((n,idx)=>{
+      const cover=n.cover_url||fallbackCovers[idx % fallbackCovers.length];
+      const dateStr=n.published_at?new Date(n.published_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'Recently published';
+      const bodyFormatted=n.body?e(n.body).replace(/\n/g,'<br>'):'';
+
+      return '<article class="news-card">'+
+        '<img class="news-cover" src="'+e(cover)+'" alt="'+e(n.title)+'" loading="lazy">'+
+        '<div class="news-content">'+
+          '<div class="news-meta">'+
+            '<span class="badge">FINETIME DISPATCH</span>'+
+            '<span>·</span>'+
+            '<span>'+e(dateStr)+'</span>'+
+          '</div>'+
+          '<h2 class="news-title">'+e(n.title)+'</h2>'+
+          (n.summary?'<p class="news-summary">'+e(n.summary)+'</p>':'')+
+          (bodyFormatted?'<div class="news-body-text">'+bodyFormatted+'</div>':'')+
+        '</div>'+
+      '</article>';
+    }).join('');
+  }catch(err){
+    newsList.innerHTML='<div style="text-align:center;padding:50px 20px;background:var(--card);border-radius:var(--radius-lg);border:1px solid var(--border);"><p style="color:var(--text-muted);">Stories are temporarily unavailable. Please check back shortly.</p></div>';
+  }
+}
+
+loadNews();
+setInterval(loadNews,10000);
+</script>
+</body>
+</html>

@@ -1,51 +1,1370 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FineTime — Discover. Dine. Stay.</title>
-<meta name="description" content="FineTime helps guests discover hotels, restaurants and cafés in Ethiopia, with real business information, menus, reservations and hotel booking where available.">
-<meta property="og:title" content="FineTime — Discover. Dine. Stay."><meta property="og:description" content="Discover hotels, restaurants and cafés in Ethiopia.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FineTime — Discover. Dine. Stay. | Luxury Hospitality & Curated Escapes</title>
+<meta name="description" content="FineTime is Africa's premier hospitality platform for discovering boutique hotels, chef-driven fine dining, private lounges and luxury escapes with verified menus, live pricing and instant reservations.">
+<meta property="og:title" content="FineTime — Discover. Dine. Stay.">
+<meta property="og:description" content="Discover Africa's most distinctive hotels, restaurants, lounges and retreats with verified partner menus and instant reservations.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <style>
-:root{--c:#121212;--g:#c9a227;--i:#f5f1e8;--t:#b85c38;--m:#a0a0a0}
-*{box-sizing:border-box}body{margin:0;background:var(--c);color:var(--i);font:16px system-ui,-apple-system,sans-serif}
-header{padding:24px max(20px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center}
-.brand{font-weight:900;letter-spacing:4px;color:var(--g)}a{color:inherit;text-decoration:none}
-.btn{display:inline-block;padding:12px 18px;border-radius:12px;background:var(--g);color:var(--c);font-weight:800}
-.hero{padding:80px max(20px,calc((100% - 1100px)/2)) 60px;background:linear-gradient(180deg,#181818,#121212)}
-h1{font-family:Georgia,serif;font-size:clamp(42px,8vw,82px);line-height:.95;max-width:800px;margin:0 0 18px}
-.lead{max-width:680px;color:#d2cbbb;font-size:19px;line-height:1.6}
-.section{max-width:1100px;margin:auto;padding:44px 20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.card{background:#1b1b1b;border:1px solid #ffffff12;border-radius:16px;padding:18px}.muted{color:var(--m);font-size:14px}.badge{display:inline-block;background:var(--g);color:var(--c);padding:5px 8px;border-radius:6px;font-size:11px;font-weight:900}
-footer{padding:30px 20px;border-top:1px solid #ffffff10;color:var(--m);text-align:center}
-input{width:100%;padding:14px;border:0;border-radius:12px;margin:12px 0;background:#fff;color:#111}
+:root{
+  --bg:#0A0B0E;
+  --surface:#12151D;
+  --card:#181D27;
+  --card-hover:#1F2432;
+  --gold:#D4AF37;
+  --gold-light:#F5D77F;
+  --gold-dark:#AA8010;
+  --gold-glow:rgba(212,175,55,0.18);
+  --gold-border:rgba(212,175,55,0.3);
+  --text:#F7F5F0;
+  --text-muted:#9EA6B5;
+  --text-dim:#6B7485;
+  --border:rgba(255,255,255,0.08);
+  --radius-sm:8px;
+  --radius-md:14px;
+  --radius-lg:22px;
+  --radius-xl:32px;
+  --max-w:1200px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* Header & Navigation */
+header{
+  position:sticky;
+  top:0;
+  z-index:900;
+  background:rgba(10,11,14,0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:all .3s ease;
+}
+.nav-wrap{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  letter-spacing:4px;
+  font-size:20px;
+  color:var(--gold-light);
+}
+.brand-icon{
+  width:28px;
+  height:28px;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  color:var(--bg);
+  font-size:14px;
+  font-weight:900;
+}
+.nav-links{
+  display:flex;
+  gap:24px;
+  align-items:center;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-muted);
+}
+.nav-links a:hover{color:var(--gold-light)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+
+/* Buttons & Badges */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:11px 22px;
+  border-radius:var(--radius-md);
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .25s ease;
+  border:1px solid transparent;
+}
+.btn-gold{
+  background:linear-gradient(135deg,#F5D77F 0%,#D4AF37 55%,#B38715 100%);
+  color:#0B0C0E;
+  box-shadow:0 6px 20px rgba(212,175,55,0.25);
+}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 26px rgba(212,175,55,0.4);
+}
+.btn-outline{
+  background:rgba(255,255,255,0.03);
+  color:var(--text);
+  border-color:var(--border);
+}
+.btn-outline:hover{
+  background:rgba(255,255,255,0.08);
+  border-color:var(--gold-border);
+  color:var(--gold-light);
+}
+.btn-gold-outline{
+  background:rgba(212,175,55,0.08);
+  color:var(--gold-light);
+  border-color:var(--gold-border);
+}
+.btn-gold-outline:hover{
+  background:rgba(212,175,55,0.18);
+  border-color:var(--gold);
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:rgba(212,175,55,0.12);
+  color:var(--gold-light);
+  border:1px solid var(--gold-border);
+}
+
+/* Hero Section */
+.hero{
+  position:relative;
+  padding:90px 24px 70px;
+  max-width:var(--max-w);
+  margin:auto;
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:50px;
+  align-items:center;
+}
+.hero-content h1{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(38px,5.5vw,66px);
+  font-weight:700;
+  line-height:1.08;
+  margin:18px 0 20px;
+  background:linear-gradient(180deg,#FFFFFF 30%,#DCD7CB 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero-content h1 span{
+  background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-style:italic;
+}
+.hero-lead{
+  font-size:18px;
+  color:var(--text-muted);
+  line-height:1.65;
+  margin-bottom:32px;
+  max-width:540px;
+}
+.hero-cta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:44px;
+}
+.stats-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  padding-top:28px;
+  border-top:1px solid var(--border);
+}
+.stat-item h4{
+  font-size:24px;
+  font-weight:800;
+  color:var(--gold-light);
+  line-height:1;
+}
+.stat-item p{
+  font-size:12px;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+  margin-top:4px;
+}
+
+/* Hero Visual Showcase */
+.hero-visual{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.hero-photo-main{
+  grid-column:1 / -1;
+  height:240px;
+  border-radius:var(--radius-lg);
+  object-fit:cover;
+  border:1px solid var(--gold-border);
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+.hero-photo-sub{
+  height:160px;
+  border-radius:var(--radius-md);
+  object-fit:cover;
+  border:1px solid var(--border);
+  transition:all .3s ease;
+}
+.hero-photo-sub:hover{
+  border-color:var(--gold-border);
+  transform:scale(1.02);
+}
+.hero-floating-card{
+  position:absolute;
+  bottom:-18px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(24,29,39,0.92);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--gold-border);
+  padding:12px 20px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 12px 36px rgba(0,0,0,0.5);
+  white-space:nowrap;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+}
+.hero-floating-card span{color:var(--gold-light)}
+
+/* Section Layout */
+.section{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:70px 24px;
+}
+.section-header{
+  text-align:center;
+  max-width:680px;
+  margin:0 auto 48px;
+}
+.section-header h2{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(30px,4vw,44px);
+  margin:12px 0;
+  font-weight:700;
+}
+.section-header p{
+  color:var(--text-muted);
+  font-size:16px;
+}
+
+/* Experience Collections */
+.exp-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+.exp-card{
+  position:relative;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  height:290px;
+  background:var(--card);
+  border:1px solid var(--border);
+  transition:all .35s ease;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:24px;
+}
+.exp-card img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .5s ease;
+  opacity:0.65;
+}
+.exp-card::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(10,11,14,0.1) 20%,rgba(10,11,14,0.95) 100%);
+}
+.exp-card:hover{
+  border-color:var(--gold-border);
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(0,0,0,0.6);
+}
+.exp-card:hover img{transform:scale(1.08);opacity:0.8}
+.exp-content{
+  position:relative;
+  z-index:2;
+}
+.exp-tag{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--gold-light);
+  font-weight:800;
+  margin-bottom:6px;
+}
+.exp-title{
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+  line-height:1.25;
+}
+.exp-desc{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-top:6px;
+  line-height:1.4;
+}
+
+/* Explore Venues Section */
+.search-bar-wrap{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:8px 8px 8px 20px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  max-width:700px;
+  margin:0 auto 28px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  transition:border-color .3s ease;
+}
+.search-bar-wrap:focus-within{
+  border-color:var(--gold-border);
+  box-shadow:0 10px 35px var(--gold-glow);
+}
+.search-icon{
+  font-size:18px;
+  color:var(--gold-light);
+}
+.search-input{
+  flex:1;
+  background:transparent;
+  border:0;
+  color:var(--text);
+  font-size:15px;
+  font-family:inherit;
+  outline:none;
+}
+.search-input::placeholder{color:var(--text-dim)}
+.filter-pills{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:38px;
+}
+.pill-btn{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--text-muted);
+  padding:8px 18px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.pill-btn:hover,.pill-btn.active{
+  background:rgba(212,175,55,0.15);
+  border-color:var(--gold);
+  color:var(--gold-light);
+}
+
+.venues-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:24px;
+}
+.venue-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition:all .3s ease;
+}
+.venue-card:hover{
+  border-color:var(--gold-border);
+  transform:translateY(-5px);
+  box-shadow:0 16px 36px rgba(0,0,0,0.45);
+}
+.venue-thumb-wrap{
+  position:relative;
+  height:185px;
+  background:#141720;
+  overflow:hidden;
+}
+.venue-thumb{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .4s ease;
+}
+.venue-card:hover .venue-thumb{transform:scale(1.06)}
+.venue-badge{
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:rgba(10,11,14,0.85);
+  backdrop-filter:blur(8px);
+  color:var(--gold-light);
+  border:1px solid var(--gold-border);
+  font-size:11px;
+  font-weight:800;
+  padding:4px 10px;
+  border-radius:6px;
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+}
+.venue-body{
+  padding:20px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.venue-title{
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+}
+.venue-meta{
+  font-size:13px;
+  color:var(--text-muted);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+.venue-desc{
+  font-size:13px;
+  color:var(--text-muted);
+  line-height:1.5;
+  margin-bottom:18px;
+  flex:1;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.venue-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.venue-footer-btn{
+  font-size:13px;
+  font-weight:700;
+  color:var(--gold-light);
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+
+/* About Us Section */
+.about-wrap{
+  background:linear-gradient(180deg,rgba(18,21,29,0.7) 0%,rgba(10,11,14,0.9) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  padding:60px 48px;
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:50px;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+}
+.about-wrap::before{
+  content:'';
+  position:absolute;
+  top:-120px;
+  right:-120px;
+  width:320px;
+  height:320px;
+  background:radial-gradient(circle,rgba(212,175,55,0.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+.about-content h2{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(30px,4vw,42px);
+  margin:14px 0 20px;
+  line-height:1.15;
+}
+.about-lead{
+  font-size:16px;
+  color:var(--text-muted);
+  line-height:1.7;
+  margin-bottom:28px;
+}
+.pillars-list{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.pillar-item{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.pillar-icon{
+  width:40px;
+  height:40px;
+  min-width:40px;
+  border-radius:var(--radius-sm);
+  background:rgba(212,175,55,0.1);
+  border:1px solid var(--gold-border);
+  color:var(--gold-light);
+  display:grid;
+  place-items:center;
+  font-size:16px;
+  font-weight:800;
+}
+.pillar-text h4{
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:4px;
+}
+.pillar-text p{
+  font-size:13px;
+  color:var(--text-muted);
+  line-height:1.5;
+}
+.about-photos{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.about-photo{
+  border-radius:var(--radius-md);
+  object-fit:cover;
+  border:1px solid var(--border);
+}
+.about-photo.p1{height:280px;grid-row:1/3;height:100%}
+.about-photo.p2{height:180px}
+.about-photo.p3{height:180px}
+
+/* News Banner Spotlight (Directs strictly to news.html) */
+.news-banner{
+  background:linear-gradient(135deg,rgba(24,29,39,0.95),rgba(18,21,29,0.85));
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius-lg);
+  padding:32px 36px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:24px;
+  margin:40px 0;
+  box-shadow:0 12px 36px rgba(0,0,0,0.4);
+}
+.news-banner-content h3{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:24px;
+  margin:6px 0;
+  color:#fff;
+}
+.news-banner-content p{
+  font-size:14px;
+  color:var(--text-muted);
+  max-width:620px;
+}
+
+/* Curated Destinations Spotlight */
+.destinations-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+}
+.dest-card{
+  position:relative;
+  height:240px;
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  border:1px solid var(--border);
+  transition:all .3s ease;
+}
+.dest-card img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .4s ease;
+  opacity:0.6;
+}
+.dest-card::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(10,11,14,0.92) 100%);
+}
+.dest-card:hover{
+  border-color:var(--gold-border);
+  transform:translateY(-4px);
+}
+.dest-card:hover img{transform:scale(1.08);opacity:0.8}
+.dest-info{
+  position:absolute;
+  bottom:16px;
+  left:18px;
+  z-index:2;
+}
+.dest-name{
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+}
+.dest-sub{
+  font-size:12px;
+  color:var(--gold-light);
+  font-weight:600;
+}
+
+/* FAQ Accordion Section */
+.faq-wrap{
+  max-width:820px;
+  margin:0 auto;
+}
+.faq-item{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  margin-bottom:14px;
+  overflow:hidden;
+  transition:all .25s ease;
+}
+.faq-item:hover{
+  border-color:var(--gold-border);
+}
+.faq-question{
+  padding:20px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  font-weight:700;
+  font-size:16px;
+  color:var(--text);
+  user-select:none;
+}
+.faq-toggle{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  display:grid;
+  place-items:center;
+  color:var(--gold-light);
+  font-weight:900;
+  font-size:16px;
+  transition:transform .3s ease;
+}
+.faq-item.active .faq-toggle{
+  transform:rotate(45deg);
+  background:rgba(212,175,55,0.15);
+  border-color:var(--gold);
+}
+.faq-answer{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .35s ease,padding .3s ease;
+  padding:0 24px;
+  color:var(--text-muted);
+  font-size:14px;
+  line-height:1.7;
+}
+.faq-item.active .faq-answer{
+  max-height:300px;
+  padding:0 24px 22px;
+}
+
+/* App Download CTA Banner */
+.app-cta-card{
+  background:radial-gradient(circle at 10% 20%,rgba(212,175,55,0.15) 0%,rgba(18,21,29,0.95) 70%);
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius-xl);
+  padding:50px 48px;
+  display:grid;
+  grid-template-columns:1.2fr 0.8fr;
+  gap:40px;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+}
+.app-cta-card h2{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(28px,3.8vw,40px);
+  margin:14px 0 16px;
+}
+.app-cta-card p{
+  font-size:15px;
+  color:var(--text-muted);
+  margin-bottom:28px;
+  max-width:480px;
+}
+.app-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.app-cta-visual{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.qr-frame{
+  background:#fff;
+  padding:14px;
+  border-radius:var(--radius-md);
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  width:160px;
+  height:160px;
+  display:grid;
+  place-items:center;
+}
+.qr-frame svg{width:130px;height:130px}
+
+/* Footer */
+footer{
+  background:#07080A;
+  border-top:1px solid var(--border);
+  padding:60px 24px 30px;
+  margin-top:60px;
+}
+.footer-wrap{
+  max-width:var(--max-w);
+  margin:auto;
+  display:grid;
+  grid-template-columns:1.5fr repeat(3,1fr);
+  gap:40px;
+  margin-bottom:50px;
+}
+.footer-brand h3{
+  font-size:22px;
+  color:var(--gold-light);
+  letter-spacing:3px;
+  margin-bottom:12px;
+}
+.footer-brand p{
+  font-size:14px;
+  color:var(--text-muted);
+  max-width:320px;
+  line-height:1.6;
+}
+.footer-col h4{
+  font-size:13px;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:18px;
+}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:10px}
+.footer-col a{
+  font-size:14px;
+  color:var(--text-muted);
+  transition:color .2s ease;
+}
+.footer-col a:hover{color:var(--gold-light)}
+.footer-bottom{
+  max-width:var(--max-w);
+  margin:auto;
+  padding-top:24px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:var(--text-dim);
+}
+
+/* Responsive */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding:50px 20px 40px}
+  .about-wrap{grid-template-columns:1fr;padding:40px 24px}
+  .app-cta-card{grid-template-columns:1fr;padding:40px 24px}
+  .footer-wrap{grid-template-columns:1fr 1fr;gap:30px}
+  .news-banner{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .footer-wrap{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center}
+}
 </style>
 </head>
 <body>
-<header><a class="brand" href="./">FINETIME</a><div style="display:flex;gap:8px;align-items:center"><a class="btn" href="news.html">News</a><a class="btn" href="../">Open App</a></div></header>
+
+<!-- Navigation Header -->
+<header>
+  <div class="nav-wrap">
+    <a class="brand" href="./">
+      <div class="brand-icon">F</div>
+      <span>FINETIME</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#experiences">Experiences</a>
+      <a href="#venues">Discover</a>
+      <a href="#about">About Us</a>
+      <a href="#destinations">Destinations</a>
+      <a href="#faqs">FAQs</a>
+      <a href="news.html">News & Stories</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-outline" href="news.html">News</a>
+      <a class="btn btn-gold" href="../">Open App</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
 <section class="hero">
-  <h1>Discover. Dine. Stay.</h1>
-  <p class="lead">FineTime is an Ethiopia-focused hospitality platform for discovering hotels, restaurants and cafés — with menus, reservations, hotel booking and real partner information where available.</p>
-  <a class="btn" href="../">Explore FineTime</a>
+  <div class="hero-content">
+    <div class="badge">✨ Verified Premier Hospitality</div>
+    <h1>Africa's Finest Escapes, <span>Dining & Stays.</span></h1>
+    <p class="hero-lead">From Michelin-caliber culinary craft and panoramic rooftop lounges to boutique penthouses and secluded sanctuaries. FineTime is your verified key to elite hospitality.</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold" href="#venues">Explore Curated Venues</a>
+      <a class="btn btn-gold-outline" href="../">Launch Web App</a>
+      <a class="btn btn-outline" href="news.html">FineTime Stories →</a>
+    </div>
+    <div class="stats-strip">
+      <div class="stat-item">
+        <h4>100%</h4>
+        <p>Curated & Vetted</p>
+      </div>
+      <div class="stat-item">
+        <h4>4.9 ★</h4>
+        <p>Guest Rating</p>
+      </div>
+      <div class="stat-item">
+        <h4>Real Menus</h4>
+        <p>& Live Pricing</p>
+      </div>
+      <div class="stat-item">
+        <h4>Instant</h4>
+        <p>Reservations</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <img class="hero-photo-main" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80" alt="FineTime Luxury Penthouse Suite">
+    <img class="hero-photo-sub" src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=600&q=80" alt="FineTime Gourmet Culinary Experience">
+    <img class="hero-photo-sub" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="FineTime Rooftop Sunset Lounge">
+    <div class="hero-floating-card">
+      <span>● LIVE</span> Verified Stays & Dining in Addis Ababa & Beyond
+    </div>
+  </div>
 </section>
-<section class="section"><div class="card"><span class="badge">LATEST FROM FINETIME</span><h2>Updates & featured experiences</h2><p class="muted">Published by the FineTime admin team. New content appears automatically.</p><div id="modules" class="grid"><p class="muted">Loading updates…</p></div><div id="homeNews" class="grid" style="margin-top:14px"><p class="muted">Loading news…</p></div></div></section>
+
+<!-- Experience Collections -->
+<section id="experiences" class="section">
+  <div class="section-header">
+    <div class="badge">CURATED SIGNATURES</div>
+    <h2>Distinctive Experiences</h2>
+    <p>Every journey is crafted around passion. Explore handpicked collections designed for discerning tastes.</p>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-card">
+      <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=600&q=80" alt="Fine Dining">
+      <div class="exp-content">
+        <div class="exp-tag">GASTRONOMY</div>
+        <div class="exp-title">Fine Dining</div>
+        <div class="exp-desc">Chef's tasting tables, wine pairings, and contemporary culinary craft.</div>
+      </div>
+    </div>
+    <div class="exp-card">
+      <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" alt="Boutique Stays">
+      <div class="exp-content">
+        <div class="exp-tag">SANCTUARY</div>
+        <div class="exp-title">Boutique Stays</div>
+        <div class="exp-desc">Private suites, luxury retreats, and five-star heritage hotels.</div>
+      </div>
+    </div>
+    <div class="exp-card">
+      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="Rooftops & Lounges">
+      <div class="exp-content">
+        <div class="exp-tag">NIGHTLIFE</div>
+        <div class="exp-title">Rooftops & Lounges</div>
+        <div class="exp-desc">Skyline cocktail terraces, private speakeasies, and VIP hospitality.</div>
+      </div>
+    </div>
+    <div class="exp-card">
+      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" alt="Artisanal Cafés">
+      <div class="exp-content">
+        <div class="exp-tag">SPECIALTY COFFEE</div>
+        <div class="exp-title">Artisanal Cafés</div>
+        <div class="exp-desc">Single-origin Ethiopian roasts, garden terraces, and patisseries.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Verified Venues Directory -->
+<section id="venues" class="section">
+  <div class="section-header">
+    <div class="badge">VERIFIED PARTNER VENUES</div>
+    <h2>Explore FineTime Places</h2>
+    <p>Discover published venues with confirmed digital menus, room pricing, and direct booking support.</p>
+  </div>
+
+  <div class="search-bar-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="q" class="search-input" placeholder="Search by name, cuisine, hotel, or city (e.g. Addis Ababa, Italian, Suite)…">
+  </div>
+
+  <div class="filter-pills" id="pills">
+    <button class="pill-btn active" data-cat="all">All Experiences</button>
+    <button class="pill-btn" data-cat="restaurant">Restaurants</button>
+    <button class="pill-btn" data-cat="hotel">Hotels & Suites</button>
+    <button class="pill-btn" data-cat="cafe">Cafés & Roasteries</button>
+    <button class="pill-btn" data-cat="lounge">Lounges & Bars</button>
+  </div>
+
+  <div id="featuredModules" style="margin-bottom:30px"></div>
+
+  <div id="places" class="venues-grid">
+    <p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px 0;">Loading curated venues…</p>
+  </div>
+</section>
+
+<!-- Editorial News Banner (Explicitly links to dedicated news page) -->
+<section class="section" style="padding-top:0;padding-bottom:20px;">
+  <div class="news-banner">
+    <div class="news-banner-content">
+      <span class="badge">EDITORIAL & STORIES</span>
+      <h3>The FineTime Dispatch</h3>
+      <p>Discover in-depth culinary guides, interviews with master chefs, luxury travel journals, and announcements on our dedicated editorial news page.</p>
+    </div>
+    <a class="btn btn-gold" href="news.html">Read Stories on News Page →</a>
+  </div>
+</section>
+
+<!-- About Us Section -->
+<section id="about" class="section">
+  <div class="about-wrap">
+    <div class="about-content">
+      <div class="badge">OUR MISSION & ETHOS</div>
+      <h2>Setting the Standard for African Hospitality.</h2>
+      <p class="about-lead">FineTime was created to solve a persistent frustration: discovering memorable hospitality in Africa without guesswork, fake reviews, or outdated menus.</p>
+      
+      <div class="pillars-list">
+        <div class="pillar-item">
+          <div class="pillar-icon">✓</div>
+          <div class="pillar-text">
+            <h4>Personally Vetted Partners</h4>
+            <p>Every business on FineTime is inspected for hygiene, ambiance, hospitality standard, and guest privacy before joining.</p>
+          </div>
+        </div>
+
+        <div class="pillar-item">
+          <div class="pillar-icon">⚡</div>
+          <div class="pillar-text">
+            <h4>Live Menus & Transparent Pricing</h4>
+            <p>Direct digital menus with real prices, ingredients, and room availability. No unexpected bill surprises.</p>
+          </div>
+        </div>
+
+        <div class="pillar-item">
+          <div class="pillar-icon">★</div>
+          <div class="pillar-text">
+            <h4>Authentic Guest Reviews Only</h4>
+            <p>We enforce a strict 2-review limit per business to prevent spam or manipulation. Every review reflects real patronage.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;">
+        <a class="btn btn-gold" href="mailto:support@finetime.cc">Partner With Us</a>
+        <a class="btn btn-outline" href="../">Explore App</a>
+      </div>
+    </div>
+
+    <div class="about-photos">
+      <img class="about-photo p1" src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80" alt="Luxury Wellness Sanctuary">
+      <img class="about-photo p2" src="https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&w=600&q=80" alt="Bespoke Culinary Artistry">
+      <img class="about-photo p3" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80" alt="Elite Resort Poolside">
+    </div>
+  </div>
+</section>
+
+<!-- Curated Destinations -->
+<section id="destinations" class="section">
+  <div class="section-header">
+    <div class="badge">SIGNATURE LOCATIONS</div>
+    <h2>Curated Destinations</h2>
+    <p>Discover premier hospitality hubs where FineTime connects guests with uncompromised excellence.</p>
+  </div>
+  <div class="destinations-grid">
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80" alt="Addis Ababa">
+      <div class="dest-info">
+        <div class="dest-name">Addis Ababa</div>
+        <div class="dest-sub">Bole · Kazanchis · Old Airport</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80" alt="Bishoftu & Rift Valley">
+      <div class="dest-info">
+        <div class="dest-name">Bishoftu Lakes</div>
+        <div class="dest-sub">Waterfront Lodges & Spas</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" alt="Hawassa">
+      <div class="dest-info">
+        <div class="dest-name">Hawassa Haven</div>
+        <div class="dest-sub">Lakeside Resorts & Escapes</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="Regional Gateways">
+      <div class="dest-info">
+        <div class="dest-name">Regional Gateways</div>
+        <div class="dest-sub">Expanding Across East Africa</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Frequently Asked Questions (Accordion) -->
+<section id="faqs" class="section">
+  <div class="section-header">
+    <div class="badge">FREQUENTLY ASKED QUESTIONS</div>
+    <h2>Everything You Need to Know</h2>
+    <p>Clear, direct answers about reservations, verified pricing, reviews, and partnerships.</p>
+  </div>
+
+  <div class="faq-wrap">
+    <div class="faq-item active">
+      <div class="faq-question">
+        <span>What makes FineTime different from typical booking directories?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        FineTime is a curated, invitation-first hospitality network. We reject ghost listings and generic scrapers. Each hotel, restaurant, and café on FineTime has an active management relationship, real-time menus with prices in local currency, and verified direct reservation channels.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can I view full menus and prices before visiting a restaurant?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Yes! That is one of FineTime's standout features. By opening any restaurant or café profile on FineTime, you can view the complete digital menu including starters, mains, beverages, dietary labels, and exact prices.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do table reservations and hotel bookings work?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Guests can book tables or reserve room types directly through the FineTime app or web portal. Venues receive instant notifications via their automated FineTime partner systems (including our instant Telegram partner alerts), ensuring rapid confirmation without waiting on unanswered phone calls.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Why does FineTime limit reviews to two per business?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        To preserve genuine trust. Many platforms suffer from review bombing or fake bot accounts leaving dozens of unverified ratings. FineTime strictly caps accounts at two thoughtful reviews per business, guaranteeing that feedback comes from genuine guests with real experiences.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Is FineTime free for guests and travelers?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Yes. Browsing venues, viewing digital menus, checking room rates, reading verified reviews, and making reservations are completely free for all guests on both our website and mobile application.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How can a hotel, restaurant, or lounge become a FineTime partner?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Hospitality owners and managers can apply directly by contacting our partner onboarding team at <a href="mailto:support@finetime.cc" style="color:var(--gold-light);text-decoration:underline;">support@finetime.cc</a> or visiting our partner portal. We review each application to ensure ambiance, culinary quality, and service standards meet our guest criteria.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Where can I download the FineTime Android app?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        You can download the official Android APK directly from our releases page by tapping "Download APK" on this website, or use the high-performance Web App right in any mobile or desktop browser without installation.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mobile App Download CTA -->
 <section class="section">
-  <h2>Explore FineTime partners</h2>
-  <p class="muted">Only published businesses connected to FineTime are shown.</p>
-  <input id="q" placeholder="Search hotels, restaurants or cafés…">
-  <div id="places" class="grid"></div>
+  <div class="app-cta-card">
+    <div>
+      <div class="badge">SEAMLESS CONCIERGE</div>
+      <h2>FineTime in Your Pocket</h2>
+      <p>Instant table reservations, room bookings, digital menus, offline favorites, and VIP perks wherever you travel. Available on Android and Web.</p>
+      <div class="app-badges">
+        <a class="btn btn-gold" href="../">Launch Web App</a>
+        <a class="btn btn-gold-outline" href="news.html">FineTime Stories</a>
+        <a class="btn btn-outline" href="mailto:support@finetime.cc">Contact Support</a>
+      </div>
+    </div>
+    <div class="app-cta-visual">
+      <div class="qr-frame">
+        <svg viewBox="0 0 100 100" fill="#111">
+          <rect x="10" y="10" width="25" height="25" fill="#111"/>
+          <rect x="15" y="15" width="15" height="15" fill="#fff"/>
+          <rect x="18" y="18" width="9" height="9" fill="#111"/>
+          <rect x="65" y="10" width="25" height="25" fill="#111"/>
+          <rect x="70" y="15" width="15" height="15" fill="#fff"/>
+          <rect x="73" y="18" width="9" height="9" fill="#111"/>
+          <rect x="10" y="65" width="25" height="25" fill="#111"/>
+          <rect x="15" y="70" width="15" height="15" fill="#fff"/>
+          <rect x="18" y="73" width="9" height="9" fill="#111"/>
+          <circle cx="50" cy="50" r="10" fill="#D4AF37"/>
+          <rect x="42" y="15" width="8" height="20" fill="#111"/>
+          <rect x="65" y="45" width="20" height="8" fill="#111"/>
+          <rect x="45" y="65" width="8" height="25" fill="#111"/>
+          <rect x="60" y="60" width="15" height="15" fill="#111"/>
+        </svg>
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);letter-spacing:0.5px;">SCAN TO OPEN WEB APP</p>
+    </div>
+  </div>
 </section>
-<section class="section">
-  <div class="card"><span class="badge">FINE TIME</span><h2>For hospitality businesses</h2><p class="muted">FineTime provides a professional digital presence, discovery, menus, bookings, reservations, orders and operational support.</p><a class="btn" href="mailto:support@finetime.cc">Partner with FineTime</a></div>
-</section>
-<footer>FineTime — Discover. Dine. Stay. · Ethiopia · <a href="mailto:support@finetime.cc">support@finetime.cc</a></footer>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-wrap">
+    <div class="footer-brand">
+      <h3>FINETIME</h3>
+      <p>Africa's premier hospitality and culinary curation. Discover verified restaurants, boutique sanctuaries, and curated experiences with live menus and transparent pricing.</p>
+      <div style="margin-top:16px;">
+        <span class="badge" style="background:rgba(255,255,255,0.04);border-color:var(--border);">Verified Hospitality Network</span>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Experiences</h4>
+      <ul>
+        <li><a href="#experiences">Fine Dining & Bars</a></li>
+        <li><a href="#experiences">Boutique Hotels</a></li>
+        <li><a href="#experiences">Skyline Lounges</a></li>
+        <li><a href="#experiences">Artisanal Cafés</a></li>
+        <li><a href="#experiences">Spas & Wellness</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Destinations</h4>
+      <ul>
+        <li><a href="#destinations">Addis Ababa</a></li>
+        <li><a href="#destinations">Bishoftu Lakes</a></li>
+        <li><a href="#destinations">Hawassa Haven</a></li>
+        <li><a href="#destinations">Regional Gateways</a></li>
+        <li><a href="news.html">News & Stories</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Hospitality Partners</h4>
+      <ul>
+        <li><a href="mailto:support@finetime.cc">Partner With Us</a></li>
+        <li><a href="../partner/">Partner Mini App</a></li>
+        <li><a href="../admin/">Admin Console</a></li>
+        <li><a href="#faqs">Partner FAQs</a></li>
+        <li><a href="mailto:support@finetime.cc">Direct Support</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 FineTime Hospitality Technologies. All rights reserved. Ethiopia & Beyond.</p>
+    <p><a href="news.html" style="color:var(--gold-light);">FineTime News</a> · <a href="mailto:support@finetime.cc">support@finetime.cc</a></p>
+  </div>
+</footer>
+
 <script>
-const URL='https://atewcbkuzrnfnmzsylze.supabase.co',KEY='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';let data=[];
-async function load(){try{const r=await fetch(URL+'/rest/v1/businesses?select=*,cities(name)&is_published=eq.true&order=name',{headers:{apikey:KEY}});data=await r.json();render()}catch(e){document.getElementById('places').innerHTML='<p class="muted">Business information is temporarily unavailable.</p>'}}
-function render(){const q=document.getElementById('q').value.toLowerCase().trim();const rows=data.filter(b=>!q||[b.name,b.category,b.cities?.name].join(' ').toLowerCase().includes(q));document.getElementById('places').innerHTML=rows.length?rows.map(b=>'<a class="card" href="business.html?id='+encodeURIComponent(b.id)+'"><span class="badge">'+esc((b.category||'').toUpperCase())+'</span><h3>'+esc(b.name)+'</h3><p class="muted">'+esc(b.cities?.name||'')+'</p><p class="muted">'+esc(b.about||'')+'</p></a>').join(''):'<p class="muted">No published FineTime businesses match that search.</p>'}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-document.getElementById('q').addEventListener('input',render);
-async function loadModules(){try{const r=await fetch(URL+'/rest/v1/site_modules?select=*&placement=in.(website_home,all)&is_enabled=eq.true&order=sort_order',{cache:'no-store',headers:{apikey:KEY}});if(!r.ok)return;const rows=await r.json();document.getElementById('modules').innerHTML=rows.length?rows.map(m=>'<article class="card">'+(m.image_url?'<img src="'+esc(m.image_url)+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px">':'')+'<h3>'+esc(m.title)+'</h3><p class="muted">'+esc(m.body||'')+'</p>'+(m.cta_url?'<a class="btn" href="'+esc(m.cta_url)+'">'+esc(m.cta_label||'Learn more')+'</a>':'')+'</article>').join(''):'<p class="muted">No featured updates yet.</p>'}catch(_){}}
-async function loadHomeNews(){try{const r=await fetch(URL+'/rest/v1/news?select=id,title,summary,cover_url,published_at&is_published=eq.true&order=published_at.desc&limit=3',{cache:'no-store',headers:{apikey:KEY}});if(!r.ok)return;const rows=await r.json();document.getElementById('homeNews').innerHTML=rows.length?rows.map(n=>'<article class="card">'+(n.cover_url?'<img src="'+esc(n.cover_url)+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px">':'')+'<h3>'+esc(n.title)+'</h3><p class="muted">'+esc(n.published_at?new Date(n.published_at).toLocaleDateString():'')+'</p><p class="muted">'+esc(n.summary||'')+'</p><a class="btn" href="news.html">Read news</a></article>').join(''):'<p class="muted">No published news yet.</p>'}catch(_){}}
-load();loadModules();loadHomeNews();setInterval(load,5000);setInterval(loadModules,5000);setInterval(loadHomeNews,5000);
+const URL='https://atewcbkuzrnfnmzsylze.supabase.co';
+const KEY='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
+let allVenues=[];
+let activeCategory='all';
+
+const fallbackImages={
+  restaurant:'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=700&q=80',
+  hotel:'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=700&q=80',
+  cafe:'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=700&q=80',
+  lounge:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=700&q=80',
+  default:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=700&q=80'
+};
+
+function esc(s){
+  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+async function loadPlaces(){
+  try{
+    const r=await fetch(URL+'/rest/v1/businesses?select=*,cities(name)&is_published=eq.true&order=name',{
+      cache:'no-store',
+      headers:{apikey:KEY}
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    allVenues=await r.json();
+    renderVenues();
+  }catch(e){
+    document.getElementById('places').innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px 0;">Curated partner listings are temporarily loading. Please refresh shortly.</p>';
+  }
+}
+
+function renderVenues(){
+  const container=document.getElementById('places');
+  const q=(document.getElementById('q').value||'').toLowerCase().trim();
+  
+  const filtered=allVenues.filter(b=>{
+    const cat=(b.category||'').toLowerCase();
+    const matchesCategory=(activeCategory==='all')||cat.includes(activeCategory);
+    if(!matchesCategory)return false;
+    if(!q)return true;
+    const searchString=[b.name,b.category,b.cities?.name,b.about,b.address].filter(Boolean).join(' ').toLowerCase();
+    return searchString.includes(q);
+  });
+
+  if(!filtered.length){
+    container.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px 20px;background:var(--card);border-radius:var(--radius-lg);border:1px solid var(--border);"><p style="font-size:18px;color:#fff;margin-bottom:8px;">No matching venues found</p><p style="color:var(--text-muted);font-size:14px;">Try searching for "hotel", "Addis Ababa", or clearing your filter.</p></div>';
+    return;
+  }
+
+  container.innerHTML=filtered.map(b=>{
+    const cat=(b.category||'venue').toLowerCase();
+    const fallback=fallbackImages[cat]||fallbackImages.default;
+    const cover=b.cover_url||fallback;
+    const city=b.cities?.name||'Premier Location';
+    
+    return '<article class="venue-card">'+
+      '<div class="venue-thumb-wrap">'+
+        '<img class="venue-thumb" src="'+esc(cover)+'" alt="'+esc(b.name)+'" loading="lazy" onerror="this.src=\''+fallback+'\'">'+
+        '<div class="venue-badge">'+esc(b.category||'EXPERIENCE')+'</div>'+
+      '</div>'+
+      '<div class="venue-body">'+
+        '<h3 class="venue-title">'+esc(b.name)+'</h3>'+
+        '<div class="venue-meta"><span>📍 '+esc(city)+'</span><span>·</span><span>Verified Menu</span></div>'+
+        '<p class="venue-desc">'+esc(b.about||'Verified FineTime hospitality partner with digital menu and direct booking.')+'</p>'+
+        '<div class="venue-footer">'+
+          '<a class="venue-footer-btn" href="business.html?id='+encodeURIComponent(b.id)+'">View Profile & Menu →</a>'+
+          '<a class="btn btn-gold" style="padding:6px 14px;font-size:12px;" href="menu.html?id='+encodeURIComponent(b.id)+'">Menu</a>'+
+        '</div>'+
+      '</div>'+
+    '</article>';
+  }).join('');
+}
+
+async function loadModules(){
+  try{
+    const r=await fetch(URL+'/rest/v1/site_modules?select=*&placement=in.(website_home,all)&is_enabled=eq.true&order=sort_order',{
+      cache:'no-store',
+      headers:{apikey:KEY}
+    });
+    if(!r.ok)return;
+    const rows=await r.json();
+    const container=document.getElementById('featuredModules');
+    if(!rows.length){container.innerHTML='';return;}
+    
+    container.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">'+
+      rows.map(m=>'<div class="venue-card" style="border-color:var(--gold-border);background:linear-gradient(180deg,var(--card) 0%,#1a202c 100%);">'+
+        (m.image_url?'<div class="venue-thumb-wrap"><img class="venue-thumb" src="'+esc(m.image_url)+'" alt="'+esc(m.title)+'"></div>':'')+
+        '<div class="venue-body">'+
+          '<span class="badge" style="width:fit-content;margin-bottom:10px;">FEATURED SPOTLIGHT</span>'+
+          '<h3 class="venue-title">'+esc(m.title)+'</h3>'+
+          '<p class="venue-desc">'+esc(m.body||'')+'</p>'+
+          (m.cta_url?'<a class="btn btn-gold" style="width:fit-content;margin-top:10px;" href="'+esc(m.cta_url)+'">'+esc(m.cta_label||'Discover')+'</a>':'')+
+        '</div>'+
+      '</div>').join('')+
+    '</div>';
+  }catch(_){}
+}
+
+// Search input listener
+document.getElementById('q').addEventListener('input',renderVenues);
+
+// Category pill filters
+document.querySelectorAll('.pill-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.pill-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    activeCategory=this.getAttribute('data-cat')||'all';
+    renderVenues();
+  });
+});
+
+// FAQ Accordion interaction
+document.querySelectorAll('.faq-item').forEach(item=>{
+  const q=item.querySelector('.faq-question');
+  q.addEventListener('click',()=>{
+    const isOpen=item.classList.contains('active');
+    document.querySelectorAll('.faq-item').forEach(el=>el.classList.remove('active'));
+    if(!isOpen)item.classList.add('active');
+  });
+});
+
+// Initial boot
+loadPlaces();
+loadModules();
+setInterval(loadPlaces,10000);
+setInterval(loadModules,10000);
 </script>
-</body></html>
+</body>
+</html>
