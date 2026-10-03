@@ -69,7 +69,27 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     return const {};
   }
 
-  String city() => ((b?['cities'] as Map<String, dynamic>?)?['name'] ?? '').toString();
+  String city() {
+    final raw = b?['cities'];
+    if (raw is Map) {
+      return (raw['name'] ?? '').toString().trim();
+    }
+    if (raw is List && raw.isNotEmpty && raw.first is Map) {
+      final first = Map<String, dynamic>.from(raw.first as Map);
+      return (first['name'] ?? '').toString().trim();
+    }
+    if (raw is String && raw.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) return (decoded['name'] ?? '').toString().trim();
+        if (decoded is List && decoded.isNotEmpty && decoded.first is Map) {
+          final first = Map<String, dynamic>.from(decoded.first as Map);
+          return (first['name'] ?? '').toString().trim();
+        }
+      } catch (_) {}
+    }
+    return '';
+  }
 
   void _subscribeToUpdates() {
     _realtime = sb.channel('business-live-${widget.businessId}')
@@ -900,7 +920,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   Widget _profileHero(Map<String, dynamic> business, double? average) {
     final cover = business['cover_url']?.toString().trim() ?? '';
     final gallery = strings(business['gallery_urls']);
-    final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : '');
+    final category = (business['category'] ?? '').toString().toLowerCase();
+    final fallbackHero = category == 'restaurant'
+        ? 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=85'
+        : category == 'cafe'
+            ? 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1400&q=85'
+            : 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85';
+    final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : fallbackHero);
     final name = (business['name'] ?? 'FineTime place').toString();
     final place = [
       city(),
