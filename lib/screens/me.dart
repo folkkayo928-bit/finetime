@@ -147,14 +147,9 @@ class _MeScreenState extends State<MeScreen>{
            ),
            const SizedBox(height:15),
            Center(
-             child:Row(
-               mainAxisSize:MainAxisSize.min,
-               children:[
-                 const Icon(Icons.star,color:FT.gold,size:20),
-                 const SizedBox(width:5),
-                 const Text('4.9',style:TextStyle(color:FT.gold,fontWeight:FontWeight.w700)),
-                 Text(' ('+_reviews.toString()+' reviews)',style:const TextStyle(color:FT.muted)),
-               ],
+             child:Text(
+               _reviews == 0 ? 'No reviews yet' : _reviews.toString() + ' reviews written',
+               style:const TextStyle(color:FT.muted,fontSize:13,fontWeight:FontWeight.w600),
              ),
            ),
            const SizedBox(height:28),
