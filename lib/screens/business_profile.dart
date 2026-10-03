@@ -611,7 +611,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('Verified guest', style: TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            Text('★ ' + rating.toStringAsFixed(1), style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
+            Text('★ ${rating.toStringAsFixed(1)}, style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
           ])),
           if (date.isNotEmpty) Text(date, style: const TextStyle(color: Colors.white54, fontSize: 11)),
         ]),
@@ -652,7 +652,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               if (hasCoords)
                 TextButton(
                   onPressed: () => launchUrlValue(
-                    'https://maps.google.com/?q=' + business['lat'].toString() + ',' + business['lng'].toString(),
+                    'https://maps.google.com/?q=${business['lat']},${business['lng']}',
                   ),
                   child: const Text('Get directions'),
                 ),
@@ -829,10 +829,10 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               style: const TextStyle(color: FT.ivory, fontSize: 58, height: .95,
                 fontWeight: FontWeight.w500, fontFamily: 'serif')),
             const SizedBox(height: 10),
-            Text('★ ' + average.toStringAsFixed(1),
+            Text('★ ${average.toStringAsFixed(1)},
               style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
             const SizedBox(height: 18),
-            Text(reviews.length.toString() + ' verified review' + (reviews.length == 1 ? '' : 's'),
+            Text('${reviews.length} verified review${reviews.length == 1 ? '' : 's'}',
               style: const TextStyle(color: Colors.white54)),
           ]),
           const SizedBox(width: 34),
@@ -924,7 +924,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 style: const TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
               if (average != null) ...[
                 const SizedBox(width: 4),
-                Text('(' + reviews.length.toString() + ' reviews)', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                Text('(${reviews.length} reviews)', style: const TextStyle(color: Colors.white60, fontSize: 12)),
               ],
               const Spacer(),
               if (place.isNotEmpty) ...[
@@ -1020,7 +1020,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     final amenities = strings(business['amenities']);
     final gallery = strings(business['gallery_urls']);
     final hours = asMap(business['opening_hours']);
-    final allHighlights = <String>[...highlights, ...services, if (isHotel) ...amenities].toSet().toList();
+    final allHighlights = {...highlights, ...services, if (isHotel) ...amenities}.toList();
 
     final ratings = reviews.map((r) => num.tryParse(r['rating']?.toString() ?? ''))
       .whereType<num>().map((n) => n.toDouble()).toList();
