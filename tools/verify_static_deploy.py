@@ -5,13 +5,15 @@ import sys
 import tempfile
 
 root=Path("build/web")
-required=["index.html","partner/index.html","partner.html","website/index.html","website/news.html","admin/index.html"]
+required=["index.html","flutter_bootstrap.js","partner/index.html","partner.html","website/index.html","website/news.html","admin/index.html"]
 missing=[p for p in required if not (root/p).exists()]
 bad=[]
 for p in required:
     if (root/p).exists():
         t=(root/p).read_text(encoding="utf-8")
         if "__SUPABASE_URL__" in t or "__SUPABASE_ANON_KEY__" in t: bad.append("unresolved config: "+p)
+        if p == "index.html" and 'flutter_bootstrap.js' not in t: bad.append("Flutter bootstrap script missing from root index.html")
+        if p == "website/index.html" and 'href="../"' not in t: bad.append("public website has no Launch/Open App root link")
         if "SUPABASE_SERVICE_ROLE_KEY" in t or "FINETIME_TELEGRAM_BOT_TOKEN" in t: bad.append("private secret reference: "+p)
         if "cdn.jsdelivr.net/npm/@supabase/supabase-js" in t or "window.supabase" in t: bad.append("browser Supabase SDK dependency: "+p)
         scripts=re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>",t,re.S|re.I)
