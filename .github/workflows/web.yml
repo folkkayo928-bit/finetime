@@ -39,6 +39,11 @@ jobs:
       - run: flutter test
       - name: Build Flutter web
         run: flutter build web --release --base-href /finetime/ --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+      - name: Cache-bust Flutter web bootstrap
+        run: |
+          VERSION="${GITHUB_SHA:0:12}"
+          sed -i "s/flutter_bootstrap.js/flutter_bootstrap.js?v=${VERSION}/" build/web/index.html
+
       - name: Mirror Flutter assets for custom-domain hosting
         run: |
           mkdir -p build/web/finetime
