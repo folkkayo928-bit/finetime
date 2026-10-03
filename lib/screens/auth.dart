@@ -73,19 +73,46 @@ class _AuthScreenState extends State<AuthScreen> {
           'full_name': name,
         });
       } else {
-        final response = await sb.auth.signInWithPassword(email: email, password: password);
+        // Authentication is the source of truth. Once Supabase accepts the
+        // credentials, take the user back to the app immediately. Profile
+        // maintenance must never turn a successful login into an auth error.
+        final response = await sb.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
         final user = response.user;
-        if (user != null) {
-          final profile = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+        if (user == null) {
+          _message('We could not complete the sign in. Please try again.');
+          return;
+        }
+
+        if (mounted) {
+          // AuthGate is the first route and listens to onAuthStateChange.
+          // Popping this screen lets it rebuild into the authenticated app.
+          Navigator.of(context).pop();
+        }
+
+        // Profile creation is non-critical to authentication. Do it after
+        // navigation so a database/RLS/network issue cannot look like a
+        // wrong password to the user.
+        try {
+          final profile = await sb
+              .from('profiles')
+              .select('id')
+              .eq('id', user.id)
+              .maybeSingle();
           if (profile == null) {
-            final fullName = (user.userMetadata?['full_name'] ?? '').toString().trim();
-            if (fullName.isEmpty) {
-              await sb.auth.signOut();
-              _message('Please contact FineTime support to complete your profile.');
-              return;
+            final fullName =
+                (user.userMetadata?['full_name'] ?? '').toString().trim();
+            if (fullName.isNotEmpty) {
+              await sb.from('profiles').insert({
+                'id': user.id,
+                'full_name': fullName,
+              });
             }
-            await sb.from('profiles').insert({'id': user.id, 'full_name': fullName});
           }
+        } catch (_) {
+          // Login is already successful. Profile sync can be retried later.
         }
       }
     } on AuthException catch (e) {
