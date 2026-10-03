@@ -110,7 +110,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         password: password,
       );
       return true;
-    } on AuthException catch (e) {
+    } on AuthException {
       _message('Current password is incorrect.');
       return false;
     } catch (_) {

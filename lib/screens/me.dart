@@ -17,10 +17,8 @@ class MeScreen extends StatefulWidget{
 
 class _MeScreenState extends State<MeScreen>{
  final sb=Supabase.instance.client;
- final _name=TextEditingController(),_phone=TextEditingController(),_email=TextEditingController(),_pass=TextEditingController();
  Map<String,dynamic>? _profile;
- bool _busy=false;
- int _unread=0,_trips=0,_saved=0,_reviews=0;
+ int _trips=0,_saved=0,_reviews=0;
 
  @override void initState(){super.initState();_loadProfile();}
 
@@ -29,50 +27,19 @@ class _MeScreenState extends State<MeScreen>{
   if(u==null)return;
   try {
     final p=await sb.from('profiles').select().eq('id',u.id).maybeSingle();
-    final n=await sb.from('notifications').select('id').eq('user_id',u.id).eq('is_read',false);
     final s=await sb.from('saved_places').select('id').eq('user_id',u.id);
     final rv=await sb.from('reviews').select('id').eq('user_id',u.id);
     final b=await sb.from('bookings').select('id').eq('user_id',u.id);
     final rr=await sb.from('reservations').select('id').eq('user_id',u.id);
-    if(mounted)setState(() {
-      _profile=p==null?null:Map<String,dynamic>.from(p);
-      _name.text=p?['full_name']??'';
-      _phone.text=p?['phone']??'';
-      _email.text=u.email??'';
-      _unread=n.length;
-      _saved=s.length;
-      _reviews=rv.length;
-      _trips=b.length+rr.length;
-    });
+    if(mounted) {
+      setState(() {
+        _profile=p==null?null:Map<String,dynamic>.from(p);
+        _saved=s.length;
+        _reviews=rv.length;
+        _trips=b.length+rr.length;
+      });
+    }
   } catch(_) {}
- }
-
- void _snack(String m){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(m)));}
-
- Future<void> _signIn()async{
-   setState(()=>_busy=true);
-   try{
-     await sb.auth.signInWithPassword(email:_email.text.trim(),password:_pass.text);
-     await _loadProfile();
-   }on AuthException catch(e){_snack(e.message);}
-   finally{if(mounted)setState(()=>_busy=false);}
- }
-
- Future<void> _signUp()async{
-   final n=_name.text.trim(),e=_email.text.trim(),p=_pass.text;
-   if(n.isEmpty||!e.contains('@')||p.length<6){
-     _snack('Enter your name, a valid email and a password of at least 6 characters.');
-     return;
-   }
-   setState(()=>_busy=true);
-   try{
-     final res=await sb.auth.signUp(email:e,password:p);
-     if(res.user==null){_snack('Sign up failed.');return;}
-     if(res.session==null){_snack('Account created. Check your email to confirm.');return;}
-     await sb.from('profiles').upsert({'id':res.user!.id,'full_name':n});
-     await _loadProfile();
-   }on AuthException catch(e){_snack(e.message);}
-   finally{if(mounted)setState(()=>_busy=false);}
  }
 
  void _open(Widget page) {
@@ -95,8 +62,6 @@ class _MeScreenState extends State<MeScreen>{
    );
    if(ok==true)await sb.auth.signOut();
  }
-
- @override void dispose(){_name.dispose();_phone.dispose();_email.dispose();_pass.dispose();super.dispose();}
 
  @override Widget build(BuildContext context){
    final u=sb.auth.currentUser;
