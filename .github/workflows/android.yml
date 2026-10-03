@@ -102,7 +102,7 @@ jobs:
           set -euo pipefail
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           ZIPALIGN="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -n 1)"
-          "$ZIPALIGN" -c -v build/app/outputs/flutter-apk/app-release.apk
+          "$ZIPALIGN" -c -v 4 build/app/outputs/flutter-apk/app-release.apk
           "$APKSIGNER" verify --verbose build/app/outputs/flutter-apk/app-release.apk
 
       - uses: actions/upload-artifact@v4
