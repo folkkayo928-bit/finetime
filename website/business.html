@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="wrap">
-<header class="top"><a class="brand" href="./">FINETIME</a><a href="../">Open FineTime App →</a></header>
+<header class="top"><a class="brand" href="./">FINETIME</a><a href="/finetime/">Open FineTime App →</a></header>
 <main id="root">
   <section class="hero">
     <div class="empty">Loading business profile…</div>
@@ -99,7 +99,7 @@ function render(){
  '<div class="actions"><a class="btn primary" href="menu.html?id='+encodeURIComponent(id)+'">Digital Menu</a>'+
  '<a class="btn" href="'+(B.phone?'tel:'+esc(B.phone):'#')+'">Call</a>'+
  '<a class="btn" target="_blank" rel="noopener" href="'+(B.lat!=null&&B.lng!=null?'https://maps.google.com/?q='+encodeURIComponent(B.lat+','+B.lng):'#')+'">Directions</a>'+
- '<a class="btn" href="../">Open App</a></div>'+panel()+'</section>';
+ '<a class="btn" href="/finetime/">Open App</a></div>'+panel()+'</section>';
  bottom.innerHTML=(B.phone?'<a class="btn" href="tel:'+esc(B.phone)+'">☎ Call</a>':'')+
  (B.lat!=null&&B.lng!=null?'<a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q='+encodeURIComponent(B.lat+','+B.lng)+'">⌖ Directions</a>':'')+
  '<a class="btn primary" href="'+(B.category==='hotel'?'#':'menu.html?id='+encodeURIComponent(id))+'">'+(B.category==='hotel'?'Book':'Order')+'</a>';
