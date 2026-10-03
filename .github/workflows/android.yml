@@ -111,7 +111,7 @@ EOF
           "$ZIPALIGN" -c -v 4 "$APK"
           "$APKSIGNER" verify --verbose --print-certs "$APK"
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
-          "$AAPT" dump badging "$APK" | grep -E "package: name='com\.finetime'|sdkVersion:|targetSdkVersion:"
+          "$AAPT" dump badging "$APK" | grep -E "package: name='com\.finetime\.finetime'|sdkVersion:|targetSdkVersion:"
           test -s "$APK"
 
       - uses: actions/upload-artifact@v4
