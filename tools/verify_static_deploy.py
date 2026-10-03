@@ -13,7 +13,7 @@ for p in required:
         t=(root/p).read_text(encoding="utf-8")
         if "__SUPABASE_URL__" in t or "__SUPABASE_ANON_KEY__" in t: bad.append("unresolved config: "+p)
         if p in ("index.html","finetime/index.html") and "flutter_bootstrap.js" not in t: bad.append("Flutter bootstrap script missing from "+p)
-        if p == "website/index.html" and 'href="../"' not in t: bad.append("public website has no Launch/Open App root link")
+        if p == "website/index.html" and not re.search(r'href="(?:/finetime/|\.\./)"', t): bad.append("public website has no Launch/Open App root link")
         if p in ("flutter_bootstrap.js","finetime/flutter_bootstrap.js") and "serviceWorkerSettings" in t: bad.append("legacy Flutter service worker bootstrap still enabled: "+p)
         if "SUPABASE_SERVICE_ROLE_KEY" in t or "FINETIME_TELEGRAM_BOT_TOKEN" in t: bad.append("private secret reference: "+p)
         if "cdn.jsdelivr.net/npm/@supabase/supabase-js" in t or "window.supabase" in t: bad.append("browser Supabase SDK dependency: "+p)
