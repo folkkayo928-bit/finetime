@@ -7,7 +7,27 @@ class MeScreen extends StatefulWidget{const MeScreen({super.key});@override Stat
 class _MeScreenState extends State<MeScreen>{
  final sb=Supabase.instance.client;final _name=TextEditingController(),_phone=TextEditingController(),_email=TextEditingController(),_pass=TextEditingController();Map<String,dynamic>? _profile;bool _busy=false;int _unread=0,_trips=0,_saved=0,_reviews=0;
  @override void initState(){super.initState();_loadProfile();}
- Future<void> _loadProfile()async{final u=sb.auth.currentUser;if(u==null)return;try{final r=await Future.wait([sb.from('profiles').select().eq('id',u.id).maybeSingle(),sb.from('notifications').select('id').eq('user_id',u.id).eq('is_read',false),sb.from('saved_places').select('id').eq('user_id',u.id),sb.from('reviews').select('id').eq('user_id',u.id),sb.from('bookings').select('id').eq('user_id',u.id),sb.from('reservations').select('id').eq('user_id',u.id)]);final p=r[0] as Map?;if(mounted)setState((){_profile=p==null?null:Map<String,dynamic>.from(p);_name.text=p?['full_name']??'';_phone.text=p?['phone']??'';_unread=(r[1] as List).length;_saved=(r[2] as List).length;_reviews=(r[3] as List).length;_trips=(r[4] as List).length+(r[5] as List).length;});}catch(_){}}
+ Future<void> _loadProfile() async {
+  final u=sb.auth.currentUser;
+  if(u==null)return;
+  try {
+    final p=await sb.from('profiles').select().eq('id',u.id).maybeSingle();
+    final n=await sb.from('notifications').select('id').eq('user_id',u.id).eq('is_read',false);
+    final s=await sb.from('saved_places').select('id').eq('user_id',u.id);
+    final rv=await sb.from('reviews').select('id').eq('user_id',u.id);
+    final b=await sb.from('bookings').select('id').eq('user_id',u.id);
+    final rr=await sb.from('reservations').select('id').eq('user_id',u.id);
+    if(mounted)setState(() {
+      _profile=p==null?null:Map<String,dynamic>.from(p);
+      _name.text=p?['full_name']??'';
+      _phone.text=p?['phone']??'';
+      _unread=n.length;
+      _saved=s.length;
+      _reviews=rv.length;
+      _trips=b.length+rr.length;
+    });
+  } catch(_) {}
+ }
  void _snack(String m){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(m)));}
  Future<void> _signIn()async{setState(()=>_busy=true);try{await sb.auth.signInWithPassword(email:_email.text.trim(),password:_pass.text);await _loadProfile();}on AuthException catch(e){_snack(e.message);}finally{if(mounted)setState(()=>_busy=false);}}
  Future<void> _signUp()async{final n=_name.text.trim(),e=_email.text.trim(),p=_pass.text;if(n.isEmpty||!e.contains('@')||p.length<6){_snack('Enter your name, a valid email and a password of at least 6 characters.');return;}setState(()=>_busy=true);try{final res=await sb.auth.signUp(email:e,password:p);if(res.user==null){_snack('Sign up failed.');return;}if(res.session==null){_snack('Account created. Check your email to confirm.');return;}await sb.from('profiles').upsert({'id':res.user!.id,'full_name':n});await _loadProfile();}on AuthException catch(e){_snack(e.message);}finally{if(mounted)setState(()=>_busy=false);}}
