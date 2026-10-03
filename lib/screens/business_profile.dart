@@ -47,6 +47,14 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     if (value is List) {
       return value.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
     }
+    if (value is String && value.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) {
+          return decoded.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+        }
+      } catch (_) {}
+    }
     return const [];
   }
 
@@ -287,20 +295,33 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   Widget image(String? url, {double height = 180, double? width}) {
     final value = url?.trim() ?? '';
-    if (value.isEmpty) {
-      return Container(
-        height: height, width: width,
-        decoration: BoxDecoration(color: const Color(0xFF1B1B1B), borderRadius: BorderRadius.circular(18)),
-        child: const Icon(Icons.image_outlined, color: Colors.white24, size: 42),
-      );
-    }
+    Widget fallback() => Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF25383B), Color(0xFF101617)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: const Center(child: Icon(Icons.hotel_outlined, color: Colors.white24, size: 42)),
+    );
+    if (value.isEmpty) return fallback();
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
-      child: Image.network(value, height: height, width: width, fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          height: height, width: width, color: const Color(0xFF1B1B1B),
-          child: const Icon(Icons.image_outlined, color: Colors.white24, size: 42),
-        ),
+      child: Image.network(
+        value,
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.medium,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return fallback();
+        },
+        errorBuilder: (_, __, ___) => fallback(),
       ),
     );
   }
@@ -878,6 +899,9 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   Widget _profileHero(Map<String, dynamic> business, double? average) {
     final cover = business['cover_url']?.toString().trim() ?? '';
+    final gallery = strings(business['gallery_urls']);
+    final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : '');
+    final name = (business['name'] ?? 'FineTime place').toString();
     final place = [
       city(),
       if ((business['address'] ?? '').toString().trim().isNotEmpty) business['address'].toString().trim(),
@@ -885,7 +909,29 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     return SizedBox(
       height: 420,
       child: Stack(fit: StackFit.expand, children: [
-        image(cover, height: 420, width: double.infinity),
+        if (heroUrl.isNotEmpty)
+          image(heroUrl, height: 420, width: double.infinity)
+        else
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF30474A), Color(0xFF090B0C)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                name.isEmpty ? 'F' : name.trim()[0].toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white10,
+                  fontSize: 150,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'serif',
+                ),
+              ),
+            ),
+          ),
         Positioned.fill(child: IgnorePointer(child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
