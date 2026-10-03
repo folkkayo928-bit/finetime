@@ -611,7 +611,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('Verified guest', style: TextStyle(color: FT.ivory, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            Text('★ ${rating.toStringAsFixed(1)}, style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
+            Text('★ ${rating.toStringAsFixed(1)}', style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
           ])),
           if (date.isNotEmpty) Text(date, style: const TextStyle(color: Colors.white54, fontSize: 11)),
         ]),
@@ -829,7 +829,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               style: const TextStyle(color: FT.ivory, fontSize: 58, height: .95,
                 fontWeight: FontWeight.w500, fontFamily: 'serif')),
             const SizedBox(height: 10),
-            Text('★ ${average.toStringAsFixed(1)},
+            Text('★ ${average.toStringAsFixed(1)}',
               style: const TextStyle(color: FT.gold, fontWeight: FontWeight.w700)),
             const SizedBox(height: 18),
             Text('${reviews.length} verified review${reviews.length == 1 ? '' : 's'}',
