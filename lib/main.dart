@@ -22,13 +22,22 @@ Future<void> main() async {
     return;
   }
 
-  await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
-  runApp(const FineTimeApp());
+  try {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      publishableKey: supabaseAnonKey,
+    );
+    ErrorWidget.builder = (details) => const _RuntimeErrorScreen();
+    runApp(const FineTimeApp());
+  } catch (error) {
+    runApp(FineTimeApp(startupError: error.toString()));
+  }
 }
 
 class FineTimeApp extends StatelessWidget {
   final bool configurationError;
-  const FineTimeApp({super.key, this.configurationError = false});
+  final String? startupError;
+  const FineTimeApp({super.key, this.configurationError = false, this.startupError});
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -37,7 +46,9 @@ class FineTimeApp extends StatelessWidget {
         theme: FT.theme(),
         home: configurationError
             ? const _ConfigurationErrorScreen()
-            : const FineTimeUpdateGate(child: AuthGate()),
+            : startupError != null
+                ? _StartupErrorScreen(message: startupError!)
+                : const FineTimeUpdateGate(child: AuthGate()),
       );
 }
 
@@ -54,6 +65,89 @@ class AuthGate extends StatelessWidget {
           }
           return const WelcomeScreen();
         },
+      );
+}
+
+class _StartupErrorScreen extends StatelessWidget {
+  final String message;
+  const _StartupErrorScreen({required this.message});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: FT.charcoal,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('FINETIME',
+                    style: TextStyle(
+                        color: FT.gold,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 3)),
+                const SizedBox(height: 16),
+                const Text('FineTime could not start.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: FT.ivory,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+                const Text(
+                  'The connection setup failed before the app loaded. Please refresh and try again.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, height: 1.4),
+                ),
+                const SizedBox(height: 18),
+                SelectableText(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white38, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+class _RuntimeErrorScreen extends StatelessWidget {
+  const _RuntimeErrorScreen();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: FT.charcoal,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('FINETIME',
+                    style: TextStyle(
+                        color: FT.gold,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 3)),
+                const SizedBox(height: 16),
+                const Text('Something went wrong while loading this screen.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: FT.ivory,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+                const Text(
+                  'Please refresh the page. Your FineTime account and data have not been changed.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
 }
 
