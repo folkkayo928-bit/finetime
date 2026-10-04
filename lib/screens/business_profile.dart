@@ -44,8 +44,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   @override
   void initState() {
     super.initState();
-    if (initialBusiness != null) {
-      b = Map<String, dynamic>.from(initialBusiness!);
+    if (widget.initialBusiness != null) {
+      b = Map<String, dynamic>.from(widget.initialBusiness!);
     }
     load();
     checkSaved();
@@ -152,19 +152,11 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
   }
 
-  Future<dynamic> _safeOptional(Future<dynamic> request) async {
-    try {
-      return await request.timeout(const Duration(seconds: 8));
-    } catch (_) {
-      return <dynamic>[];
-    }
-  }
-
   Future<void> load() async {
     try {
-      Map<String, dynamic>? business = initialBusiness == null
+      Map<String, dynamic>? business = widget.initialBusiness == null
           ? null
-          : Map<String, dynamic>.from(initialBusiness!);
+          : Map<String, dynamic>.from(widget.initialBusiness!);
 
       // When a list/search screen already has the business row, render that
       // data immediately and only fetch the richer profile in the background.
@@ -988,12 +980,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   Widget _profileHero(Map<String, dynamic> business, double? average) {
     final cover = business['cover_url']?.toString().trim() ?? '';
     final gallery = strings(business['gallery_urls']);
-    final category = (business['category'] ?? '').toString().toLowerCase();
-    final fallbackHero = category == 'restaurant'
-        ? 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=85'
-        : category == 'cafe'
-            ? 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1400&q=85'
-            : 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85';
     final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : '');
     final name = (business['name'] ?? 'FineTime place').toString();
     final place = [
