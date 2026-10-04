@@ -643,9 +643,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   );
 
   Widget _glanceCard(IconData icon, String label) {
-    return Expanded(
-      child: Container(
-        height: 105,
+    return Container(
+      height: 105,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
         decoration: BoxDecoration(
           color: const Color(0xFF101416),
@@ -658,8 +657,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           Text(label, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.white70, fontSize: 11.5)),
         ]),
-      ),
-    );
+      );
   }
 
   Widget _highlightCard(String value, int index) {
@@ -789,9 +787,11 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           )),
         const SizedBox(height: 34),
         _sectionHeading('At a glance'),
-        Row(children: List.generate(3, (i) => Padding(
-          padding: EdgeInsets.only(right: i == 2 ? 0 : 10),
-          child: _glanceCard(glance[i]['icon'] as IconData, glance[i]['label'].toString()),
+        Row(children: List.generate(3, (i) => Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: i == 2 ? 0 : 10),
+            child: _glanceCard(glance[i]['icon'] as IconData, glance[i]['label'].toString()),
+          ),
         ))),
         const SizedBox(height: 34),
         _sectionHeading('Why FineTime loves it'),
@@ -988,11 +988,11 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     ].where((e) => e.isNotEmpty).join(', ');
     return SizedBox(
       height: 420,
-      child: Stack(fit: StackFit.expand, children: [
-        if (heroUrl.isNotEmpty)
-          image(heroUrl, height: 420, width: double.infinity)
-        else
-          Container(
+      child: Stack(children: [
+        Positioned.fill(
+          child: heroUrl.isNotEmpty
+            ? image(heroUrl, height: 420, width: double.infinity)
+            : Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF30474A), Color(0xFF090B0C)],
@@ -1012,6 +1012,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               ),
             ),
           ),
+        ),
         Positioned.fill(child: IgnorePointer(child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1024,16 +1025,19 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             ),
           ),
         ))),
-        SafeArea(bottom: false, child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-          child: Row(children: [
+        Positioned(
+          top: 0, left: 0, right: 0,
+          child: SafeArea(bottom: false, child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+            child: Row(children: [
             _heroIconButton(Icons.arrow_back_ios_new_rounded, () => Navigator.pop(context)),
             const Spacer(),
             if (hasFood) _heroIconButton(Icons.qr_code_2_rounded, showQr),
             const SizedBox(width: 10),
             _heroIconButton(saved ? Icons.favorite_rounded : Icons.favorite_border_rounded, toggleSave, active: saved),
-          ]),
-        )),
+            ]),
+          )),
+        ),
         Positioned(
           left: 24, right: 24, bottom: 24,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
