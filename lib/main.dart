@@ -19,37 +19,36 @@ Future<void> main() async {
 
   ErrorWidget.builder = (details) => const _RuntimeErrorScreen();
 
-  // Render something immediately so a slow web/local-storage initialization
-  // can never leave users staring at a completely white page.
-  runApp(const FineTimeApp(booting: true));
+  // Start Supabase in the background. The first Flutter frame is shown
+  // immediately instead of waiting for initialization to finish.
+  final startupFuture = _initializeSupabase();
+  runApp(FineTimeApp(startupFuture: startupFuture));
+}
 
+Future<void> _initializeSupabase() async {
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
-    runApp(const FineTimeApp(configurationError: true));
-    return;
+    throw const _ConfigurationException();
   }
 
-  try {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      publishableKey: supabaseAnonKey,
-    ).timeout(const Duration(seconds: 15));
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabaseAnonKey,
+  ).timeout(const Duration(seconds: 8));
+}
 
-    runApp(const FineTimeApp());
-  } catch (error) {
-    runApp(FineTimeApp(startupError: error.toString()));
-  }
+class _ConfigurationException implements Exception {
+  const _ConfigurationException();
+
+  @override
+  String toString() => 'Supabase configuration is missing.';
 }
 
 class FineTimeApp extends StatelessWidget {
-  final bool booting;
-  final bool configurationError;
-  final String? startupError;
+  final Future<void> startupFuture;
 
   const FineTimeApp({
     super.key,
-    this.booting = false,
-    this.configurationError = false,
-    this.startupError,
+    required this.startupFuture,
   });
 
   @override
@@ -57,13 +56,24 @@ class FineTimeApp extends StatelessWidget {
         title: 'FineTime',
         debugShowCheckedModeBanner: false,
         theme: FT.theme(),
-        home: booting
-            ? const _BootScreen()
-            : configurationError
-                ? const _ConfigurationErrorScreen()
-                : startupError != null
-                    ? _StartupErrorScreen(message: startupError!)
-                    : const FineTimeUpdateGate(child: AuthGate()),
+        home: FutureBuilder<void>(
+          future: startupFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              // Show the real first screen while Supabase finishes its
+              // local session setup. This removes the blocking spinner.
+              return const WelcomeScreen();
+            }
+            if (snapshot.hasError) {
+              final error = snapshot.error;
+              if (error is _ConfigurationException) {
+                return const _ConfigurationErrorScreen();
+              }
+              return _StartupErrorScreen(message: error.toString());
+            }
+            return const FineTimeUpdateGate(child: AuthGate());
+          },
+        ),
       );
 }
 
@@ -80,50 +90,6 @@ class AuthGate extends StatelessWidget {
           }
           return const WelcomeScreen();
         },
-      );
-}
-
-class _BootScreen extends StatelessWidget {
-  const _BootScreen();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: FT.charcoal,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'FINETIME',
-                  style: TextStyle(
-                    color: FT.gold,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 3,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(strokeWidth: 2.5),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Starting FineTime…',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: FT.ivory,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       );
 }
 
