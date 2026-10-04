@@ -37,7 +37,17 @@ const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKE
 const id=new URLSearchParams(location.search).get('id'), H={apikey:K,Authorization:'Bearer '+K};
 let B={},ROOMS=[],CATS=[],PROMOS=[],REVIEWS=[],tab='about';
 const root=document.getElementById('root'),bottom=document.getElementById('bottomActions');
-async function get(path){const r=await fetch(U+'/rest/v1/'+path,{headers:H,cache:'no-store'});if(!r.ok)throw new Error('Request failed');return r.json()}
+async function get(path,timeoutMs=9000){
+ const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),timeoutMs);
+ try{
+  const r=await fetch(U+'/rest/v1/'+path,{headers:H,cache:'no-store',signal:ctl.signal});
+  if(!r.ok)throw new Error('Request failed');
+  return await r.json();
+ }finally{clearTimeout(timer)}
+}
+async function safeGet(path,fallback){
+ try{return await get(path)}catch(_){return fallback}
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function arr(v){return Array.isArray(v)?v.filter(x=>String(x??'').trim()).map(x=>String(x).trim()):[]}
 function avg(){if(!REVIEWS.length)return null;return (REVIEWS.reduce((s,r)=>s+Number(r.rating||0),0)/REVIEWS.length).toFixed(1)}
@@ -107,16 +117,28 @@ function render(){
 async function load(){
  if(!id){location.href='./';return}
  try{
-  const [biz,roomsData,cats,promos,reviewsData]=await Promise.all([
-   get('businesses?select=*,cities(name)&id=eq.'+encodeURIComponent(id)+'&is_published=eq.true'),
-   get('room_types?select=*&business_id=eq.'+encodeURIComponent(id)),
-   get('menu_categories?select=*,menu_items(*)&business_id=eq.'+encodeURIComponent(id)+'&order=sort_order'),
-   get('promotions?select=*&business_id=eq.'+encodeURIComponent(id)+'&status=eq.active&order=starts_on'),
-   get('reviews?select=rating,body,created_at&business_id=eq.'+encodeURIComponent(id)+'&order=created_at.desc')
-  ]);
+  // Render the critical business row first. Do not make rooms, menus,
+  // promotions, reviews, or the city relationship block the profile.
+  const biz=await get('businesses?select=*&id=eq.'+encodeURIComponent(id)+'&is_published=eq.true');
   if(!biz.length){root.innerHTML='<div class="empty">This business profile is not available.</div>';return}
-  B=biz[0];ROOMS=roomsData;CATS=cats;PROMOS=promos;REVIEWS=reviewsData;document.title=B.name+' — FineTime';render();
- }catch(e){root.innerHTML='<div class="empty"><h2>Unable to load this profile</h2><p>Please refresh and try again.</p></div>'}
+  B=biz[0];
+  document.title=B.name+' — FineTime';
+  render();
+
+  const cityId=B.city_id;
+  const [city,roomsData,cats,promos,reviewsData]=await Promise.all([
+   cityId?safeGet('cities?select=name&id=eq.'+encodeURIComponent(cityId),[]):Promise.resolve([]),
+   safeGet('room_types?select=*&business_id=eq.'+encodeURIComponent(id),[]),
+   safeGet('menu_categories?select=*,menu_items(*)&business_id=eq.'+encodeURIComponent(id)+'&order=sort_order',[]),
+   safeGet('promotions?select=*&business_id=eq.'+encodeURIComponent(id)+'&status=eq.active&order=starts_on',[]),
+   safeGet('reviews?select=rating,body,created_at&business_id=eq.'+encodeURIComponent(id)+'&order=created_at.desc',[])
+  ]);
+  B.cities=city[0]||null;
+  ROOMS=roomsData;CATS=cats;PROMOS=promos;REVIEWS=reviewsData;
+  render();
+ }catch(e){
+  root.innerHTML='<div class="empty"><h2>Unable to load this profile</h2><p>Please refresh and try again.</p></div>';
+ }
 }
 load();
 </script>
