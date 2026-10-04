@@ -164,7 +164,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => BusinessProfileScreen(
-                                      businessId: b['id'],
+                                      businessId: b['id'].toString(),
+                                      initialBusiness: Map<String, dynamic>.from(b),
                                     ),
                                   ),
                                 ),
