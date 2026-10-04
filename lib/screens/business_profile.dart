@@ -14,7 +14,13 @@ import 'review.dart';
 
 class BusinessProfileScreen extends StatefulWidget {
   final String businessId;
-  const BusinessProfileScreen({super.key, required this.businessId});
+  final Map<String, dynamic>? initialBusiness;
+
+  const BusinessProfileScreen({
+    super.key,
+    required this.businessId,
+    this.initialBusiness,
+  });
 
   @override
   State<BusinessProfileScreen> createState() => _BusinessProfileScreenState();
@@ -38,9 +44,11 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   @override
   void initState() {
     super.initState();
+    if (initialBusiness != null) {
+      b = Map<String, dynamic>.from(initialBusiness!);
+    }
     load();
     checkSaved();
-    _subscribeToUpdates();
   }
 
   List<String> strings(dynamic value) {
@@ -144,46 +152,77 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
   }
 
+  Future<dynamic> _safeOptional(Future<dynamic> request) async {
+    try {
+      return await request.timeout(const Duration(seconds: 8));
+    } catch (_) {
+      return <dynamic>[];
+    }
+  }
+
   Future<void> load() async {
     try {
-      // Load only the critical business row first. Avoid a nested city
-      // relationship here so a secondary relation can never block the page.
-      final business = await sb.from('businesses')
-          .select('*')
-          .eq('id', widget.businessId)
-          .eq('is_published', true)
-          .maybeSingle()
-          .timeout(const Duration(seconds: 10));
+      Map<String, dynamic>? business = initialBusiness == null
+          ? null
+          : Map<String, dynamic>.from(initialBusiness!);
 
+      // When a list/search screen already has the business row, render that
+      // data immediately and only fetch the richer profile in the background.
       if (business == null) {
-        if (mounted) setState(() => error = 'This business is not available.');
-        return;
-      }
-
-      if (mounted) {
-        setState(() {
-          b = Map<String, dynamic>.from(business);
-          error = null;
-        });
+        final row = await sb.from('businesses')
+            .select('*')
+            .eq('id', widget.businessId)
+            .eq('is_published', true)
+            .maybeSingle()
+            .timeout(const Duration(seconds: 10));
+        if (row == null) {
+          if (mounted) {
+            setState(() => error = 'This business is not available.');
+          }
+          return;
+        }
+        business = Map<String, dynamic>.from(row);
+        if (mounted) {
+          setState(() {
+            b = business;
+            error = null;
+          });
+        }
       }
 
       final cityId = business['city_id']?.toString();
       final extras = await Future.wait<dynamic>([
         if (cityId != null && cityId.isNotEmpty)
-          _safeOptional(sb.from('cities').select('name').eq('id', cityId).maybeSingle())
+          _safeOptional(
+            sb.from('cities').select('name').eq('id', cityId).maybeSingle(),
+          )
         else
           Future.value(<dynamic>[]),
-        _safeOptional(sb.from('room_types')
-            .select().eq('business_id', widget.businessId).order('name')),
-        _safeOptional(sb.from('menu_categories')
-            .select('*, menu_items(*)').eq('business_id', widget.businessId).order('sort_order')),
-        _safeOptional(sb.from('reviews')
-            .select('rating,body,created_at').eq('business_id', widget.businessId)
-            .order('created_at', ascending: false)),
-        _safeOptional(sb.from('promotions')
-            .select('id,title,description,badge,image_url,terms,starts_on,ends_on,status')
-            .eq('business_id', widget.businessId).eq('status', 'active')
-            .order('starts_on', ascending: true)),
+        _safeOptional(
+          sb.from('room_types')
+              .select()
+              .eq('business_id', widget.businessId)
+              .order('name'),
+        ),
+        _safeOptional(
+          sb.from('menu_categories')
+              .select('*, menu_items(*)')
+              .eq('business_id', widget.businessId)
+              .order('sort_order'),
+        ),
+        _safeOptional(
+          sb.from('reviews')
+              .select('rating,body,created_at')
+              .eq('business_id', widget.businessId)
+              .order('created_at', ascending: false),
+        ),
+        _safeOptional(
+          sb.from('promotions')
+              .select('id,title,description,badge,image_url,terms,starts_on,ends_on,status')
+              .eq('business_id', widget.businessId)
+              .eq('status', 'active')
+              .order('starts_on', ascending: true),
+        ),
       ]);
 
       if (!mounted) return;
@@ -365,7 +404,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         height: height,
         width: width,
         fit: BoxFit.cover,
-        filterQuality: FilterQuality.medium,
+        filterQuality: FilterQuality.low,
         loadingBuilder: (context, child, progress) {
           if (progress == null) return child;
           return fallback();
@@ -955,7 +994,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         : category == 'cafe'
             ? 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1400&q=85'
             : 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85';
-    final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : fallbackHero);
+    final heroUrl = cover.isNotEmpty ? cover : (gallery.isNotEmpty ? gallery.first : '');
     final name = (business['name'] ?? 'FineTime place').toString();
     final place = [
       city(),
