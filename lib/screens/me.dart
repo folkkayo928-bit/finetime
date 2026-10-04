@@ -97,8 +97,14 @@ class _MeScreenState extends State<MeScreen>{
 
    // The profile header intentionally uses the user's full name only.
    // Never fall back to or show the account email under the avatar.
-   final profileName=(_profile?['full_name']??'').toString().trim();
-   final name=profileName.isEmpty?'FineTime member':profileName;
+   final profileName = (_profile?['full_name'] ?? '').toString().trim();
+   final metadataName =
+       (u.userMetadata?['full_name'] ?? u.userMetadata?['name'] ?? '')
+           .toString()
+           .trim();
+   final name = profileName.isNotEmpty
+       ? profileName
+       : (metadataName.isNotEmpty ? metadataName : 'FineTime member');
    final initial=name.trim().isEmpty?'F':name.trim()[0].toUpperCase();
 
    return Scaffold(
