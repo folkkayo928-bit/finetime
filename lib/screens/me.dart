@@ -7,6 +7,8 @@ import 'auth.dart';
 import 'personal_info.dart';
 import 'order_history.dart';
 import 'my_reviews.dart';
+import 'saved.dart';
+import 'trips.dart';
 import 'help_center.dart';
 import 'settings.dart';
 import '../theme.dart';
@@ -173,7 +175,13 @@ class _MeScreenState extends State<MeScreen>{
                borderRadius:BorderRadius.circular(20),
                border:Border.all(color:const Color(0xFF252A2D)),
              ),
-             child:Row(children:[_stat(_trips.toString(),'Trips'),_line(),_stat(_saved.toString(),'Saved'),_line(),_stat(_reviews.toString(),'Reviews')]),
+             child:Row(children:[
+               _stat(_trips.toString(),'Trips',()=>_open(const TripsScreen())),
+               _line(),
+               _stat(_saved.toString(),'Saved',()=>_open(const SavedScreen())),
+               _line(),
+               _stat(_reviews.toString(),'Reviews',()=>_open(const MyReviewsScreen())),
+             ]),
            ),
            const SizedBox(height:28),
            Container(
@@ -250,16 +258,21 @@ class _MeScreenState extends State<MeScreen>{
   ),
 );
 
- Widget _stat(String n,String l)=>Expanded(
-   child:SizedBox(
-     height:95,
-     child:Column(
+ Widget _stat(String n,String l,VoidCallback onTap)=>Expanded(
+   child:InkWell(
+       onTap:onTap,
+       borderRadius:BorderRadius.circular(18),
+       child:SizedBox(
+         height:95,
+         child:Column(
        mainAxisAlignment:MainAxisAlignment.center,
        children:[
          Text(n,style:const TextStyle(color:FT.gold,fontSize:24,fontWeight:FontWeight.w800,fontFamily:'serif')),
          const SizedBox(height:5),
          Text(l,style:const TextStyle(color:FT.muted,fontSize:12)),
        ],
+         ),
+       ),
      ),
    ),
  );
