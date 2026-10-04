@@ -260,18 +260,17 @@ class _MeScreenState extends State<MeScreen>{
 
  Widget _stat(String n,String l,VoidCallback onTap)=>Expanded(
    child:InkWell(
-       onTap:onTap,
-       borderRadius:BorderRadius.circular(18),
-       child:SizedBox(
-         height:95,
-         child:Column(
-       mainAxisAlignment:MainAxisAlignment.center,
-       children:[
-         Text(n,style:const TextStyle(color:FT.gold,fontSize:24,fontWeight:FontWeight.w800,fontFamily:'serif')),
-         const SizedBox(height:5),
-         Text(l,style:const TextStyle(color:FT.muted,fontSize:12)),
-       ],
-         ),
+     onTap:onTap,
+     borderRadius:BorderRadius.circular(18),
+     child:SizedBox(
+       height:95,
+       child:Column(
+         mainAxisAlignment:MainAxisAlignment.center,
+         children:[
+           Text(n,style:const TextStyle(color:FT.gold,fontSize:24,fontWeight:FontWeight.w800,fontFamily:'serif')),
+           const SizedBox(height:5),
+           Text(l,style:const TextStyle(color:FT.muted,fontSize:12)),
+         ],
        ),
      ),
    ),

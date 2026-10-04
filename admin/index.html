@@ -1,4 +1,13 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineTime Admin</title><script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FineTime Executive Admin Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script>
 (function(){
   const STORAGE_KEY='finetime_admin_session_v1';
   function read(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{return null}}
@@ -59,32 +68,32 @@
       for(const [k,op,v] of this.filters){
         qs.set(k,op+'.'+(v===null?'null':String(v)));
       }
-      for(const [k,o] of this.orders) qs.append('order',k+'.'+(o.ascending?'asc':'desc'));
-      if(this.limitValue!=null)qs.set('limit',String(this.limitValue));
-      if(this.upsertValue&&this.onConflict)qs.set('on_conflict',this.onConflict);
-      const sess=await session();
-      if(!sess?.access_token) throw new Error('Your admin session has expired. Please sign in again.');
-      const headers={apikey:K,Authorization:'Bearer '+sess.access_token};
-      if(this.method!=='GET')headers['Content-Type']='application/json';
-      if(this.method!=='GET'&&this.wantReturn)headers.Prefer='return=representation';
-      if(this.upsertValue)headers.Prefer=(headers.Prefer?headers.Prefer+',':'')+'resolution=merge-duplicates,return=representation';
-      const url=U+'/rest/v1/'+encodeURIComponent(this.table)+(qs.toString()?'?'+qs.toString():'');
-      const res=await fetch(url,{method:this.method,headers,body:this.method==='GET'||this.method==='DELETE'?undefined:JSON.stringify(this.body)});
-      const data=await json(res);
-      let out=data;
-      if(this.expect==='single'){
-        if(!Array.isArray(data)||data.length!==1)throw new Error('Expected one '+this.table+' record.');
-        out=data[0];
-      }else if(this.expect==='maybe'){
-        if(!Array.isArray(data))out=data;
-        else if(data.length>1)throw new Error('Expected at most one '+this.table+' record.');
-        else out=data[0]||null;
+      for(const [k,o] of this.orders){
+        qs.append('order',k+'.'+(o.ascending===false?'desc':'asc'));
       }
-      this.result={data:out,error:null}; return this.result;
+      if(this.limitValue!==null) qs.set('limit',String(this.limitValue));
+      let path='/rest/v1/'+encodeURIComponent(this.table);
+      const queryStr=qs.toString();
+      if(queryStr) path+='?'+queryStr;
+      const headers={};
+      if(this.wantReturn && this.method!=='GET') headers['Prefer']='return=representation';
+      if(this.upsertValue && this.onConflict) headers['Prefer']='resolution=merge-duplicates';
+      const opts={method:this.method,headers};
+      if(this.body!==null) opts.body=JSON.stringify(this.body);
+      try{
+        let data=await authFetch(path,opts);
+        if(this.expect==='single') data=Array.isArray(data)?data[0]:data;
+        if(this.expect==='maybe') data=Array.isArray(data)?(data[0]||null):data;
+        this.result={data,error:null};
+      }catch(error){
+        this.result={data:null,error};
+      }
+      return this.result;
     }
-    then(resolve,reject){return this.execute().then(resolve,reject)}
+    then(onFulfill,onReject){return this.execute().then(onFulfill,onReject)}
   }
   function createClient(url,key){
+    globalThis.U=url; globalThis.K=key;
     return {
       auth:{
         async signInWithPassword({email,password}){
@@ -107,312 +116,1422 @@
   }
   globalThis.supabase={createClient};
 })();
-</script><style>body{margin:0;background:#111;color:#f5f1e8;font:15px system-ui}main{max-width:1050px;margin:auto;padding:20px}.brand{color:#c9a227;font-weight:900;letter-spacing:4px;font-size:24px}.card{background:#1b1b1b;border:1px solid #fff1;border-radius:14px;padding:15px;margin:12px 0}.nav{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}button,input,select,textarea{font:inherit;border-radius:9px;padding:10px 11px;box-sizing:border-box}input,select,textarea{width:100%;background:#111;color:#f5f1e8;border:1px solid #fff2}textarea{min-height:110px;resize:vertical}button{border:0;background:#c9a227;color:#111;font-weight:800;cursor:pointer}button.d{background:#8b3525;color:white}button.g{background:transparent;color:#f5f1e8;border:1px solid #fff3}.muted{color:#aaa}.pill{float:right;background:#fff1;padding:4px 7px;border-radius:999px;font-size:12px}.hidden{display:none}.row{display:flex;justify-content:space-between;gap:8px}.item{border-top:1px solid #fff1;padding:12px 0}.error{color:#ffb4a8}.formHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.formSection{background:#151515;border:1px solid #fff2;border-radius:12px;padding:14px;margin:12px 0}.formSection h3{margin:0 0 12px;color:#c9a227}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:13px;color:#ddd}.help{font-size:12px;color:#888}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.formActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #fff2;margin-top:8px}.notice{padding:10px 12px;border-radius:10px;background:#171717;border:1px solid #fff2;margin:10px 0}.notice.ok{border-color:#6ea66e;color:#cfe8cf}.notice.err{border-color:#b85c38;color:#ffd0c2}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:700px){.formGrid{grid-template-columns:1fr}}</style></head><body><main><div class="brand">FINETIME ADMIN</div><p id="status" class="muted">Admin console ready — sign in below.</p><p class="muted">Console version: 2026-10-01g. Uses browser-native Supabase REST/Auth; no third-party SDK is required.</p><section id="login" class="card"><h2>Admin sign in</h2><input id="email" type="email" placeholder="Email"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button onclick="login()">Sign in</button> <button class="g" onclick="forgotPassword()">Forgot password?</button><p id="err" class="error"></p></section><section id="app" class="hidden"><div class="nav"><button onclick="businesses()">Businesses</button><button onclick="heroHeader()">Home Design</button><button onclick="codes()">Activation Codes</button><button onclick="news()">News</button><button onclick="modules()">Site Modules</button><button onclick="audit()">Audit</button><button onclick="security()">Security</button><button class="g" onclick="logout()">Sign out</button></div><div id="view"></div></section></main><script>
-const U='https://atewcbkuzrnfnmzsylze.supabase.co',K='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG',s=supabase.createClient(U,K),view=document.getElementById('view');const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
-async function login(){const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),errEl=document.getElementById('err'),statusEl=document.getElementById('status'),button=document.querySelector('#login button');errEl.textContent='';const emailValue=emailEl.value.trim(),passwordValue=passEl.value;if(!emailValue||!passwordValue){errEl.textContent='Enter both your email and password.';return}if(button){button.disabled=true;button.textContent='Signing in…'}statusEl.textContent='Signing in…';try{const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');if(r.error){errEl.textContent=r.error.message;statusEl.textContent='Sign-in failed.';return}statusEl.textContent='Signed in. Checking admin access…';await boot()}catch(e){errEl.textContent=e.message||'Sign-in failed. Please try again.';statusEl.textContent='Sign-in failed.'}finally{if(button){button.disabled=false;button.textContent='Sign in'}}}
-async function logout(){await s.auth.signOut();location.reload()}
-async function forgotPassword(){const email=document.getElementById('email').value.trim();if(!email)return alert('Enter your admin email first.');const productionRedirect='https://finetime.folkkayo928.workers.dev/';const r=await s.auth.resetPasswordForEmail(email,{redirectTo:productionRedirect});if(r.error)alert(r.error.message);else alert('If that email belongs to an account, a password reset email has been sent. Follow the link to return here and complete the reset with your Admin Security PIN.')}
-async function verifyPinValue(pin){
- const value=String(pin||'').trim();
- if(!value)throw new Error('PIN cannot be empty.');
- const r=await s.rpc('verify_admin_security_pin',{p_pin:value});
- if(r.error)throw r.error;
- if(r.data!==true)throw new Error('Incorrect PIN or the PIN is temporarily locked.');
- return true;
+</script>
+<style>
+:root{
+  --bg:#0A0B0E;
+  --surface:#11151D;
+  --surface-card:#161B26;
+  --surface-hover:#1D2330;
+  --gold:#D4AF37;
+  --gold-light:#F5D77F;
+  --gold-dark:#AA8010;
+  --gold-glow:rgba(212,175,55,0.18);
+  --gold-border:rgba(212,175,55,0.28);
+  --emerald:#10B981;
+  --emerald-bg:rgba(16,185,129,0.12);
+  --emerald-border:rgba(16,185,129,0.3);
+  --rose:#F43F5E;
+  --rose-bg:rgba(244,63,94,0.12);
+  --rose-border:rgba(244,63,94,0.3);
+  --text:#F7F5F0;
+  --text-muted:#9EA6B5;
+  --text-dim:#6B7485;
+  --border:rgba(255,255,255,0.08);
+  --radius-sm:8px;
+  --radius-md:14px;
+  --radius-lg:20px;
+  --max-w:1120px;
 }
-function securityMessage(message,ok=false){
- const el=document.getElementById('securityMessage');
- if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>';
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
 }
-function security(){
- view.innerHTML='<div class="formHead"><div><h2>Admin Security</h2><p class="muted">All security changes use visible forms. No browser prompts. Your PIN is checked server-side and never stored in this page.</p></div><button class="g" type="button" id="securityBack">Back to Businesses</button></div>'+
- '<div id="securityMessage"></div>'+
- '<section class="formSection"><h3>Admin Security PIN</h3><form id="pinForm"><div class="formGrid">'+
- '<div class="field"><label>New PIN *</label><input name="pin" type="password" autocomplete="new-password" required placeholder="Enter any PIN"><span class="help">Any non-empty PIN is accepted. Saving a new PIN replaces the current PIN.</span></div>'+
- '<div class="field"><label>Confirm new PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" required placeholder="Repeat the PIN"></div>'+
- '</div><div class="formActions"><button type="submit">Save PIN</button></div></form></section>'+
- '<section class="formSection"><h3>Change password</h3><p class="help">Enter the Admin Security PIN before changing the password. If you are completing a password-recovery link, the current password is not required.</p>'+
- '<form id="passwordForm"><div class="formGrid">'+
- '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter your PIN"></div>'+
- '<div class="field"><label>Current password <span class="help">(only for normal change)</span></label><input name="current" type="password" autocomplete="current-password" placeholder="Current password"></div>'+
- '<div class="field"><label>New password *</label><input name="password" type="password" autocomplete="new-password" required placeholder="Enter any password"></div>'+
- '<div class="field"><label>Confirm new password *</label><input name="confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repeat new password"></div>'+
- '</div><div class="formActions"><button type="submit">Save new password</button></div></form></section>'+
- '<section class="formSection"><h3>Change email</h3><p class="help">Enter the Admin Security PIN and the new admin email. Supabase may still require email confirmation depending on your Auth settings.</p>'+
- '<form id="emailForm"><div class="formGrid">'+
- '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter your PIN"></div>'+
- '<div class="field"><label>New email *</label><input name="email" type="email" autocomplete="email" required placeholder="admin@example.com"></div>'+
- '</div><div class="formActions"><button type="submit">Save new email</button></div></form></section>';
- document.getElementById('securityBack')?.addEventListener('click',businesses);
- document.getElementById('pinForm')?.addEventListener('submit',saveSecurityPin);
- document.getElementById('passwordForm')?.addEventListener('submit',savePasswordForm);
- document.getElementById('emailForm')?.addEventListener('submit',saveEmailForm);
- if((location.hash||'').includes('access_token='))securityMessage('Password recovery session detected. Set a new password below; the current password can be left blank.',true);
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;box-sizing:border-box}
+
+/* Top App Bar */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:900;
+  background:rgba(10,11,14,0.88);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
 }
-async function saveSecurityPin(event){
- event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),confirmPin=String(fd.get('confirm')||'');
- if(!pin.trim())return securityMessage('PIN cannot be empty.');
- if(pin!==confirmPin)return securityMessage('PIN confirmation does not match.');
- const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
- try{const r=await s.rpc('set_admin_security_pin',{p_pin:pin});if(r.error)throw r.error;form.reset();securityMessage('Admin Security PIN saved successfully.',true)}catch(e){securityMessage(e.message||'Could not save the PIN.')}finally{if(button){button.disabled=false;button.textContent='Save PIN'}}
+.topbar-wrap{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
 }
-async function savePasswordForm(event){
- event.preventDefault();
- const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
- if(!pin.trim())return securityMessage('PIN cannot be empty.');
- if(!password)return securityMessage('Password cannot be empty.');
- if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
- const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
- try{
-   await verifyPinValue(pin);
-   const r=await s.auth.updateUser({password});
-   if(r.error)throw r.error;
-   form.reset();securityMessage('Password updated successfully.',true);
-   if((location.hash||'').includes('access_token='))history.replaceState(null,'',location.pathname+location.search);
- }catch(e){securityMessage(e.message||'Could not update the password.')}
- finally{if(button){button.disabled=false;button.textContent='Save new password'}}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
-async function saveEmailForm(event){
- event.preventDefault();const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),email=String(fd.get('email')||'').trim();
- if(!/^\\S+@\\S+\\.\\S+$/.test(email))return securityMessage('Enter a valid email address.');
- const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Saving…'}
- try{await verifyPinValue(pin);const r=await s.auth.updateUser({email});if(r.error)throw r.error;form.reset();securityMessage('Email change submitted successfully. Check the required confirmation email if Supabase Auth requests one.',true)}catch(e){securityMessage(e.message||'Could not update the email.')}finally{if(button){button.disabled=false;button.textContent='Save new email'}}
+.brand-icon{
+  width:32px;
+  height:32px;
+  border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:var(--bg);
+  font-weight:900;
+  font-size:15px;
+  display:grid;
+  place-items:center;
+  box-shadow:0 4px 12px var(--gold-glow);
 }
-async function withTimeout(p,label='Request'){return await Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' timed out. Check your connection and try again.')),10000))])}
-async function boot(){const loginEl=document.getElementById('login'),appEl=document.getElementById('app'),statusEl=document.getElementById('status'),errEl=document.getElementById('err');try{statusEl.textContent='Checking session…';const {data:{session},error:sessionError}=await withTimeout(s.auth.getSession(),'Session check');if(sessionError)throw sessionError;const user=session?.user;if(!user){loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Please sign in.';return}const r=await withTimeout(s.from('admin_memberships').select('role').eq('user_id',user.id).maybeSingle(),'Admin access check');if(r.error)throw r.error;if(r.data?.role!=='admin'){await s.auth.signOut();loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Signed in, but this account is not a FineTime admin.';errEl.textContent='No admin membership is currently assigned to this account.';return}loginEl.classList.add('hidden');appEl.classList.remove('hidden');statusEl.textContent='Admin session active.';errEl.textContent='';await businesses()}catch(e){loginEl.classList.remove('hidden');appEl.classList.add('hidden');statusEl.textContent='Admin sign-in check failed.';errEl.textContent=e.message||'The admin request failed. Please try again.'}}
-const q=x=>encodeURIComponent(JSON.stringify(x)),dq=x=>{try{return JSON.parse(decodeURIComponent(x))}catch{return{}}};
+.brand-text{
+  display:flex;
+  flex-direction:column;
+}
+.brand-title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#fff;
+  line-height:1.1;
+}
+.brand-sub{
+  font-size:10px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--gold-light);
+  font-weight:800;
+}
+.session-status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  color:var(--text-muted);
+}
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--emerald);
+  box-shadow:0 0 8px var(--emerald);
+}
+
+/* Main Container */
+main{
+  max-width:var(--max-w);
+  margin:auto;
+  padding:24px 20px 80px;
+}
+
+/* Navigation Tabs */
+.nav-scroll{
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  margin-bottom:28px;
+  padding-bottom:4px;
+}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-bar{
+  display:flex;
+  gap:8px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:6px;
+  border-radius:var(--radius-md);
+  width:max-content;
+}
+.nav-btn{
+  border:0;
+  background:transparent;
+  color:var(--text-muted);
+  font-size:13px;
+  font-weight:700;
+  padding:9px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+.nav-btn:hover{
+  color:var(--text);
+  background:rgba(255,255,255,0.04);
+}
+.nav-btn.active{
+  background:linear-gradient(135deg,#F5D77F 0%,#D4AF37 100%);
+  color:#0B0C0E;
+  box-shadow:0 4px 14px var(--gold-glow);
+}
+.nav-btn.signout{
+  color:var(--rose);
+  margin-left:auto;
+}
+.nav-btn.signout:hover{
+  background:var(--rose-bg);
+}
+
+/* Headings & Actions */
+.formHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:24px;
+  flex-wrap:wrap;
+}
+.formHead h2{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:26px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:4px;
+}
+.muted{
+  color:var(--text-muted);
+  font-size:13px;
+}
+
+/* Modern Buttons */
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:#0B0C0E;
+  font-weight:800;
+  border:0;
+  padding:10px 20px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  box-shadow:0 4px 16px var(--gold-glow);
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn-primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(212,175,55,0.35);
+}
+.btn-secondary{
+  background:rgba(255,255,255,0.04);
+  color:var(--text);
+  border:1px solid var(--border);
+  font-weight:700;
+  padding:9px 16px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn-secondary:hover{
+  border-color:var(--gold-border);
+  color:var(--gold-light);
+  background:rgba(255,255,255,0.08);
+}
+.btn-danger{
+  background:var(--rose-bg);
+  color:var(--rose);
+  border:1px solid var(--rose-border);
+  font-weight:700;
+  padding:9px 16px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.btn-danger:hover{
+  background:rgba(244,63,94,0.22);
+}
+
+/* Cards & Badges */
+.card{
+  background:var(--surface-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:20px;
+  margin-bottom:14px;
+  transition:all .25s ease;
+}
+.card:hover{
+  border-color:rgba(255,255,255,0.14);
+}
+.badge-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.8px;
+  text-transform:uppercase;
+}
+.badge-published{
+  background:var(--emerald-bg);
+  color:var(--emerald);
+  border:1px solid var(--emerald-border);
+}
+.badge-hidden{
+  background:rgba(255,255,255,0.05);
+  color:var(--text-dim);
+  border:1px solid var(--border);
+}
+.badge-gold{
+  background:rgba(212,175,55,0.12);
+  color:var(--gold-light);
+  border:1px solid var(--gold-border);
+}
+
+/* Business Item Card */
+.biz-row-card{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  padding:18px 20px;
+}
+.biz-thumb{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:var(--radius-sm);
+  object-fit:cover;
+  background:#1E2433;
+  border:1px solid var(--border);
+}
+.biz-info{
+  flex:1;
+  min-width:0;
+}
+.biz-name{
+  font-size:16px;
+  font-weight:700;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:4px;
+  flex-wrap:wrap;
+}
+.biz-desc{
+  font-size:13px;
+  color:var(--text-muted);
+  line-height:1.4;
+  margin-bottom:10px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+/* Forms & Inputs */
+.formSection{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:22px;
+  margin-bottom:20px;
+}
+.formSection h3{
+  font-size:15px;
+  font-weight:700;
+  color:var(--gold-light);
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.formGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.field.full{
+  grid-column:1/-1;
+}
+.field label{
+  font-weight:700;
+  font-size:12px;
+  color:var(--text);
+  letter-spacing:0.3px;
+}
+input,select,textarea{
+  background:var(--surface-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:11px 14px;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s ease,box-shadow .2s ease;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--gold-border);
+  box-shadow:0 0 0 3px var(--gold-glow);
+}
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+.help{
+  font-size:11px;
+  color:var(--text-dim);
+}
+.check{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+}
+.check input{
+  width:18px;
+  height:18px;
+  accent-color:var(--gold);
+}
+.formActions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+.preview{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--gold-border);
+  margin-top:10px;
+}
+
+/* Notices */
+.notice{
+  padding:12px 16px;
+  border-radius:var(--radius-sm);
+  font-size:13px;
+  font-weight:600;
+  margin:14px 0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.notice.ok{
+  background:var(--emerald-bg);
+  border:1px solid var(--emerald-border);
+  color:#6EE7B7;
+}
+.notice.err{
+  background:var(--rose-bg);
+  border:1px solid var(--rose-border);
+  color:#FDA4AF;
+}
+
+/* Search Toolbar */
+.toolbar{
+  display:flex;
+  gap:12px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.search-box{
+  flex:1;
+  min-width:240px;
+  position:relative;
+}
+.search-box input{
+  width:100%;
+  padding-left:36px;
+}
+.search-icon{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--text-dim);
+  pointer-events:none;
+}
+
+/* Auth / Sign In Page */
+.auth-wrap{
+  max-width:440px;
+  margin:60px auto;
+  background:var(--surface-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:36px 32px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.6);
+}
+.auth-title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:24px;
+  color:#fff;
+  margin-bottom:6px;
+  text-align:center;
+}
+.auth-sub{
+  text-align:center;
+  color:var(--text-muted);
+  font-size:13px;
+  margin-bottom:28px;
+}
+
+.hidden{display:none!important}
+@media(max-width:700px){
+  .formGrid{grid-template-columns:1fr}
+  .biz-row-card{flex-direction:column;align-items:flex-start}
+  .biz-thumb{width:100%;height:140px}
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar Navigation -->
+<header class="topbar">
+  <div class="topbar-wrap">
+    <div class="brand">
+      <div class="brand-icon">F</div>
+      <div class="brand-text">
+        <span class="brand-title">FINETIME</span>
+        <span class="brand-sub">Executive Console</span>
+      </div>
+    </div>
+    <div class="session-status">
+      <div class="status-dot"></div>
+      <span id="sessionStatus">Connecting…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Login Screen -->
+  <section id="login" class="auth-wrap hidden">
+    <h2 class="auth-title">Admin Sign In</h2>
+    <p class="auth-sub">Enter verified management credentials to access the console.</p>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Email Address</label>
+      <input id="email" type="email" placeholder="admin@finetime.cc" autocomplete="email">
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label>Password</label>
+      <input id="pass" type="password" placeholder="••••••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;" onclick="login()">Sign in to Console</button>
+    <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:10px;" onclick="forgotPassword()">Forgot Password?</button>
+    <p id="err" class="notice err hidden" style="margin-top:16px;"></p>
+  </section>
+
+  <!-- App Main Screen -->
+  <section id="app" class="hidden">
+    <div class="nav-scroll">
+      <div class="nav-bar">
+        <button class="nav-btn active" data-tab="businesses" onclick="switchTab('businesses',businesses)">🏢 Businesses</button>
+        <button class="nav-btn" data-tab="hero" onclick="switchTab('hero',heroHeader)">🎨 Home Design</button>
+        <button class="nav-btn" data-tab="codes" onclick="switchTab('codes',codes)">🔑 Activation Codes</button>
+        <button class="nav-btn" data-tab="news" onclick="switchTab('news',news)">📰 News</button>
+        <button class="nav-btn" data-tab="modules" onclick="switchTab('modules',modules)">🧩 Site Modules</button>
+        <button class="nav-btn" data-tab="audit" onclick="switchTab('audit',audit)">📋 Audit Log</button>
+        <button class="nav-btn" data-tab="security" onclick="switchTab('security',security)">🛡️ Security</button>
+        <button class="nav-btn signout" onclick="logout()">🚪 Sign out</button>
+      </div>
+    </div>
+    <div id="view"></div>
+  </section>
+</main>
+
+<script>
+const U='https://atewcbkuzrnfnmzsylze.supabase.co';
+const KEY='sb_publishable_CxfreIiozKEB-GcvNOCyhQ_RVnIgGVG';
+const s=supabase.createClient(U,KEY);
+const view=document.getElementById('view');
+
+const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const csv=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);
+const q=x=>encodeURIComponent(JSON.stringify(x));
+const dq=x=>{try{return JSON.parse(decodeURIComponent(x))}catch{return{}}};
 const attr=x=>esc(x||'').replace(/"/g,'&quot;');
 
+let activeTabName='businesses';
+function switchTab(name,fn){
+  activeTabName=name;
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    if(btn.dataset.tab===name) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  fn();
+}
+
+async function login(){
+  const emailEl=document.getElementById('email');
+  const passEl=document.getElementById('pass');
+  const errEl=document.getElementById('err');
+  const statusEl=document.getElementById('sessionStatus');
+  const button=document.querySelector('#login .btn-primary');
+
+  errEl.classList.add('hidden');
+  errEl.textContent='';
+  const emailValue=emailEl.value.trim(),passwordValue=passEl.value;
+  if(!emailValue||!passwordValue){
+    errEl.textContent='Enter both your email and password.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if(button){button.disabled=true;button.textContent='Authenticating…';}
+  statusEl.textContent='Signing in…';
+  try{
+    const r=await withTimeout(s.auth.signInWithPassword({email:emailValue,password:passwordValue}),'Sign-in request');
+    if(r.error){
+      errEl.textContent=r.error.message;
+      errEl.classList.remove('hidden');
+      statusEl.textContent='Sign-in failed';
+      return;
+    }
+    statusEl.textContent='Admin active';
+    await boot();
+  }catch(e){
+    errEl.textContent=e.message||'Sign-in failed. Please try again.';
+    errEl.classList.remove('hidden');
+    statusEl.textContent='Sign-in failed';
+  }finally{
+    if(button){button.disabled=false;button.textContent='Sign in to Console';}
+  }
+}
+
+async function logout(){
+  await s.auth.signOut();
+  location.reload();
+}
+
+async function forgotPassword(){
+  const email=document.getElementById('email').value.trim();
+  if(!email)return alert('Enter your admin email first.');
+  const productionRedirect='https://finetime.folkkayo928.workers.dev/';
+  const r=await s.auth.resetPasswordForEmail(email,{redirectTo:productionRedirect});
+  if(r.error)alert(r.error.message);
+  else alert('Password reset email sent. Follow the link to return here and complete the reset with your Admin Security PIN.');
+}
+
+async function withTimeout(p,label='Request'){
+  return await Promise.race([
+    p,
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' timed out. Check your connection and try again.')),10000))
+  ]);
+}
+
+async function boot(){
+  const loginEl=document.getElementById('login');
+  const appEl=document.getElementById('app');
+  const statusEl=document.getElementById('sessionStatus');
+  const errEl=document.getElementById('err');
+  try{
+    statusEl.textContent='Checking session…';
+    const {data:{session},error:sessionError}=await withTimeout(s.auth.getSession(),'Session check');
+    if(sessionError)throw sessionError;
+    const user=session?.user;
+    if(!user){
+      loginEl.classList.remove('hidden');
+      appEl.classList.add('hidden');
+      statusEl.textContent='Sign in required';
+      return;
+    }
+    const r=await withTimeout(s.from('admin_memberships').select('role').eq('user_id',user.id).maybeSingle(),'Admin access check');
+    if(r.error)throw r.error;
+    if(r.data?.role!=='admin'){
+      await s.auth.signOut();
+      loginEl.classList.remove('hidden');
+      appEl.classList.add('hidden');
+      statusEl.textContent='Unauthorized';
+      errEl.textContent='No admin membership is currently assigned to this account.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    loginEl.classList.add('hidden');
+    appEl.classList.remove('hidden');
+    statusEl.textContent='Active Session ('+esc(user.email||'Admin')+')';
+    errEl.classList.add('hidden');
+    await businesses();
+  }catch(e){
+    loginEl.classList.remove('hidden');
+    appEl.classList.add('hidden');
+    statusEl.textContent='Verification failed';
+    errEl.textContent=e.message||'Admin request failed.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+// ---------------- BUSINESSES TAB ----------------
 let businessRows=[];
 async function businesses(){
- const r=await s.from('businesses').select('*').order('name');
- if(r.error){view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';return}
- businessRows=r.data||[];
- view.innerHTML='<div class="formHead"><div><h2>Businesses</h2><p class="muted">Edit, publish/hide, or delete businesses. Every action reports its result here.</p></div><button id="createBusinessButton" type="button">+ Create</button></div><div id="businessActionStatus"></div>'+
- (businessRows.length?businessRows.map(b=>'<div class="card" data-business-id="'+esc(b.id)+'"><b>'+esc(b.name)+'</b><span class="pill">'+esc(b.category||'')+' · '+(b.is_published?'Published':'Hidden')+'</span><p class="muted">'+esc(b.about||'')+'</p><div class="actions"><button type="button" data-business-action="edit" data-id="'+esc(b.id)+'">Edit</button><button type="button" data-business-action="publish" data-id="'+esc(b.id)+'">'+(b.is_published?'Hide':'Publish')+'</button><button type="button" class="d" data-business-action="delete" data-id="'+esc(b.id)+'">Delete</button></div></div>').join(''):'<div class="card muted">No businesses.</div>');
- document.getElementById('createBusinessButton')?.addEventListener('click',()=>businessForm());
- view.querySelectorAll('[data-business-action]').forEach(btn=>btn.addEventListener('click',async()=>{
-   const id=btn.dataset.id,action=btn.dataset.businessAction,b=businessRows.find(x=>String(x.id)===String(id));
-   if(!b)return;
-   if(action==='edit'){await businessForm(encodeURIComponent(JSON.stringify(b)));return}
-   if(action==='publish'){await setBusinessPublished(id,!b.is_published,btn);return}
-   if(action==='delete'){await delBusiness(id,btn);return}
- }));
+  view.innerHTML='<div class="card muted">Loading partner directory…</div>';
+  const r=await s.from('businesses').select('*').order('name');
+  if(r.error){view.innerHTML='<div class="notice err">'+esc(r.error.message)+'</div>';return;}
+  businessRows=r.data||[];
+  renderBusinessList();
 }
-function businessStatus(message,ok=false){const el=document.getElementById('businessActionStatus');if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>'}
-async function setBusinessPublished(id,value,button){
- if(button)button.disabled=true;
- try{
-   const r=await s.from('businesses').update({is_published:value}).eq('id',id).select('id,is_published').maybeSingle();
-   if(r.error)throw r.error;
-   if(!r.data){businessStatus('No business record was changed. Please refresh and try again.');return}
-   await businesses();
-   businessStatus('Business '+(value?'published':'hidden')+' successfully.',true);
- }catch(e){businessStatus(e.message||'The publish/hide action failed.')}
- finally{if(button)button.disabled=false}
-}
-async function businessForm(x){
- const b=x?dq(x):{};
- const [citiesResult,profileResult,subscriptionResult]=await Promise.all([
-   s.from('cities').select('id,name,region').order('name'),
-   b.id?s.from('business_admin_profiles').select('*').eq('business_id',b.id).maybeSingle():Promise.resolve({data:null,error:null}),
-   b.id?s.from('business_subscriptions').select('*').eq('business_id',b.id).maybeSingle():Promise.resolve({data:null,error:null})
- ]);
- if(citiesResult.error)return alert(citiesResult.error.message);
- if(profileResult.error)return alert(profileResult.error.message);
- if(subscriptionResult.error)return alert(subscriptionResult.error.message);
- const p=profileResult.data||{},sub=subscriptionResult.data||{};
- const cities=citiesResult.data||[];
- view.innerHTML='<div class="formHead"><div><h2>'+(b.id?'Edit business':'Add business')+'</h2><p class="muted">Complete the profile in one page. Nothing is saved until you press Save.</p></div><button class="g" type="button" onclick="businesses()">Back</button></div>'+
- '<form id="businessEditor" onsubmit="return saveBusinessForm(event,'+(b.id?JSON.stringify(b.id):'null')+')">'+
- '<section class="formSection"><h3>Basic information</h3><div class="formGrid">'+
- '<div class="field"><label>Business name *</label><input name="name" required value="'+attr(b.name)+'" placeholder="Restaurant name"></div>'+
- '<div class="field"><label>Category *</label><select name="category"><option value="restaurant" '+(b.category==='restaurant'?'selected':'')+'>Restaurant</option><option value="cafe" '+(b.category==='cafe'?'selected':'')+'>Café</option><option value="hotel" '+(b.category==='hotel'?'selected':'')+'>Hotel</option></select></div>'+
- '<div class="field"><label>Menu URL slug</label><input name="menu_slug" value="'+attr(p.menu_slug)+'" placeholder="habesha-kitchen"><span class="help">Used for the business menu identity; keep it short and unique.</span></div>'+
- '<div class="field"><label>Tagline</label><input name="tagline" value="'+attr(p.tagline)+'" placeholder="Authentic Ethiopian dining"></div>'+
- '<div class="field"><label>Currency</label><select name="currency"><option value="ETB" '+((p.currency||'ETB')==='ETB'?'selected':'')+'>ETB</option><option value="USD" '+(p.currency==='USD'?'selected':'')+'>USD</option><option value="EUR" '+(p.currency==='EUR'?'selected':'')+'>EUR</option></select></div>'+
- '<div class="field"><label>Phone</label><input name="phone" type="tel" value="'+attr(b.phone)+'" placeholder="+251…"></div>'+
- '<div class="field full"><label>Address</label><input name="address" value="'+attr(p.address)+'" placeholder="Street, neighborhood, Addis Ababa"></div>'+
- '<div class="field"><label>City</label><select name="city_id"><option value="">Select city</option>'+cities.map(ci=>'<option value="'+ci.id+'" '+(String(b.city_id||'')===String(ci.id)?'selected':'')+'>'+esc(ci.name)+(ci.region?' · '+esc(ci.region):'')+'</option>').join('')+'</select></div>'+
- '<div class="field"><label>Tagline / short description</label><input name="about_short" value="'+attr(b.about||'')+'" placeholder="Short description shown to customers"></div>'+
- '</div></section>'+
- '<section class="formSection"><h3>Branding & media</h3><div class="formGrid">'+
- '<div class="field"><label>Logo image</label><div style="display:flex;gap:8px;align-items:center"><input id="bizLogoInput" name="logo_url" value="'+attr(p.logo_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizLogoInput\',\'#logoPreview\')"></label></div><img id="logoPreview" class="preview" '+(p.logo_url?'src="'+attr(p.logo_url)+'"':'style="display:none"')+' alt="Logo preview"></div>'+
- '<div class="field"><label>Cover image</label><div style="display:flex;gap:8px;align-items:center"><input id="bizCoverInput" name="cover_url" value="'+attr(b.cover_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizCoverInput\',\'#coverPreview\')"></label></div><img id="coverPreview" class="preview" '+(b.cover_url?'src="'+attr(b.cover_url)+'"':'style="display:none"')+' alt="Cover preview"></div>'+
- '<div class="field full"><label>Gallery image URLs</label><textarea name="gallery_urls" placeholder="One image URL per line">'+esc((b.gallery_urls||[]).join('\n'))+'</textarea><span class="help">One public image URL per line.</span></div>'+
- '</div></section>'+
- '<section class="formSection"><h3>Public profile</h3><div class="formGrid">'+
- '<div class="field full"><label>Description</label><textarea name="about" placeholder="Tell customers about this business">'+esc(b.about||'')+'</textarea></div>'+
- '<div class="field"><label>Services</label><textarea name="services" placeholder="Delivery\nTakeaway\nReservations">'+esc((b.services||[]).join('\n'))+'</textarea></div>'+
- '<div class="field"><label>Highlights</label><textarea name="highlights" placeholder="Live music\nFamily friendly">'+esc((b.highlights||[]).join('\n'))+'</textarea></div>'+
- '<div class="field full"><label>Amenities</label><textarea name="amenities" placeholder="Wi‑Fi\nParking\nOutdoor seating">'+esc((b.amenities||[]).join('\n'))+'</textarea></div>'+
- '</div></section>'+
- '<section class="formSection"><h3>Location & opening hours</h3><div class="formGrid">'+
- '<div class="field"><label>Latitude</label><input name="lat" type="number" step="any" value="'+attr(b.lat)+'" placeholder="9.03"></div>'+
- '<div class="field"><label>Longitude</label><input name="lng" type="number" step="any" value="'+attr(b.lng)+'" placeholder="38.74"></div>'+
- '<div class="field full"><label>Opening hours (JSON)</label><textarea name="opening_hours" placeholder="{&quot;monday&quot;:{&quot;open&quot;:&quot;08:00&quot;,&quot;close&quot;:&quot;22:00&quot;}}">'+esc(typeof b.opening_hours==='string'?b.opening_hours:JSON.stringify(b.opening_hours||{},null,2))+'</textarea><span class="help">Keep the existing JSON structure if this business already has hours.</span></div>'+
- '</div></section>'+
- '<section class="formSection"><h3>Owner & contact</h3><div class="formGrid">'+
- '<div class="field"><label>Owner name</label><input name="owner_name" value="'+attr(p.owner_name)+'"></div>'+
- '<div class="field"><label>Owner email</label><input name="owner_email" type="email" value="'+attr(p.owner_email)+'"></div>'+
- '</div></section>'+
- '<section class="formSection"><h3>Account & subscription</h3><div class="formGrid">'+
- '<div class="field"><label>Status</label><select name="onboarding_status"><option value="pending" '+((p.onboarding_status||'pending')==='pending'?'selected':'')+'>Pending</option><option value="active" '+(p.onboarding_status==='active'?'selected':'')+'>Active</option><option value="suspended" '+(p.onboarding_status==='suspended'?'selected':'')+'>Suspended</option></select></div>'+
- '<div class="field"><label>Payment status</label><select name="payment_status"><option value="trial" '+((p.payment_status||'trial')==='trial'?'selected':'')+'>Trial</option><option value="pending" '+(p.payment_status==='pending'?'selected':'')+'>Pending</option><option value="paid" '+(p.payment_status==='paid'?'selected':'')+'>Paid</option><option value="overdue" '+(p.payment_status==='overdue'?'selected':'')+'>Overdue</option></select></div>'+
- '<div class="field"><label>Plan</label><select name="plan"><option value="basic" '+((sub.plan||'basic')==='basic'?'selected':'')+'>Basic</option><option value="premium" '+(sub.plan==='premium'?'selected':'')+'>Premium</option></select></div>'+
- '<div class="field"><label>Subscription status</label><select name="subscription_status"><option value="active" '+((sub.status||'active')==='active'?'selected':'')+'>Active</option><option value="paused" '+(sub.status==='paused'?'selected':'')+'>Paused</option><option value="expired" '+(sub.status==='expired'?'selected':'')+'>Expired</option><option value="cancelled" '+(sub.status==='cancelled'?'selected':'')+'>Cancelled</option></select></div>'+
- '<div class="field"><label>Monthly fee</label><input name="monthly_price" type="number" min="0" step="0.01" value="'+attr(sub.monthly_price)+'" placeholder="0"></div>'+
- '<div class="field"><label>Subscription starts</label><input name="starts_on" type="date" value="'+attr(sub.starts_on)+'"></div>'+
- '<div class="field"><label>Subscription expires</label><input name="ends_on" type="date" value="'+attr(sub.ends_on)+'"></div>'+
- '<div class="field full"><label>Subscription notes</label><textarea name="subscription_notes">'+esc(sub.notes||'')+'</textarea></div>'+
- '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+(b.is_published?'checked':'')+'> Publish on FineTime</label><span class="help">Publishing controls public visibility; account status is separate.</span></div>'+
- '</div></section>'+
- '<div class="formActions"><button type="submit">'+(b.id?'Save changes':'Create business')+'</button><button type="button" class="g" onclick="businesses()">Cancel</button></div>'+
- '</form>';
- document.querySelector('#businessEditor [name="cover_url"]').addEventListener('input',e=>{const el=document.getElementById('coverPreview');el.src=e.target.value;el.style.display=e.target.value?'block':'none'});
- document.querySelector('#businessEditor [name="logo_url"]').addEventListener('input',e=>{const el=document.getElementById('logoPreview');el.src=e.target.value;el.style.display=e.target.value?'block':'none'});
-}
-async function saveBusinessForm(event,id){
- event.preventDefault();
- const form=event.currentTarget,fd=new FormData(form),lines=n=>String(fd.get(n)||'').split(/\\n|,/).map(x=>x.trim()).filter(Boolean);
- let opening={};
- try{opening=JSON.parse(String(fd.get('opening_hours')||'{}'))}catch(e){return alert('Opening hours must be valid JSON.')}
- const businessPayload={
-   name:String(fd.get('name')||'').trim(),category:String(fd.get('category')||'restaurant'),
-   city_id:String(fd.get('city_id')||'')||null,about:String(fd.get('about')||'').trim()||null,
-   is_published:fd.get('is_published')==='on',phone:String(fd.get('phone')||'').trim()||null,
-   lat:fd.get('lat')===''?null:Number(fd.get('lat')),lng:fd.get('lng')===''?null:Number(fd.get('lng')),
-   opening_hours:opening,cover_url:String(fd.get('cover_url')||'').trim()||null,
-   gallery_urls:lines('gallery_urls'),services:lines('services'),highlights:lines('highlights'),amenities:lines('amenities')
- };
- if(!businessPayload.name)return alert('Business name is required.');
- try{
-   let businessId=id;
-   const profilePayload={business_id:id,menu_slug:String(fd.get('menu_slug')||'').trim()||null,tagline:String(fd.get('tagline')||'').trim()||null,currency:String(fd.get('currency')||'ETB'),address:String(fd.get('address')||'').trim()||null,logo_url:String(fd.get('logo_url')||'').trim()||null,owner_name:String(fd.get('owner_name')||'').trim()||null,owner_email:String(fd.get('owner_email')||'').trim()||null,onboarding_status:String(fd.get('onboarding_status')||'pending'),payment_status:String(fd.get('payment_status')||'trial')};
-   const subPayload={business_id:id,plan:String(fd.get('plan')||'basic'),status:String(fd.get('subscription_status')||'active'),monthly_price:fd.get('monthly_price')===''?null:Number(fd.get('monthly_price')),starts_on:String(fd.get('starts_on')||'')||null,ends_on:String(fd.get('ends_on')||'')||null,notes:String(fd.get('subscription_notes')||'').trim()||null};
-   if(id){
-     const r=await s.rpc('admin_save_business',{p_business_id:id,p_business:businessPayload,p_profile:profilePayload,p_subscription:subPayload});
-     if(r.error)throw new Error('Business edit failed: '+r.error.message);
-     if(r.data!==id)throw new Error('Business edit did not return the saved business.');
-     alert('Business updated.');
-     businesses();
-     return;
-   }else{
-     const r=await s.from('businesses').insert(businessPayload).select('id').single();
-     if(r.error)throw r.error;
-     businessId=r.data.id;
-   }
-   const createProfilePayload={business_id:businessId,menu_slug:String(fd.get('menu_slug')||'').trim()||null,tagline:String(fd.get('tagline')||'').trim()||null,currency:String(fd.get('currency')||'ETB'),address:String(fd.get('address')||'').trim()||null,logo_url:String(fd.get('logo_url')||'').trim()||null,owner_name:String(fd.get('owner_name')||'').trim()||null,owner_email:String(fd.get('owner_email')||'').trim()||null,onboarding_status:String(fd.get('onboarding_status')||'pending'),payment_status:String(fd.get('payment_status')||'trial')};
-   const pr=await s.from('business_admin_profiles').upsert(createProfilePayload,{onConflict:'business_id'});
-   if(pr.error)throw new Error('Business profile save failed: '+pr.error.message);
-   const createSubPayload={business_id:businessId,plan:String(fd.get('plan')||'basic'),status:String(fd.get('subscription_status')||'active'),monthly_price:fd.get('monthly_price')===''?null:Number(fd.get('monthly_price')),starts_on:String(fd.get('starts_on')||'')||null,ends_on:String(fd.get('ends_on')||'')||null,notes:String(fd.get('subscription_notes')||'').trim()||null};
-   const sr=await s.from('business_subscriptions').upsert(createSubPayload,{onConflict:'business_id'});
-   if(sr.error)throw new Error('Business subscription save failed: '+sr.error.message);
-   alert(id?'Business updated.':'Business created.');
-   businesses();
- }catch(e){alert(e.message||'Could not save business.')}
-}
-async function delBusiness(id,button){
- if(!confirm('Delete this business? This removes the business record and may be blocked by related data.'))return;
- if(button)button.disabled=true;
- try{
-   const r=await s.from('businesses').delete().eq('id',id).select('id').maybeSingle();
-   if(r.error)throw r.error;
-   if(!r.data){businessStatus('No business record was deleted. Related records may be preventing deletion, or the record is already gone.');return}
-   await businesses();
-   businessStatus('Business deleted successfully.',true);
- }catch(e){businessStatus(e.message||'The delete action failed.')}
- finally{if(button)button.disabled=false}
-}
-async function codes(){const r=await s.from('activation_codes').select('id,business_id,expires_at,used_at,revoked_at,created_at,businesses(name)').order('created_at',{ascending:false});if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Activation Codes</h2><button onclick="makeCode()">+ Generate</button>'+(r.data||[]).map(x=>'<div class="card"><b>'+esc(x.businesses?.name||x.business_id)+'</b><span class="pill">'+(x.used_at?'Used':x.revoked_at?'Revoked':x.expires_at&&new Date(x.expires_at)<new Date()?'Expired':'Active')+'</span><p class="muted">'+esc(x.created_at)+'</p>'+(!x.used_at&&!x.revoked_at?'<button class="d" onclick="revoke(\''+x.id+'\')">Revoke</button>':'')+'</div>').join('')}
-async function makeCode(){
- const r=await s.from('businesses').select('id,name').order('name');
- if(r.error)return alert(r.error.message);
- if(!r.data?.length)return alert('Create a business first.');
- view.innerHTML='<div class="formHead"><div><h2>Generate activation code</h2><p class="muted">Create a partner connection code without leaving this page.</p></div><button class="g" type="button" onclick="codes()">Back</button></div>'+
- '<form id="codeEditor" class="formSection" onsubmit="return generateCode(event)"><div class="formGrid">'+
- '<div class="field"><label>Business *</label><select name="business_id" required>'+r.data.map((b,i)=>'<option value="'+b.id+'">'+esc(b.name)+'</option>').join('')+'</select></div>'+
- '<div class="field"><label>Expires in hours *</label><input name="hours" type="number" min="1" max="8760" value="168" required><span class="help">Default: 7 days.</span></div>'+
- '</div><div class="formActions"><button type="submit">Generate activation code</button><button type="button" class="g" onclick="codes()">Cancel</button></div></form>';
-}
-async function generateCode(event){
- event.preventDefault();
- const fd=new FormData(event.currentTarget),businessId=String(fd.get('business_id')||''),hours=Math.max(1,Math.min(8760,Number(fd.get('hours')||168)));
- const raw=Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[x%36]).join('');
- const code='FT-'+raw.slice(0,6)+'-'+raw.slice(6);
- const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
- const hash=Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');
- const saveResult=await s.from('activation_codes').insert({business_id:businessId,code_hash:hash,expires_at:new Date(Date.now()+hours*3600000).toISOString()});
- if(saveResult.error)return alert(saveResult.error.message);
- const businessName=event.currentTarget.querySelector('select option:checked')?.textContent||'Selected business';
- view.innerHTML='<div class="card"><h2>Activation code created</h2><p class="muted">'+esc(businessName)+' · expires in '+hours+' hours</p><div style="font-size:28px;font-weight:900;letter-spacing:2px;margin:20px 0">'+esc(code)+'</div><p class="muted">Only the hash is stored in Supabase. Give this code to the partner now.</p><div class="formActions"><button type="button" onclick="codes()">Done</button><button type="button" class="g" onclick="makeCode()">Generate another</button></div></div>';
-}
-async function revoke(id){const r=await s.from('activation_codes').update({revoked_at:new Date().toISOString()}).eq('id',id);if(r.error)alert(r.error.message);else codes()}
-async function news(){
- const r=await s.from('news').select('*').order('created_at',{ascending:false});
- if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';
- view.innerHTML='<div class="formHead"><div><h2>News</h2><p class="muted">Create and edit public FineTime news in one page.</p></div><button onclick="editNews()">+ Create news</button></div>'+
- (r.data||[]).map(n=>'<div class="card"><b>'+esc(n.title)+'</b><span class="pill">'+(n.is_published?'Published':'Draft')+'</span><p class="muted">'+esc(n.summary||'')+'</p><button onclick="editNews(\''+q(n)+'\')">Edit</button> <button onclick="pubNews(\''+n.id+'\','+(!n.is_published)+')">'+(n.is_published?'Hide':'Publish')+'</button> <button class="d" onclick="delNews(\''+n.id+'\')">Delete</button></div>').join('')||'<div class="card muted">No news yet.</div>';
-}
-function makeNews(){editNews()}
-async function editNews(x){
- const n=x?dq(x):{};
- view.innerHTML='<div class="formHead"><div><h2>'+(n.id?'Edit news':'Create news')+'</h2><p class="muted">Write the complete article before publishing it.</p></div><button class="g" type="button" onclick="news()">Back</button></div>'+
- '<form id="newsEditor" onsubmit="return saveNewsForm(event,'+(n.id?JSON.stringify(n.id):'null')+')">'+
- '<section class="formSection"><h3>Article</h3><div class="formGrid">'+
- '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(n.title)+'"></div>'+
- '<div class="field"><label>Slug *</label><input name="slug" required value="'+attr(n.slug)+'" placeholder="fine-time-update"><span class="help">Use lowercase words separated by hyphens.</span></div>'+
- '<div class="field"><label>Cover image</label><div style="display:flex;gap:8px;align-items:center"><input id="newsCoverInput" name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#newsCoverInput\',\'#newsPreview\')"></label></div><img id="newsPreview" class="preview" '+(n.cover_url?'src="'+attr(n.cover_url)+'"':'style="display:none"')+' alt="Cover preview"></div>'+
- '<div class="field full"><label>Summary</label><textarea name="summary">'+esc(n.summary||'')+'</textarea></div>'+
- '<div class="field full"><label>Body</label><textarea name="body" style="min-height:260px">'+esc(n.body||'')+'</textarea></div>'+
- '<div class="field"><label class="check"><input name="is_published" type="checkbox" '+((n.id?n.is_published:true)?'checked':'')+'> Publish now</label></div>'+
- '</div></section>'+
- '<div class="formActions"><button type="submit">'+(n.id?'Save changes':'Create news')+'</button><button type="button" class="g" onclick="news()">Cancel</button></div></form>';
-}
-async function saveNewsForm(event,id){
- event.preventDefault();
- const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim(),slug=String(fd.get('slug')||'').trim();
- if(!title||!slug)return alert('Title and slug are required.');
- const publish=fd.get('is_published')==='on';
- const p={title,slug,summary:String(fd.get('summary')||'').trim()||null,body:String(fd.get('body')||'').trim()||null,cover_url:String(fd.get('cover_url')||'').trim()||null,is_published:publish,published_at:publish?new Date().toISOString():null};
- const r=id?await s.from('news').update(p).eq('id',id):await s.from('news').insert(p);
- if(r.error)alert(r.error.message);else news();
-}
-async function pubNews(id,v){const r=await s.from('news').update({is_published:v,published_at:v?new Date().toISOString():null}).eq('id',id);if(r.error)alert(r.error.message);else news()}
-async function delNews(id){if(!confirm('Delete this news?'))return;const r=await s.from('news').delete().eq('id',id);if(r.error)alert(r.error.message);else news()}
-async function modules(){
- const r=await s.from('site_modules').select('*').order('placement').order('sort_order');
- if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';
- view.innerHTML='<div class="formHead"><div><h2>Site Modules</h2><p class="muted">Build homepage cards for the app or public website.</p></div><button onclick="editModule()">+ Create module</button></div>'+
- (r.data||[]).map(m=>'<div class="card"><b>'+esc(m.title)+'</b><span class="pill">'+esc(m.placement)+' · '+(m.is_enabled?'Enabled':'Disabled')+'</span><p class="muted">'+esc(m.body||'')+'</p><button onclick="editModule(\''+q(m)+'\')">Edit</button> <button onclick="toggleModule(\''+m.id+'\','+(!m.is_enabled)+')">'+(m.is_enabled?'Disable':'Enable')+'</button> <button class="d" onclick="delModule(\''+m.id+'\')">Delete</button></div>').join('')||'<div class="card muted">No site modules yet.</div>';
-}
-function editModule(x){
- const m=x?dq(x):{};
- view.innerHTML='<div class="formHead"><div><h2>'+(m.id?'Edit site module':'Create site module')+'</h2><p class="muted">All content is visible here before you save.</p></div><button class="g" type="button" onclick="modules()">Back</button></div>'+
- '<form id="moduleEditor" onsubmit="return saveModuleForm(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
- '<section class="formSection"><h3>Module content</h3><div class="formGrid">'+
- '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'website_home')==='app_home'?'selected':'')+'>Customer app home</option><option value="website_home" '+((m.placement||'website_home')==='website_home'?'selected':'')+'>Public website home</option><option value="all" '+(m.placement==='all'?'selected':'')+'>Both app & website</option></select></div>'+
- '<div class="field"><label>Sort order</label><input name="sort_order" type="number" value="'+attr(m.sort_order??0)+'"></div>'+
- '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(m.title)+'"></div>'+
- '<div class="field full"><label>Body</label><textarea name="body">'+esc(m.body||'')+'</textarea></div>'+
- '<div class="field"><label>CTA label</label><input name="cta_label" value="'+attr(m.cta_label)+'" placeholder="Learn more"></div>'+
- '<div class="field"><label>CTA URL</label><input name="cta_url" type="url" value="'+attr(m.cta_url)+'" placeholder="https://…"></div>'+
- '<div class="field full"><label>Image</label><div style="display:flex;gap:8px;align-items:center"><input id="modImageInput" name="image_url" value="'+attr(m.image_url)+'" placeholder="https://… or upload below"><label style="cursor:pointer;white-space:nowrap;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700">📁 From device<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#modImageInput\',\'#modPreview\')"></label></div><img id="modPreview" class="preview" '+(m.image_url?'src="'+attr(m.image_url)+'"':'style="display:none"')+' alt="Module preview"></div>'+
- '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+((m.id?m.is_enabled:true)?'checked':'')+'> Enable immediately</label></div>'+
- '</div></section><div class="formActions"><button type="submit">'+(m.id?'Save changes':'Create module')+'</button><button type="button" class="g" onclick="modules()">Cancel</button></div></form>';
-}
-async function saveModuleForm(event,id){
- event.preventDefault();
- const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim();
- if(!title)return alert('Title is required.');
- const p={placement:String(fd.get('placement')||'app_home'),title,body:String(fd.get('body')||'').trim()||null,cta_label:String(fd.get('cta_label')||'').trim()||null,cta_url:String(fd.get('cta_url')||'').trim()||null,image_url:String(fd.get('image_url')||'').trim()||null,sort_order:Number(fd.get('sort_order')||0),is_enabled:fd.get('is_enabled')==='on'};
- const r=id?await s.from('site_modules').update(p).eq('id',id):await s.from('site_modules').insert(p);
- if(r.error)alert(r.error.message);else modules();
-}
-async function toggleModule(id,v){const r=await s.from('site_modules').update({is_enabled:v}).eq('id',id);if(r.error)alert(r.error.message);else modules()}
-async function delModule(id){if(!confirm('Delete this module?'))return;const r=await s.from('site_modules').delete().eq('id',id);if(r.error)alert(r.error.message);else modules()}
-async function audit(){const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);if(r.error)return view.innerHTML='<div class="card error">'+esc(r.error.message)+'</div>';view.innerHTML='<h2>Audit Log</h2>'+(r.data||[]).map(x=>'<div class="item"><b>'+esc(x.action)+'</b><span class="pill">'+esc(x.entity_type)+'</span><div class="muted">'+esc(x.created_at)+' · '+esc(x.entity_id||'')+'</div></div>').join('')||'<div class="card muted">No audit entries.</div>'}
 
+function renderBusinessList(){
+  const count=businessRows.length;
+  const publishedCount=businessRows.filter(b=>b.is_published).length;
+  
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div>'+
+        '<h2>Partner Directory</h2>'+
+        '<p class="muted">'+count+' total venues · '+publishedCount+' published on mobile app & public site</p>'+
+      '</div>'+
+      '<button id="createBusinessButton" class="btn-primary" type="button">+ Add New Business</button>'+
+    '</div>'+
+    '<div class="toolbar">'+
+      '<div class="search-box">'+
+        '<span class="search-icon">🔍</span>'+
+        '<input id="bizSearch" placeholder="Search businesses by name, category, or city…" oninput="filterBusinesses()">'+
+      '</div>'+
+    '</div>'+
+    '<div id="businessActionStatus"></div>'+
+    '<div id="businessContainer"></div>';
+
+  document.getElementById('createBusinessButton')?.addEventListener('click',()=>businessForm());
+  filterBusinesses();
+}
+
+function filterBusinesses(){
+  const q=(document.getElementById('bizSearch')?.value||'').toLowerCase().trim();
+  const filtered=businessRows.filter(b=>{
+    if(!q) return true;
+    return [b.name,b.category,b.about,b.phone].filter(Boolean).join(' ').toLowerCase().includes(q);
+  });
+  
+  const container=document.getElementById('businessContainer');
+  if(!container) return;
+
+  if(!filtered.length){
+    container.innerHTML='<div class="card muted" style="text-align:center;padding:40px 20px;">No businesses match your search.</div>';
+    return;
+  }
+
+  container.innerHTML=filtered.map(b=>{
+    const categoryName=(b.category||'hospitality').toUpperCase();
+    const coverUrl=b.cover_url||'';
+    const statusBadge=b.is_published
+      ? '<span class="badge-pill badge-published">● Published</span>'
+      : '<span class="badge-pill badge-hidden">○ Hidden</span>';
+
+    return '<div class="card biz-row-card" data-business-id="'+esc(b.id)+'">'+
+      (coverUrl
+        ? '<img class="biz-thumb" src="'+esc(coverUrl)+'" alt="'+esc(b.name)+'" onerror="this.src=\'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80\'">'
+        : '<div class="biz-thumb" style="display:grid;place-items:center;font-size:24px;color:var(--gold);">🏨</div>')+
+      '<div class="biz-info">'+
+        '<div class="biz-name">'+
+          '<span>'+esc(b.name)+'</span>'+
+          '<span class="badge-pill badge-gold">'+esc(categoryName)+'</span>'+
+          statusBadge+
+        '</div>'+
+        '<p class="biz-desc">'+esc(b.about||'Verified FineTime partner.')+'</p>'+
+        '<div class="actions">'+
+          '<button class="btn-primary" style="padding:6px 14px;font-size:12px;" type="button" data-business-action="edit" data-id="'+esc(b.id)+'">✏️ Edit Profile</button>'+
+          '<button class="btn-secondary" style="padding:6px 14px;font-size:12px;" type="button" data-business-action="publish" data-id="'+esc(b.id)+'">'+(b.is_published?'Hide from App':'Publish Live')+'</button>'+
+          '<button class="btn-danger" style="padding:6px 14px;font-size:12px;" type="button" data-business-action="delete" data-id="'+esc(b.id)+'">🗑️ Delete</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  container.querySelectorAll('[data-business-action]').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id,action=btn.dataset.businessAction,b=businessRows.find(x=>String(x.id)===String(id));
+      if(!b)return;
+      if(action==='edit'){await businessForm(encodeURIComponent(JSON.stringify(b)));return;}
+      if(action==='publish'){await setBusinessPublished(id,!b.is_published,btn);return;}
+      if(action==='delete'){await delBusiness(id,btn);return;}
+    });
+  });
+}
+
+function businessStatus(message,ok=false){
+  const el=document.getElementById('businessActionStatus');
+  if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>';
+}
+
+async function setBusinessPublished(id,value,button){
+  if(button)button.disabled=true;
+  try{
+    const r=await s.from('businesses').update({is_published:value}).eq('id',id).select('id,is_published').maybeSingle();
+    if(r.error)throw r.error;
+    await businesses();
+    businessStatus('Business '+(value?'published live':'hidden')+' successfully.',true);
+  }catch(e){
+    businessStatus(e.message||'Publish action failed.');
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
+async function businessForm(x){
+  const b=x?dq(x):{};
+  view.innerHTML='<div class="card muted">Loading business details…</div>';
+  const [citiesResult,profileResult,subscriptionResult]=await Promise.all([
+    s.from('cities').select('id,name,region').order('name'),
+    b.id?s.from('business_admin_profiles').select('*').eq('business_id',b.id).maybeSingle():Promise.resolve({data:null,error:null}),
+    b.id?s.from('business_subscriptions').select('*').eq('business_id',b.id).maybeSingle():Promise.resolve({data:null,error:null})
+  ]);
+  if(citiesResult.error)return alert(citiesResult.error.message);
+  if(profileResult.error)return alert(profileResult.error.message);
+  if(subscriptionResult.error)return alert(subscriptionResult.error.message);
+  const p=profileResult.data||{},sub=subscriptionResult.data||{};
+  const cities=citiesResult.data||[];
+
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div>'+
+        '<h2>'+(b.id?'Edit Partner Profile':'Register New Partner')+'</h2>'+
+        '<p class="muted">Fill in basic details, branding, menus and contact information.</p>'+
+      '</div>'+
+      '<button class="btn-secondary" type="button" onclick="businesses()">← Back to Directory</button>'+
+    '</div>'+
+    '<form id="businessEditor" onsubmit="return saveBusinessForm(event,'+(b.id?JSON.stringify(b.id):'null')+')">'+
+      '<section class="formSection">'+
+        '<h3>Basic Information</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>Business Name *</label><input name="name" required value="'+attr(b.name)+'" placeholder="e.g. Skylight Luxury Hotel"></div>'+
+          '<div class="field"><label>Category *</label><select name="category"><option value="restaurant" '+(b.category==='restaurant'?'selected':'')+'>Restaurant</option><option value="cafe" '+(b.category==='cafe'?'selected':'')+'>Café</option><option value="hotel" '+(b.category==='hotel'?'selected':'')+'>Hotel & Suites</option><option value="lounge" '+(b.category==='lounge'?'selected':'')+'>Lounge & Bar</option></select></div>'+
+          '<div class="field"><label>Menu URL Slug</label><input name="menu_slug" value="'+attr(p.menu_slug)+'" placeholder="skylight-dining"><span class="help">Short unique slug for web menus.</span></div>'+
+          '<div class="field"><label>Tagline</label><input name="tagline" value="'+attr(p.tagline)+'" placeholder="Ethiopian flagship luxury hospitality"></div>'+
+          '<div class="field"><label>Currency</label><select name="currency"><option value="ETB" '+((p.currency||'ETB')==='ETB'?'selected':'')+'>ETB (Ethiopian Birr)</option><option value="USD" '+(p.currency==='USD'?'selected':'')+'>USD ($)</option><option value="EUR" '+(p.currency==='EUR'?'selected':'')+'>EUR (€)</option></select></div>'+
+          '<div class="field"><label>Phone Number</label><input name="phone" type="tel" value="'+attr(b.phone)+'" placeholder="+251 11…"></div>'+
+          '<div class="field full"><label>Street Address</label><input name="address" value="'+attr(p.address)+'" placeholder="Bole International Airport Road, Addis Ababa"></div>'+
+          '<div class="field"><label>City</label><select name="city_id"><option value="">Select city</option>'+cities.map(ci=>'<option value="'+ci.id+'" '+(String(b.city_id||'')===String(ci.id)?'selected':'')+'>'+esc(ci.name)+(ci.region?' · '+esc(ci.region):'')+'</option>').join('')+'</select></div>'+
+          '<div class="field"><label>Short Description</label><input name="about_short" value="'+attr(b.about||'')+'" placeholder="Short description displayed on search cards"></div>'+
+        '</div>'+
+      '</section>'+
+      '<section class="formSection">'+
+        '<h3>Branding & Imagery</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field">'+
+            '<label>Logo Image</label>'+
+            '<div style="display:flex;gap:8px;align-items:center;">'+
+              '<input id="bizLogoInput" name="logo_url" value="'+attr(p.logo_url)+'" placeholder="https://… or upload below">'+
+              '<label class="btn-secondary" style="white-space:nowrap;padding:9px 12px;font-size:12px;cursor:pointer;">📁 Upload<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizLogoInput\',\'#logoPreview\')"></label>'+
+            '</div>'+
+            '<img id="logoPreview" class="preview" '+(p.logo_url?'src="'+attr(p.logo_url)+'"':'style="display:none"')+' alt="Logo preview">'+
+          '</div>'+
+          '<div class="field">'+
+            '<label>Cover Image *</label>'+
+            '<div style="display:flex;gap:8px;align-items:center;">'+
+              '<input id="bizCoverInput" name="cover_url" value="'+attr(b.cover_url)+'" placeholder="https://… or upload below">'+
+              '<label class="btn-secondary" style="white-space:nowrap;padding:9px 12px;font-size:12px;cursor:pointer;">📁 Upload<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#bizCoverInput\',\'#coverPreview\')"></label>'+
+            '</div>'+
+            '<img id="coverPreview" class="preview" '+(b.cover_url?'src="'+attr(b.cover_url)+'"':'style="display:none"')+' alt="Cover preview">'+
+          '</div>'+
+          '<div class="field full">'+
+            '<label>Gallery Image URLs (One per line)</label>'+
+            '<textarea name="gallery_urls" placeholder="https://images.unsplash.com/…\nhttps://…">'+esc((b.gallery_urls||[]).join('\n'))+'</textarea>'+
+          '</div>'+
+        '</div>'+
+      '</section>'+
+      '<section class="formSection">'+
+        '<h3>Detailed Public Story</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field full"><label>About The Place</label><textarea name="about" placeholder="Tell guests why this venue is unmissable…">'+esc(b.about||'')+'</textarea></div>'+
+          '<div class="field"><label>Highlights (One per line)</label><textarea name="highlights" placeholder="Panoramic Rooftop\nChef\'s Table\nVIP Valet">'+esc((b.highlights||[]).join('\n'))+'</textarea></div>'+
+          '<div class="field"><label>Amenities (One per line)</label><textarea name="amenities" placeholder="High-speed Wi-Fi\nPrivate Pool\nSecured Parking">'+esc((b.amenities||[]).join('\n'))+'</textarea></div>'+
+        '</div>'+
+      '</section>'+
+      '<section class="formSection">'+
+        '<h3>Publishing Status</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field full"><label class="check"><input name="is_published" type="checkbox" '+(b.is_published?'checked':'')+'> <b>Publish Live on FineTime</b> (Visible immediately on mobile app and public website)</label></div>'+
+        '</div>'+
+      '</section>'+
+      '<div class="formActions">'+
+        '<button class="btn-primary" type="submit">'+(b.id?'Save Changes':'Create Business')+'</button>'+
+        '<button class="btn-secondary" type="button" onclick="businesses()">Cancel</button>'+
+      '</div>'+
+    '</form>';
+
+  document.querySelector('#businessEditor [name="cover_url"]')?.addEventListener('input',e=>{
+    const el=document.getElementById('coverPreview');
+    if(el){el.src=e.target.value;el.style.display=e.target.value?'block':'none';}
+  });
+  document.querySelector('#businessEditor [name="logo_url"]')?.addEventListener('input',e=>{
+    const el=document.getElementById('logoPreview');
+    if(el){el.src=e.target.value;el.style.display=e.target.value?'block':'none';}
+  });
+}
+
+async function saveBusinessForm(event,id){
+  event.preventDefault();
+  const form=event.currentTarget,fd=new FormData(form),lines=n=>String(fd.get(n)||'').split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+  const businessPayload={
+    name:String(fd.get('name')||'').trim(),
+    category:String(fd.get('category')||'restaurant'),
+    city_id:String(fd.get('city_id')||'')||null,
+    about:String(fd.get('about')||'').trim()||null,
+    is_published:fd.get('is_published')==='on',
+    phone:String(fd.get('phone')||'').trim()||null,
+    cover_url:String(fd.get('cover_url')||'').trim()||null,
+    gallery_urls:lines('gallery_urls'),
+    highlights:lines('highlights'),
+    amenities:lines('amenities')
+  };
+  if(!businessPayload.name)return alert('Business name is required.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true;button.textContent='Saving…';}
+  try{
+    let businessId=id;
+    const profilePayload={business_id:id,menu_slug:String(fd.get('menu_slug')||'').trim()||null,tagline:String(fd.get('tagline')||'').trim()||null,currency:String(fd.get('currency')||'ETB'),address:String(fd.get('address')||'').trim()||null,logo_url:String(fd.get('logo_url')||'').trim()||null};
+    if(id){
+      const r=await s.from('businesses').update(businessPayload).eq('id',id);
+      if(r.error)throw r.error;
+      await s.from('business_admin_profiles').upsert(profilePayload,{onConflict:'business_id'});
+    }else{
+      const r=await s.from('businesses').insert(businessPayload).select('id').single();
+      if(r.error)throw r.error;
+      businessId=r.data.id;
+      profilePayload.business_id=businessId;
+      await s.from('business_admin_profiles').upsert(profilePayload,{onConflict:'business_id'});
+    }
+    alert(id?'Business updated successfully!':'Business created successfully!');
+    await businesses();
+  }catch(e){
+    alert(e.message||'Could not save business.');
+  }finally{
+    if(button){button.disabled=false;button.textContent=id?'Save Changes':'Create Business';}
+  }
+}
+
+async function delBusiness(id,button){
+  if(!confirm('Are you sure you want to delete this business? This action cannot be undone.'))return;
+  if(button)button.disabled=true;
+  try{
+    const r=await s.from('businesses').delete().eq('id',id).select('id').maybeSingle();
+    if(r.error)throw r.error;
+    await businesses();
+    businessStatus('Business deleted successfully.',true);
+  }catch(e){
+    businessStatus(e.message||'Delete action failed.');
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
+// ---------------- ACTIVATION CODES TAB ----------------
+async function codes(){
+  view.innerHTML='<div class="card muted">Loading activation codes…</div>';
+  const r=await s.from('activation_codes').select('id,business_id,expires_at,used_at,revoked_at,created_at,businesses(name)').order('created_at',{ascending:false});
+  if(r.error)return view.innerHTML='<div class="notice err">'+esc(r.error.message)+'</div>';
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>Partner Activation Codes</h2><p class="muted">Generate one-time connection codes for hospitality partner tablet apps.</p></div>'+
+      '<button class="btn-primary" onclick="makeCode()">+ Generate New Code</button>'+
+    '</div>'+
+    ((r.data||[]).length
+      ? (r.data||[]).map(x=>{
+          const isUsed=Boolean(x.used_at);
+          const isRevoked=Boolean(x.revoked_at);
+          const isExpired=x.expires_at&&new Date(x.expires_at)<new Date();
+          const badge=isUsed?'<span class="badge-pill badge-hidden">Used</span>'
+            : isRevoked?'<span class="badge-pill badge-hidden">Revoked</span>'
+            : isExpired?'<span class="badge-pill badge-hidden">Expired</span>'
+            : '<span class="badge-pill badge-published">● Active</span>';
+
+          return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">'+
+            '<div>'+
+              '<div style="font-weight:700;font-size:16px;color:#fff;">'+esc(x.businesses?.name||x.business_id)+'</div>'+
+              '<div class="muted" style="margin-top:2px;">Created: '+esc(new Date(x.created_at).toLocaleString())+'</div>'+
+            '</div>'+
+            '<div style="display:flex;gap:10px;align-items:center;">'+
+              badge+
+              (!isUsed&&!isRevoked?'<button class="btn-danger" style="padding:6px 12px;font-size:12px;" onclick="revoke(\''+x.id+'\')">Revoke</button>':'')+
+            '</div>'+
+          '</div>';
+        }).join('')
+      : '<div class="card muted">No activation codes found.</div>');
+}
+
+async function makeCode(){
+  const r=await s.from('businesses').select('id,name').order('name');
+  if(r.error)return alert(r.error.message);
+  if(!r.data?.length)return alert('Create a business first.');
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>Generate Activation Code</h2><p class="muted">Create an onboarding connection code for a partner.</p></div>'+
+      '<button class="btn-secondary" type="button" onclick="codes()">← Back</button>'+
+    '</div>'+
+    '<form id="codeEditor" class="formSection" onsubmit="return generateCode(event)">'+
+      '<div class="formGrid">'+
+        '<div class="field"><label>Business Partner *</label><select name="business_id" required>'+r.data.map(b=>'<option value="'+b.id+'">'+esc(b.name)+'</option>').join('')+'</select></div>'+
+        '<div class="field"><label>Valid for (Hours) *</label><input name="hours" type="number" min="1" max="8760" value="168" required><span class="help">Default is 168 hours (7 days).</span></div>'+
+      '</div>'+
+      '<div class="formActions"><button class="btn-primary" type="submit">Generate Code</button><button class="btn-secondary" type="button" onclick="codes()">Cancel</button></div>'+
+    '</form>';
+}
+
+async function generateCode(event){
+  event.preventDefault();
+  const fd=new FormData(event.currentTarget),businessId=String(fd.get('business_id')||''),hours=Math.max(1,Math.min(8760,Number(fd.get('hours')||168)));
+  const raw=Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[x%36]).join('');
+  const code='FT-'+raw.slice(0,6)+'-'+raw.slice(6);
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+  const hash=Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const saveResult=await s.from('activation_codes').insert({business_id:businessId,code_hash:hash,expires_at:new Date(Date.now()+hours*3600000).toISOString()});
+  if(saveResult.error)return alert(saveResult.error.message);
+  const businessName=event.currentTarget.querySelector('select option:checked')?.textContent||'Selected business';
+  view.innerHTML=
+    '<div class="card" style="text-align:center;padding:40px 24px;">'+
+      '<div class="badge-pill badge-published" style="margin-bottom:12px;">CODE ACTIVE</div>'+
+      '<h2>Activation Code Generated</h2>'+
+      '<p class="muted">'+esc(businessName)+' · valid for '+hours+' hours</p>'+
+      '<div style="font-size:32px;font-weight:900;letter-spacing:4px;color:var(--gold-light);margin:24px 0;background:var(--surface);padding:14px;border-radius:var(--radius-sm);border:1px solid var(--gold-border);">'+esc(code)+'</div>'+
+      '<p class="muted">Share this code with the venue manager. For security, only the cryptographic hash is stored.</p>'+
+      '<div class="formActions" style="justify-content:center;margin-top:24px;">'+
+        '<button class="btn-primary" type="button" onclick="codes()">Done</button>'+
+        '<button class="btn-secondary" type="button" onclick="makeCode()">Generate Another</button>'+
+      '</div>'+
+    '</div>';
+}
+
+async function revoke(id){
+  const r=await s.from('activation_codes').update({revoked_at:new Date().toISOString()}).eq('id',id);
+  if(r.error)alert(r.error.message);
+  else codes();
+}
+
+// ---------------- NEWS TAB ----------------
+async function news(){
+  view.innerHTML='<div class="card muted">Loading editorial news…</div>';
+  const r=await s.from('news').select('*').order('created_at',{ascending:false});
+  if(r.error)return view.innerHTML='<div class="notice err">'+esc(r.error.message)+'</div>';
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>FineTime Editorial News</h2><p class="muted">Publish culinary guides, venue debuts, and stories.</p></div>'+
+      '<button class="btn-primary" onclick="editNews()">+ Create Article</button>'+
+    '</div>'+
+    ((r.data||[]).length
+      ? (r.data||[]).map(n=>'<div class="card biz-row-card">'+
+          (n.cover_url?'<img class="biz-thumb" src="'+esc(n.cover_url)+'" alt="">':'<div class="biz-thumb" style="display:grid;place-items:center;font-size:24px;color:var(--gold);">📰</div>')+
+          '<div class="biz-info">'+
+            '<div class="biz-name"><span>'+esc(n.title)+'</span>'+(n.is_published?'<span class="badge-pill badge-published">● Published</span>':'<span class="badge-pill badge-hidden">Draft</span>')+'</div>'+
+            '<p class="biz-desc">'+esc(n.summary||'')+'</p>'+
+            '<div class="actions">'+
+              '<button class="btn-primary" style="padding:6px 12px;font-size:12px;" onclick="editNews(\''+q(n)+'\')">Edit Article</button>'+
+              '<button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="pubNews(\''+n.id+'\','+(!n.is_published)+')">'+(n.is_published?'Unpublish':'Publish Live')+'</button>'+
+              '<button class="btn-danger" style="padding:6px 12px;font-size:12px;" onclick="delNews(\''+n.id+'\')">Delete</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>').join('')
+      : '<div class="card muted">No news articles published yet.</div>');
+}
+
+async function editNews(x){
+  const n=x?dq(x):{};
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>'+(n.id?'Edit Article':'Write New Article')+'</h2><p class="muted">Compose editorial stories for the FineTime Dispatch.</p></div>'+
+      '<button class="btn-secondary" type="button" onclick="news()">← Back to News</button>'+
+    '</div>'+
+    '<form id="newsEditor" onsubmit="return saveNewsForm(event,'+(n.id?JSON.stringify(n.id):'null')+')">'+
+      '<section class="formSection">'+
+        '<h3>Article Details</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field full"><label>Article Title *</label><input name="title" required value="'+attr(n.title)+'" placeholder="e.g. The New Renaissance of Ethiopian Fine Dining"></div>'+
+          '<div class="field"><label>URL Slug *</label><input name="slug" required value="'+attr(n.slug)+'" placeholder="ethiopian-fine-dining"><span class="help">Lowercase words separated by dashes.</span></div>'+
+          '<div class="field">'+
+            '<label>Cover Image URL</label>'+
+            '<div style="display:flex;gap:8px;align-items:center;">'+
+              '<input id="newsCoverInput" name="cover_url" value="'+attr(n.cover_url)+'" placeholder="https://… or upload from device">'+
+              '<label class="btn-secondary" style="white-space:nowrap;padding:9px 12px;font-size:12px;cursor:pointer;">📁 Upload<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#newsCoverInput\',\'#newsPreview\')"></label>'+
+            '</div>'+
+            '<img id="newsPreview" class="preview" '+(n.cover_url?'src="'+attr(n.cover_url)+'"':'style="display:none"')+' alt="Cover preview">'+
+          '</div>'+
+          '<div class="field full"><label>Summary / Standfirst</label><textarea name="summary" style="min-height:70px" placeholder="Short introductory summary shown on cards…">'+esc(n.summary||'')+'</textarea></div>'+
+          '<div class="field full"><label>Full Article Body</label><textarea name="body" style="min-height:240px" placeholder="Write the complete story here…">'+esc(n.body||'')+'</textarea></div>'+
+          '<div class="field full"><label class="check"><input name="is_published" type="checkbox" '+((n.id?n.is_published:true)?'checked':'')+'> <b>Publish Article Immediately</b></label></div>'+
+        '</div>'+
+      '</section>'+
+      '<div class="formActions">'+
+        '<button class="btn-primary" type="submit">'+(n.id?'Save Changes':'Publish Article')+'</button>'+
+        '<button class="btn-secondary" type="button" onclick="news()">Cancel</button>'+
+      '</div>'+
+    '</form>';
+}
+
+async function saveNewsForm(event,id){
+  event.preventDefault();
+  const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim(),slug=String(fd.get('slug')||'').trim();
+  if(!title||!slug)return alert('Title and slug are required.');
+  const publish=fd.get('is_published')==='on';
+  const p={title,slug,summary:String(fd.get('summary')||'').trim()||null,body:String(fd.get('body')||'').trim()||null,cover_url:String(fd.get('cover_url')||'').trim()||null,is_published:publish,published_at:publish?new Date().toISOString():null};
+  const r=id?await s.from('news').update(p).eq('id',id):await s.from('news').insert(p);
+  if(r.error)alert(r.error.message);else news();
+}
+
+async function pubNews(id,v){
+  const r=await s.from('news').update({is_published:v,published_at:v?new Date().toISOString():null}).eq('id',id);
+  if(r.error)alert(r.error.message);else news();
+}
+
+async function delNews(id){
+  if(!confirm('Delete this article?'))return;
+  const r=await s.from('news').delete().eq('id',id);
+  if(r.error)alert(r.error.message);else news();
+}
+
+// ---------------- SITE MODULES TAB ----------------
+async function modules(){
+  view.innerHTML='<div class="card muted">Loading site modules…</div>';
+  const r=await s.from('site_modules').select('*').order('placement').order('sort_order');
+  if(r.error)return view.innerHTML='<div class="notice err">'+esc(r.error.message)+'</div>';
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>Site Modules & Promotional Cards</h2><p class="muted">Manage homepage spotlight banners and promotional campaigns.</p></div>'+
+      '<button class="btn-primary" onclick="editModule()">+ Create Module</button>'+
+    '</div>'+
+    ((r.data||[]).length
+      ? (r.data||[]).map(m=>'<div class="card biz-row-card">'+
+          (m.image_url?'<img class="biz-thumb" src="'+esc(m.image_url)+'" alt="">':'<div class="biz-thumb" style="display:grid;place-items:center;font-size:24px;color:var(--gold);">🧩</div>')+
+          '<div class="biz-info">'+
+            '<div class="biz-name"><span>'+esc(m.title)+'</span><span class="badge-pill badge-gold">'+esc(m.placement)+'</span>'+(m.is_enabled?'<span class="badge-pill badge-published">● Active</span>':'<span class="badge-pill badge-hidden">Disabled</span>')+'</div>'+
+            '<p class="biz-desc">'+esc(m.body||'')+'</p>'+
+            '<div class="actions">'+
+              '<button class="btn-primary" style="padding:6px 12px;font-size:12px;" onclick="editModule(\''+q(m)+'\')">Edit</button>'+
+              '<button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="toggleModule(\''+m.id+'\','+(!m.is_enabled)+')">'+(m.is_enabled?'Disable':'Enable')+'</button>'+
+              '<button class="btn-danger" style="padding:6px 12px;font-size:12px;" onclick="delModule(\''+m.id+'\')">Delete</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>').join('')
+      : '<div class="card muted">No site modules found.</div>');
+}
+
+function editModule(x){
+  const m=x?dq(x):{};
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>'+(m.id?'Edit Site Module':'Create Site Module')+'</h2><p class="muted">Configure placement, visuals and call to action.</p></div>'+
+      '<button class="btn-secondary" type="button" onclick="modules()">← Back</button>'+
+    '</div>'+
+    '<form id="moduleEditor" onsubmit="return saveModuleForm(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
+      '<section class="formSection">'+
+        '<h3>Module Configuration</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>Placement *</label><select name="placement"><option value="app_home" '+((m.placement||'website_home')==='app_home'?'selected':'')+'>Customer Mobile App Home</option><option value="website_home" '+((m.placement||'website_home')==='website_home'?'selected':'')+'>Public Website Home</option><option value="all" '+(m.placement==='all'?'selected':'')+'>Both App & Website</option></select></div>'+
+          '<div class="field"><label>Display Order</label><input name="sort_order" type="number" value="'+attr(m.sort_order??0)+'"></div>'+
+          '<div class="field full"><label>Title *</label><input name="title" required value="'+attr(m.title)+'" placeholder="e.g. Weekend Gastronomy Showcase"></div>'+
+          '<div class="field full"><label>Description Body</label><textarea name="body" placeholder="Describe the campaign or featured story…">'+esc(m.body||'')+'</textarea></div>'+
+          '<div class="field"><label>Button Label</label><input name="cta_label" value="'+attr(m.cta_label)+'" placeholder="Explore Experience"></div>'+
+          '<div class="field"><label>Destination URL</label><input name="cta_url" type="url" value="'+attr(m.cta_url)+'" placeholder="https://…"></div>'+
+          '<div class="field full">'+
+            '<label>Banner Image</label>'+
+            '<div style="display:flex;gap:8px;align-items:center;">'+
+              '<input id="modImageInput" name="image_url" value="'+attr(m.image_url)+'" placeholder="https://… or upload from device">'+
+              '<label class="btn-secondary" style="white-space:nowrap;padding:9px 12px;font-size:12px;cursor:pointer;">📁 Upload<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this,\'#modImageInput\',\'#modPreview\')"></label>'+
+            '</div>'+
+            '<img id="modPreview" class="preview" '+(m.image_url?'src="'+attr(m.image_url)+'"':'style="display:none"')+' alt="Module preview">'+
+          '</div>'+
+          '<div class="field full"><label class="check"><input name="is_enabled" type="checkbox" '+((m.id?m.is_enabled:true)?'checked':'')+'> <b>Enable Module Immediately</b></label></div>'+
+        '</div>'+
+      '</section>'+
+      '<div class="formActions"><button class="btn-primary" type="submit">'+(m.id?'Save Changes':'Create Module')+'</button><button class="btn-secondary" type="button" onclick="modules()">Cancel</button></div>'+
+    '</form>';
+}
+
+async function saveModuleForm(event,id){
+  event.preventDefault();
+  const fd=new FormData(event.currentTarget),title=String(fd.get('title')||'').trim();
+  if(!title)return alert('Title is required.');
+  const p={placement:String(fd.get('placement')||'app_home'),title,body:String(fd.get('body')||'').trim()||null,cta_label:String(fd.get('cta_label')||'').trim()||null,cta_url:String(fd.get('cta_url')||'').trim()||null,image_url:String(fd.get('image_url')||'').trim()||null,sort_order:Number(fd.get('sort_order')||0),is_enabled:fd.get('is_enabled')==='on'};
+  const r=id?await s.from('site_modules').update(p).eq('id',id):await s.from('site_modules').insert(p);
+  if(r.error)alert(r.error.message);else modules();
+}
+
+async function toggleModule(id,v){
+  const r=await s.from('site_modules').update({is_enabled:v}).eq('id',id);
+  if(r.error)alert(r.error.message);else modules();
+}
+
+async function delModule(id){
+  if(!confirm('Delete this module?'))return;
+  const r=await s.from('site_modules').delete().eq('id',id);
+  if(r.error)alert(r.error.message);else modules();
+}
+
+// ---------------- AUDIT LOG TAB ----------------
+async function audit(){
+  view.innerHTML='<div class="card muted">Loading audit entries…</div>';
+  const r=await s.from('admin_audit_logs').select('*').order('created_at',{ascending:false}).limit(200);
+  if(r.error)return view.innerHTML='<div class="notice err">'+esc(r.error.message)+'</div>';
+  view.innerHTML=
+    '<div class="formHead"><div><h2>Audit Log</h2><p class="muted">Review recent administrative operations and security events.</p></div></div>'+
+    ((r.data||[]).length
+      ? (r.data||[]).map(x=>'<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">'+
+          '<div>'+
+            '<div style="font-weight:700;color:#fff;">'+esc(x.action)+'</div>'+
+            '<div class="muted" style="margin-top:2px;">'+esc(new Date(x.created_at).toLocaleString())+' · ID: '+esc(x.entity_id||'—')+'</div>'+
+          '</div>'+
+          '<span class="badge-pill badge-gold">'+esc(x.entity_type||'SYSTEM')+'</span>'+
+        '</div>').join('')
+      : '<div class="card muted">No audit records found.</div>');
+}
+
+// ---------------- SECURITY TAB ----------------
+function securityMessage(message,ok=false){
+  const el=document.getElementById('securityMessage');
+  if(el)el.innerHTML='<div class="notice '+(ok?'ok':'err')+'">'+esc(message)+'</div>';
+}
+
+function security(){
+  view.innerHTML=
+    '<div class="formHead"><div><h2>Admin Security & Credentials</h2><p class="muted">Manage your admin PIN, password, and registered administrative email.</p></div></div>'+
+    '<div id="securityMessage"></div>'+
+    '<section class="formSection">'+
+      '<h3>Admin Security PIN</h3>'+
+      '<p class="help" style="margin-bottom:14px;">The Security PIN protects sensitive actions and verifies your identity.</p>'+
+      '<form id="pinForm">'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>New PIN *</label><input name="pin" type="password" autocomplete="new-password" required placeholder="Enter new numeric PIN"></div>'+
+          '<div class="field"><label>Confirm New PIN *</label><input name="confirm" type="password" inputmode="numeric" autocomplete="new-password" required placeholder="Repeat PIN"></div>'+
+        '</div>'+
+        '<div class="formActions"><button class="btn-primary" type="submit">Update Security PIN</button></div>'+
+      '</form>'+
+    '</section>'+
+    '<section class="formSection">'+
+      '<h3>Change Password</h3>'+
+      '<p class="help" style="margin-bottom:14px;">Enter your Admin Security PIN before updating your password.</p>'+
+      '<form id="passwordForm">'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter PIN"></div>'+
+          '<div class="field"><label>Current Password</label><input name="current" type="password" autocomplete="current-password" placeholder="Current password"></div>'+
+          '<div class="field"><label>New Password *</label><input name="password" type="password" autocomplete="new-password" required placeholder="New password"></div>'+
+          '<div class="field"><label>Confirm New Password *</label><input name="confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repeat new password"></div>'+
+        '</div>'+
+        '<div class="formActions"><button class="btn-primary" type="submit">Update Password</button></div>'+
+      '</form>'+
+    '</section>'+
+    '<section class="formSection">'+
+      '<h3>Change Admin Email</h3>'+
+      '<p class="help" style="margin-bottom:14px;">Enter your PIN and the new administrative email address.</p>'+
+      '<form id="emailForm">'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>Admin Security PIN *</label><input name="pin" type="password" autocomplete="off" required placeholder="Enter PIN"></div>'+
+          '<div class="field"><label>New Email Address *</label><input name="email" type="email" autocomplete="email" required placeholder="admin@finetime.cc"></div>'+
+        '</div>'+
+        '<div class="formActions"><button class="btn-primary" type="submit">Update Email</button></div>'+
+      '</form>'+
+    '</section>';
+
+  document.getElementById('pinForm')?.addEventListener('submit',saveSecurityPin);
+  document.getElementById('passwordForm')?.addEventListener('submit',savePasswordForm);
+  document.getElementById('emailForm')?.addEventListener('submit',saveEmailForm);
+}
+
+async function verifyPinValue(pin){
+  const value=String(pin||'').trim();
+  if(!value)throw new Error('PIN cannot be empty.');
+  const r=await s.rpc('verify_admin_security_pin',{p_pin:value});
+  if(r.error)throw r.error;
+  if(r.data!==true)throw new Error('Incorrect PIN or the PIN is temporarily locked.');
+  return true;
+}
+
+async function saveSecurityPin(event){
+  event.preventDefault();
+  const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),confirmPin=String(fd.get('confirm')||'');
+  if(!pin.trim())return securityMessage('PIN cannot be empty.');
+  if(pin!==confirmPin)return securityMessage('PIN confirmation does not match.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true;button.textContent='Saving…';}
+  try{
+    const r=await s.rpc('set_admin_security_pin',{p_pin:pin});
+    if(r.error)throw r.error;
+    form.reset();
+    securityMessage('Admin Security PIN updated successfully.',true);
+  }catch(e){
+    securityMessage(e.message||'Could not save the PIN.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='Update Security PIN';}
+  }
+}
+
+async function savePasswordForm(event){
+  event.preventDefault();
+  const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),password=String(fd.get('password')||''),confirmPassword=String(fd.get('confirm')||'');
+  if(!pin.trim())return securityMessage('PIN cannot be empty.');
+  if(!password)return securityMessage('Password cannot be empty.');
+  if(password!==confirmPassword)return securityMessage('New password confirmation does not match.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true;button.textContent='Saving…';}
+  try{
+    await verifyPinValue(pin);
+    const r=await s.auth.updateUser({password});
+    if(r.error)throw r.error;
+    form.reset();
+    securityMessage('Password updated successfully.',true);
+  }catch(e){
+    securityMessage(e.message||'Could not update password.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='Update Password';}
+  }
+}
+
+async function saveEmailForm(event){
+  event.preventDefault();
+  const form=event.currentTarget,fd=new FormData(form),pin=String(fd.get('pin')||''),email=String(fd.get('email')||'').trim();
+  if(!/^\S+@\S+\.\S+$/.test(email))return securityMessage('Enter a valid email address.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true;button.textContent='Saving…';}
+  try{
+    await verifyPinValue(pin);
+    const r=await s.auth.updateUser({email});
+    if(r.error)throw r.error;
+    form.reset();
+    securityMessage('Email change submitted successfully. Check your email for confirmation.',true);
+  }catch(e){
+    securityMessage(e.message||'Could not update email.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='Update Email';}
+  }
+}
+
+// ---------------- HOME DESIGN / HERO HEADER TAB ----------------
+async function heroHeader(){
+  view.innerHTML='<div class="card muted">Loading mobile home design…</div>';
+  const r=await s.from('site_modules').select('*').eq('placement','app_hero').limit(1);
+  const m=(r.data&&r.data[0])||{
+    id:null,
+    title:'Your next Ethiopian story',
+    body:'Exceptional places, chosen with care.',
+    cta_label:'CURATED FOR YOU',
+    cta_url:'',
+    image_url:'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+    is_enabled:true
+  };
+
+  view.innerHTML=
+    '<div class="formHead">'+
+      '<div><h2>Mobile App Header & Hero Banner</h2><p class="muted">Live preview and visual controls for the mobile app home screen banner.</p></div>'+
+    '</div>'+
+    '<div class="card" style="margin-bottom:24px;background:#0c0a06;border:1px solid var(--gold-border);padding:20px;border-radius:var(--radius-lg);">'+
+      '<div style="font-size:12px;font-weight:800;color:var(--gold-light);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">📱 Live Mobile Mockup</div>'+
+      '<div style="position:relative;height:240px;border-radius:16px;overflow:hidden;border:1px solid #332c24;background:#14110c;">'+
+        '<img id="heroPreviewImg" src="'+attr(m.image_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(12,10,6,0.2) 40%, rgba(12,10,6,0.95) 100%);"></div>'+
+        '<div style="position:absolute;top:16px;left:18px;display:flex;align-items:center;gap:8px;">'+
+          '<div style="background:linear-gradient(135deg,#e3a82d,#c99220);color:#111;font-weight:900;font-style:italic;font-family:serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">F</div>'+
+          '<span style="color:#f5f1e8;font-weight:900;font-size:16px;">FineTime<span style="color:#e3a82d;">.cc</span></span>'+
+        '</div>'+
+        '<div style="position:absolute;bottom:16px;left:18px;right:18px;">'+
+          '<div id="previewBadge" style="color:#e3a82d;font-size:10px;font-weight:800;letter-spacing:1.5px;">'+esc(m.cta_label||'CURATED FOR YOU')+'</div>'+
+          '<div id="previewTitle" style="color:#f5f1e8;font-size:22px;font-weight:800;font-family:serif;margin:4px 0;">'+esc(m.title||'Your next Ethiopian story')+'</div>'+
+          '<div id="previewSubtitle" style="color:#ddd8d0;font-size:13px;">'+esc(m.body||'Exceptional places, chosen with care.')+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<form id="heroForm" onsubmit="return saveHeroHeader(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
+      '<section class="formSection">'+
+        '<h3>Banner Media & Visuals</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field full">'+
+            '<label>Header Background Photo *</label>'+
+            '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'+
+              '<input id="heroImageInput" name="image_url" required value="'+attr(m.image_url)+'" placeholder="https://… or upload from device" style="flex:1;min-width:240px;">'+
+              '<label class="btn-secondary" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;">'+
+                '<span>📁 Upload photo from device</span>'+
+                '<input type="file" accept="image/*" style="display:none;" onchange="handleDeviceFile(this, \'#heroImageInput\', \'#heroPreviewImg\')">'+
+              '</label>'+
+              '<button type="button" class="btn-secondary" onclick="document.getElementById(\'heroImageInput\').value=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\';document.getElementById(\'heroPreviewImg\').src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">Reset Default</button>'+
+            '</div>'+
+            '<span class="help">Photos uploaded here are automatically compressed and saved to Supabase Storage.</span>'+
+          '</div>'+
+        '</div>'+
+      '</section>'+
+      '<section class="formSection">'+
+        '<h3>Headline & Campaign Details</h3>'+
+        '<div class="formGrid">'+
+          '<div class="field"><label>Top Tagline Badge</label><input id="heroBadgeInput" name="cta_label" value="'+attr(m.cta_label||'CURATED FOR YOU')+'" placeholder="CURATED FOR YOU"></div>'+
+          '<div class="field"><label>Main Headline *</label><input id="heroTitleInput" name="title" required value="'+attr(m.title||'Your next Ethiopian story')+'" placeholder="Headline"></div>'+
+          '<div class="field full"><label>Subtitle</label><input id="heroSubtitleInput" name="body" value="'+attr(m.body||'Exceptional places, chosen with care.')+'" placeholder="Subtitle"></div>'+
+          '<div class="field"><label>Destination URL / Deep Link (optional)</label><input name="cta_url" value="'+attr(m.cta_url||'')+'" placeholder="https://…"></div>'+
+          '<div class="field full"><label class="check"><input name="is_enabled" type="checkbox" '+(m.is_enabled?'checked':'')+'> <b>Display this hero banner on the mobile home screen</b></label></div>'+
+        '</div>'+
+      '</section>'+
+      '<div class="formActions"><button class="btn-primary" type="submit">Save Header Banner</button><button class="btn-secondary" type="button" onclick="businesses()">Cancel</button></div>'+
+    '</form>';
+
+  document.getElementById('heroImageInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('heroPreviewImg');
+    if(el)el.src=e.target.value;
+  });
+  document.getElementById('heroBadgeInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewBadge');
+    if(el)el.textContent=e.target.value.toUpperCase();
+  });
+  document.getElementById('heroTitleInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewTitle');
+    if(el)el.textContent=e.target.value;
+  });
+  document.getElementById('heroSubtitleInput')?.addEventListener('input', e=>{
+    const el=document.getElementById('previewSubtitle');
+    if(el)el.textContent=e.target.value;
+  });
+}
+
+async function saveHeroHeader(event, id){
+  event.preventDefault();
+  const form=event.currentTarget, fd=new FormData(form);
+  const title=String(fd.get('title')||'').trim();
+  const imageUrl=String(fd.get('image_url')||'').trim();
+  if(!title)return alert('Main headline is required.');
+  if(!imageUrl)return alert('Header photo is required.');
+  const button=form.querySelector('button[type="submit"]');
+  if(button){button.disabled=true; button.textContent='Saving…';}
+  const payload={
+    placement:'app_hero',
+    title:title,
+    body:String(fd.get('body')||'').trim()||null,
+    cta_label:String(fd.get('cta_label')||'').trim()||null,
+    cta_url:String(fd.get('cta_url')||'').trim()||null,
+    image_url:imageUrl,
+    is_enabled:fd.get('is_enabled')==='on',
+    sort_order:0
+  };
+  try{
+    const r=id
+      ? await s.from('site_modules').update(payload).eq('id',id).select().single()
+      : await s.from('site_modules').insert(payload).select().single();
+    if(r.error)throw r.error;
+    alert('Mobile header banner saved! The app will reflect changes immediately.');
+    await heroHeader();
+  }catch(e){
+    alert(e.message||'Could not save header banner.');
+  }finally{
+    if(button){button.disabled=false; button.textContent='Save Header Banner';}
+  }
+}
+
+// ---------------- IMAGE UPLOAD HELPER ----------------
 function readImageBlob(file, maxDim=1800, quality=0.86){
   return new Promise((resolve, reject)=>{
     if(!file||!file.type.startsWith('image/')) return reject(new Error('Please select an image file.'));
@@ -502,109 +1621,17 @@ async function handleDeviceFile(fileInput, targetInputSelector, previewImgSelect
   }
 }
 
-async function heroHeader(){
-  view.innerHTML='<div class="card muted">Loading header settings…</div>';
-  const r=await s.from('site_modules').select('*').eq('placement','app_hero').limit(1);
-  const m=(r.data&&r.data[0])||{
-    id:null,
-    title:'Your next Ethiopian story',
-    body:'Exceptional places, chosen with care.',
-    cta_label:'CURATED FOR YOU',
-    cta_url:'',
-    image_url:'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
-    is_enabled:true
-  };
-  
-  view.innerHTML='<div class="formHead"><div><h2>App Header & Hero Banner</h2><p class="muted">Control the mobile home header visual from one place. Use a building photo, promotion, advertisement, campaign artwork, or your own logo. You can paste an image URL or upload a photo directly from your phone or computer.</p></div><button class="g" type="button" onclick="businesses()">Back</button></div>'+
-  '<div class="card" style="margin-bottom:16px;background:#0c0a06;border:1px solid #c9a22744;padding:16px;border-radius:18px">'+
-    '<h3 style="color:#c9a227;margin-top:0">Live Mobile Header Mockup</h3>'+
-    '<div style="position:relative;height:240px;border-radius:14px;overflow:hidden;border:1px solid #332c24;background:#14110c">'+
-      '<img id="heroPreviewImg" src="'+attr(m.image_url)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">'+
-      '<div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(12,10,6,0.2) 40%, rgba(12,10,6,0.95) 100%)"></div>'+
-      '<div style="position:absolute;top:14px;left:16px;display:flex;align-items:center;gap:8px">'+
-        '<div style="background:linear-gradient(135deg,#e3a82d,#c99220);color:#111;font-weight:900;font-style:italic;font-family:serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px">F</div>'+
-        '<span style="color:#f5f1e8;font-weight:900;font-size:16px">FineTime<span style="color:#e3a82d">.cc</span></span>'+
-      '</div>'+
-      '<div style="position:absolute;bottom:14px;left:16px;right:16px">'+
-        '<div id="previewBadge" style="color:#e3a82d;font-size:10px;font-weight:800;letter-spacing:1.5px">'+esc(m.cta_label||'CURATED FOR YOU')+'</div>'+
-        '<div id="previewTitle" style="color:#f5f1e8;font-size:20px;font-weight:800;font-family:serif;margin:4px 0">'+esc(m.title||'Your next Ethiopian story')+'</div>'+
-        '<div id="previewSubtitle" style="color:#ddd8d0;font-size:12px">'+esc(m.body||'Exceptional places, chosen with care.')+'</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>'+
-  '<form id="heroForm" onsubmit="return saveHeroHeader(event,'+(m.id?JSON.stringify(m.id):'null')+')">'+
-  '<section class="formSection"><h3>Header Media & Visuals</h3><div class="formGrid">'+
-    '<div class="field full">'+
-      '<label>Header Photo (Building / Promotion / Ad / Logo) *</label>'+
-      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
-        '<input id="heroImageInput" name="image_url" required value="'+attr(m.image_url)+'" placeholder="https://… or upload from device" style="flex:1;min-width:220px">'+
-        '<label style="cursor:pointer;background:#2b261f;border:1px solid #c9a227;color:#f5f1e8;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">'+
-          '<span>📁 Upload photo from device</span>'+
-          '<input type="file" accept="image/*" style="display:none" onchange="handleDeviceFile(this, \'#heroImageInput\', \'#heroPreviewImg\')">'+
-        '</label>'+
-        '<button type="button" class="g" style="padding:10px 12px;font-size:12px" onclick="document.getElementById(\'heroImageInput\').value=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\';document.getElementById(\'heroPreviewImg\').src=\'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80\'">Reset default</button>'+
-      '</div>'+
-      '<span class="help">Choose any photo from your phone or PC. FineTime compresses it and stores it in Supabase Storage, then saves the public media URL. No huge base64 image is stored in the database.</span>'+
-    '</div>'+
-  '</div></section>'+
-  '<section class="formSection"><h3>Header Text & Promotion Details</h3><div class="formGrid">'+
-    '<div class="field"><label>Tagline badge</label><input id="heroBadgeInput" name="cta_label" value="'+attr(m.cta_label||'CURATED FOR YOU')+'" placeholder="CURATED FOR YOU"><span class="help">Small uppercase badge shown directly above the main title.</span></div>'+
-    '<div class="field"><label>Main headline *</label><input id="heroTitleInput" name="title" required value="'+attr(m.title||'Your next Ethiopian story')+'" placeholder="Your next Ethiopian story"></div>'+
-    '<div class="field full"><label>Subtitle</label><input id="heroSubtitleInput" name="body" value="' + attr(m.body || 'Exceptional places, chosen with care.') + '" placeholder="Exceptional places, chosen with care."></div>'+
-    '<div class="field"><label>Promotion / Link destination (optional)</label><input name="cta_url" value="'+attr(m.cta_url||'')+'" placeholder="https://… or business slug"></div>'+
-    '<div class="field"><label class="check"><input name="is_enabled" type="checkbox" '+(m.is_enabled?'checked':'')+'> Display header banner in app</label></div>'+
-  '</div></section>'+
-  '<div class="formActions"><button type="submit">Save Header Banner</button><button type="button" class="g" onclick="businesses()">Cancel</button></div></form>';
-
-  document.getElementById('heroImageInput')?.addEventListener('input', e=>{
-    const el=document.getElementById('heroPreviewImg');
-    if(el)el.src=e.target.value;
-  });
-  document.getElementById('heroBadgeInput')?.addEventListener('input', e=>{
-    const el=document.getElementById('previewBadge');
-    if(el)el.textContent=e.target.value.toUpperCase();
-  });
-  document.getElementById('heroTitleInput')?.addEventListener('input', e=>{
-    const el=document.getElementById('previewTitle');
-    if(el)el.textContent=e.target.value;
-  });
-  document.getElementById('heroSubtitleInput')?.addEventListener('input', e=>{
-    const el=document.getElementById('previewSubtitle');
-    if(el)el.textContent=e.target.value;
-  });
-}
-
-async function saveHeroHeader(event, id){
-  event.preventDefault();
-  const form=event.currentTarget, fd=new FormData(form);
-  const title=String(fd.get('title')||'').trim();
-  const imageUrl=String(fd.get('image_url')||'').trim();
-  if(!title)return alert('Main headline is required.');
-  if(!imageUrl)return alert('Header photo is required.');
-  const button=form.querySelector('button[type="submit"]');
-  if(button){button.disabled=true; button.textContent='Saving…';}
-  const payload={
-    placement:'app_hero',
-    title:title,
-    body:String(fd.get('body')||'').trim()||null,
-    cta_label:String(fd.get('cta_label')||'').trim()||null,
-    cta_url:String(fd.get('cta_url')||'').trim()||null,
-    image_url:imageUrl,
-    is_enabled:fd.get('is_enabled')==='on',
-    sort_order:0
-  };
+// ---------------- INITIALIZATION ----------------
+(async()=>{
   try{
-    const r=id
-      ? await s.from('site_modules').update(payload).eq('id',id).select().single()
-      : await s.from('site_modules').insert(payload).select().single();
-    if(r.error)throw r.error;
-    alert('Header & Hero banner updated! The mobile app and website will update immediately.');
-    await heroHeader();
+    const recovered=await s.auth.recoverFromHash();
+    await boot();
+    if(recovered)setTimeout(()=>security(),0);
   }catch(e){
-    alert(e.message||'Could not save header banner.');
-  }finally{
-    if(button){button.disabled=false; button.textContent='Save Header Banner';}
+    console.warn('Recovery session could not be restored',e);
+    boot();
   }
-}
-(async()=>{try{const recovered=await s.auth.recoverFromHash();await boot();if(recovered)setTimeout(()=>security(),0)}catch(e){console.warn('Recovery session could not be restored',e);boot()}})();
-</script></body></html>
+})();
+</script>
+</body>
+</html>

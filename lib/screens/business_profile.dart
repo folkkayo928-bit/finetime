@@ -36,7 +36,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   bool saved = false;
   bool reviewEligible = false;
   String? error;
-  RealtimeChannel? _realtime;
 
   bool get isHotel => b?['category']?.toString().toLowerCase() == 'hotel';
   bool get hasFood => menu.isNotEmpty;
@@ -97,41 +96,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       } catch (_) {}
     }
     return '';
-  }
-
-  void _subscribeToUpdates() {
-    _realtime = sb.channel('business-live-${widget.businessId}')
-      ..onPostgresChanges(
-        event: PostgresChangeEvent.all,
-        schema: 'public',
-        table: 'businesses',
-        callback: (_) => load(),
-      )
-      ..onPostgresChanges(
-        event: PostgresChangeEvent.all,
-        schema: 'public',
-        table: 'room_types',
-        callback: (_) => load(),
-      )
-      ..onPostgresChanges(
-        event: PostgresChangeEvent.all,
-        schema: 'public',
-        table: 'menu_categories',
-        callback: (_) => load(),
-      )
-      ..onPostgresChanges(
-        event: PostgresChangeEvent.all,
-        schema: 'public',
-        table: 'menu_items',
-        callback: (_) => load(),
-      )
-      ..onPostgresChanges(
-        event: PostgresChangeEvent.all,
-        schema: 'public',
-        table: 'promotions',
-        callback: (_) => load(),
-      )
-      ..subscribe();
   }
 
   Future<void> checkSaved() async {
@@ -585,7 +549,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   @override
   void dispose() {
-    if (_realtime != null) sb.removeChannel(_realtime!);
     super.dispose();
   }
 
