@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'notifications.dart';
@@ -20,7 +22,20 @@ class _MeScreenState extends State<MeScreen>{
  Map<String,dynamic>? _profile;
  int _trips=0,_saved=0,_reviews=0;
 
- @override void initState(){super.initState();_loadProfile();}
+ StreamSubscription<AuthState>? _authSubscription;
+
+ @override void initState(){
+   super.initState();
+   _loadProfile();
+   _authSubscription = sb.auth.onAuthStateChange.listen((_) {
+     _loadProfile();
+   });
+ }
+
+ @override void dispose(){
+   _authSubscription?.cancel();
+   super.dispose();
+ }
 
  Future<void> _loadProfile() async {
   final u = sb.auth.currentUser;
