@@ -138,14 +138,14 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   Future<void> load() async {
     try {
-      // Load the business itself first so the profile can render immediately.
-      // Room/menu/review/promotion data is supplementary and must not keep the
-      // whole profile stuck behind one slow or unavailable query.
+      // Load the business itself first. The profile can render as soon as
+      // this critical query succeeds; optional sections must never keep the
+      // whole profile on a spinner.
       final business = await sb.from('businesses')
           .select('*, cities(name)')
           .eq('id', widget.businessId)
           .maybeSingle()
-          .timeout(const Duration(seconds: 8));
+          .timeout(const Duration(seconds: 10));
 
       if (business == null) {
         if (mounted) setState(() => error = 'This business is not available.');
@@ -159,40 +159,39 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         });
       }
 
-      Future<T?> optional<T>(Future<T> future) async {
-        try {
-          return await future.timeout(const Duration(seconds: 8));
-        } catch (_) {
-          return null;
-        }
-      }
-
-      // Fetch optional sections in parallel. A failure in one section no
-      // longer prevents the core business profile from appearing.
-      final results = await Future.wait([
-        optional(sb.from('room_types')
-            .select().eq('business_id', widget.businessId).order('name')),
-        optional(sb.from('menu_categories')
-            .select('*, menu_items(*)').eq('business_id', widget.businessId).order('sort_order')),
-        optional(sb.from('reviews')
+      // Load optional profile sections in parallel. A slow/broken secondary
+      // table must not block the business header and main profile content.
+      final extras = await Future.wait<dynamic>([
+        sb.from('room_types')
+            .select().eq('business_id', widget.businessId).order('name')
+            .timeout(const Duration(seconds: 8))
+            .catchError((_) => <dynamic>[]),
+        sb.from('menu_categories')
+            .select('*, menu_items(*)').eq('business_id', widget.businessId).order('sort_order')
+            .timeout(const Duration(seconds: 8))
+            .catchError((_) => <dynamic>[]),
+        sb.from('reviews')
             .select('rating,body,created_at').eq('business_id', widget.businessId)
-            .order('created_at', ascending: false)),
-        optional(sb.from('promotions')
+            .order('created_at', ascending: false)
+            .timeout(const Duration(seconds: 8))
+            .catchError((_) => <dynamic>[]),
+        sb.from('promotions')
             .select('id,title,description,badge,image_url,terms,starts_on,ends_on,status')
             .eq('business_id', widget.businessId).eq('status', 'active')
-            .order('starts_on', ascending: true)),
+            .order('starts_on', ascending: true)
+            .timeout(const Duration(seconds: 8))
+            .catchError((_) => <dynamic>[]),
       ]);
 
-      if (mounted) {
-        setState(() {
-          rooms = results[0] == null ? [] : List<Map<String, dynamic>>.from(results[0] as List);
-          menu = results[1] == null ? [] : List<Map<String, dynamic>>.from(results[1] as List);
-          reviews = results[2] == null ? [] : List<Map<String, dynamic>>.from(results[2] as List);
-          promotions = results[3] == null ? [] : List<Map<String, dynamic>>.from(results[3] as List);
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        rooms = List<Map<String, dynamic>>.from(extras[0]);
+        menu = List<Map<String, dynamic>>.from(extras[1]);
+        reviews = List<Map<String, dynamic>>.from(extras[2]);
+        promotions = List<Map<String, dynamic>>.from(extras[3]);
+      });
 
-      // Eligibility is also supplementary; never block the profile on it.
+      // Eligibility is non-critical and already handles its own failures.
       checkReviewEligibility();
     } catch (e) {
       if (mounted) setState(() => error = Net.friendly(e));
