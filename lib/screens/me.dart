@@ -23,23 +23,51 @@ class _MeScreenState extends State<MeScreen>{
  @override void initState(){super.initState();_loadProfile();}
 
  Future<void> _loadProfile() async {
-  final u=sb.auth.currentUser;
-  if(u==null)return;
+  final u = sb.auth.currentUser;
+  if (u == null) return;
+
+  // Load each part independently. A failure in one optional table must not
+  // make the profile name/review/saved counters all fall back to zero.
+  Map<String, dynamic>? profile;
+  int saved = 0;
+  int reviews = 0;
+  int trips = 0;
+
   try {
-    final p=await sb.from('profiles').select().eq('id',u.id).maybeSingle();
-    final s=await sb.from('saved_places').select('id').eq('user_id',u.id);
-    final rv=await sb.from('reviews').select('id').eq('user_id',u.id);
-    final b=await sb.from('bookings').select('id').eq('user_id',u.id);
-    final rr=await sb.from('reservations').select('id').eq('user_id',u.id);
-    if(mounted) {
-      setState(() {
-        _profile=p==null?null:Map<String,dynamic>.from(p);
-        _saved=s.length;
-        _reviews=rv.length;
-        _trips=b.length+rr.length;
-      });
+    final p = await sb
+        .from('profiles')
+        .select('full_name')
+        .eq('id', u.id)
+        .maybeSingle();
+    if (p != null) {
+      profile = Map<String, dynamic>.from(p);
     }
-  } catch(_) {}
+  } catch (_) {}
+
+  try {
+    final rows = await sb.from('saved_places').select('id').eq('user_id', u.id);
+    saved = rows.length;
+  } catch (_) {}
+
+  try {
+    final rows = await sb.from('reviews').select('id').eq('user_id', u.id);
+    reviews = rows.length;
+  } catch (_) {}
+
+  try {
+    final bookings = await sb.from('bookings').select('id').eq('user_id', u.id);
+    final reservations =
+        await sb.from('reservations').select('id').eq('user_id', u.id);
+    trips = bookings.length + reservations.length;
+  } catch (_) {}
+
+  if (!mounted) return;
+  setState(() {
+    _profile = profile;
+    _saved = saved;
+    _reviews = reviews;
+    _trips = trips;
+  });
  }
 
  void _open(Widget page) {
