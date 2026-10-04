@@ -1034,7 +1034,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => BusinessProfileScreen(businessId: b['id'])),
+            builder: (_) => BusinessProfileScreen(
+              businessId: b['id'].toString(),
+              initialBusiness: Map<String, dynamic>.from(b),
+            )),
       ),
       child: Container(
         width: 204,
