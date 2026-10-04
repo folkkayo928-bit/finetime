@@ -37,14 +37,14 @@ jobs:
           done
 
           mkdir -p android/keystore
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/keystore/finetime-upload.jks
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/finetime-upload.jks
 
           cat > android/key.properties <<EOF
-storePassword=$ANDROID_STORE_PASSWORD
-keyPassword=$ANDROID_STORE_PASSWORD
-keyAlias=$ANDROID_KEY_ALIAS
-storeFile=../keystore/finetime-upload.jks
-EOF
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=../keystore/finetime-upload.jks
+          EOF
 
           python3 - <<'PY'
           from pathlib import Path
@@ -97,7 +97,7 @@ EOF
           rm -f android/key.properties.bak
 
           echo "Verifying persistent Android signing credentials..."
-          keytool -list -v -keystore android/keystore/finetime-upload.jks -storepass "$ANDROID_STORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          keytool -list -v -keystore android/keystore/finetime-upload.jks -storepass "$ANDROID_STORE_PASSWORD" -keypass "$ANDROID_STORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
 
       - name: Build signed release APK
         run: flutter clean && flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --build-name="0.1.${{ github.run_number }}" --build-number="${{ github.run_number }}" --dart-define=APP_VERSION="0.1.${{ github.run_number }}" --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
