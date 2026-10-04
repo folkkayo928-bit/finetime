@@ -624,7 +624,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ExploreScreen())),
+                            builder: (_) => const GuestReviewsScreen())),
                     child: const Text(
                       'See all >',
                       style: TextStyle(
