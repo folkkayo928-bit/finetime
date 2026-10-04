@@ -136,14 +136,22 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     } catch (_) {}
   }
 
+  Future<dynamic> _safeOptional(Future<dynamic> request) async {
+    try {
+      return await request.timeout(const Duration(seconds: 8));
+    } catch (_) {
+      return <dynamic>[];
+    }
+  }
+
   Future<void> load() async {
     try {
-      // Load the business itself first. The profile can render as soon as
-      // this critical query succeeds; optional sections must never keep the
-      // whole profile on a spinner.
+      // Load only the critical business row first. Avoid a nested city
+      // relationship here so a secondary relation can never block the page.
       final business = await sb.from('businesses')
-          .select('*, cities(name)')
+          .select('*')
           .eq('id', widget.businessId)
+          .eq('is_published', true)
           .maybeSingle()
           .timeout(const Duration(seconds: 10));
 
@@ -159,39 +167,40 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         });
       }
 
-      // Load optional profile sections in parallel. A slow/broken secondary
-      // table must not block the business header and main profile content.
+      final cityId = business['city_id']?.toString();
       final extras = await Future.wait<dynamic>([
-        sb.from('room_types')
-            .select().eq('business_id', widget.businessId).order('name')
-            .timeout(const Duration(seconds: 8))
-            .catchError((_) => <dynamic>[]),
-        sb.from('menu_categories')
-            .select('*, menu_items(*)').eq('business_id', widget.businessId).order('sort_order')
-            .timeout(const Duration(seconds: 8))
-            .catchError((_) => <dynamic>[]),
-        sb.from('reviews')
+        if (cityId != null && cityId.isNotEmpty)
+          _safeOptional(sb.from('cities').select('name').eq('id', cityId).maybeSingle())
+        else
+          Future.value(<dynamic>[]),
+        _safeOptional(sb.from('room_types')
+            .select().eq('business_id', widget.businessId).order('name')),
+        _safeOptional(sb.from('menu_categories')
+            .select('*, menu_items(*)').eq('business_id', widget.businessId).order('sort_order')),
+        _safeOptional(sb.from('reviews')
             .select('rating,body,created_at').eq('business_id', widget.businessId)
-            .order('created_at', ascending: false)
-            .timeout(const Duration(seconds: 8))
-            .catchError((_) => <dynamic>[]),
-        sb.from('promotions')
+            .order('created_at', ascending: false)),
+        _safeOptional(sb.from('promotions')
             .select('id,title,description,badge,image_url,terms,starts_on,ends_on,status')
             .eq('business_id', widget.businessId).eq('status', 'active')
-            .order('starts_on', ascending: true)
-            .timeout(const Duration(seconds: 8))
-            .catchError((_) => <dynamic>[]),
+            .order('starts_on', ascending: true)),
       ]);
 
       if (!mounted) return;
+      final city = extras[0] is Map
+          ? Map<String, dynamic>.from(extras[0] as Map)
+          : null;
+      final current = Map<String, dynamic>.from(business);
+      if (city != null) current['cities'] = city;
+
       setState(() {
-        rooms = List<Map<String, dynamic>>.from(extras[0]);
-        menu = List<Map<String, dynamic>>.from(extras[1]);
-        reviews = List<Map<String, dynamic>>.from(extras[2]);
-        promotions = List<Map<String, dynamic>>.from(extras[3]);
+        b = current;
+        rooms = List<Map<String, dynamic>>.from(extras[1] as List);
+        menu = List<Map<String, dynamic>>.from(extras[2] as List);
+        reviews = List<Map<String, dynamic>>.from(extras[3] as List);
+        promotions = List<Map<String, dynamic>>.from(extras[4] as List);
       });
 
-      // Eligibility is non-critical and already handles its own failures.
       checkReviewEligibility();
     } catch (e) {
       if (mounted) setState(() => error = Net.friendly(e));
