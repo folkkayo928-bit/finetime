@@ -1100,27 +1100,37 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF090B0C),
-      bottomNavigationBar: _bottomBookingBar(business),
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Stack(
           children: [
-            _profileHero(business, average),
-            _profileTabBar(),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 180),
-              child: KeyedSubtree(
-                key: ValueKey(_profileTab),
-                child: switch (_profileTab) {
-                  0 => _aboutContent(business, allHighlights),
-                  1 => _highlightsContent(allHighlights),
-                  2 => _galleryContent(gallery),
-                  3 => _hoursContent(hours, business),
-                  4 => _reviewsContent(),
-                  _ => _aboutContent(business, allHighlights),
-                },
-              ),
+            ListView(
+              padding: const EdgeInsets.only(bottom: 105),
+              children: [
+                _profileHero(business, average),
+                _profileTabBar(),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  child: KeyedSubtree(
+                    key: ValueKey(_profileTab),
+                    child: switch (_profileTab) {
+                      0 => _aboutContent(business, allHighlights),
+                      1 => _highlightsContent(allHighlights),
+                      2 => _galleryContent(gallery),
+                      3 => _hoursContent(hours, business),
+                      4 => _reviewsContent(),
+                      _ => _aboutContent(business, allHighlights),
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _bottomBookingBar(business),
             ),
           ],
         ),
