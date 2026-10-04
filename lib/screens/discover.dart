@@ -801,7 +801,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ExploreScreen())),
+                            builder: (_) => const GuestReviewsScreen())),
                   ),
                 ],
               ),
