@@ -515,7 +515,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ],
             ),
 
-            const SizedBox(height: 18),
 
             // ---------------------------------------------------------------
             // 2. CATEGORY PILLS (5 ICONS: Hotels, Restaurants, Cafés, Experiences, Nearby)
