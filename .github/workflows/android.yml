@@ -41,7 +41,7 @@ jobs:
 
           cat > android/key.properties <<EOF
           storePassword=$ANDROID_STORE_PASSWORD
-          keyPassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
           keyAlias=$ANDROID_KEY_ALIAS
           storeFile=../keystore/finetime-upload.jks
           EOF
