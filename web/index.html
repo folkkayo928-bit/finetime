@@ -75,27 +75,50 @@
     <div class="splash-text">Loading experiences…</div>
   </div>
   <script>
-    // Remove the HTML loading layer as soon as Flutter paints its first frame.
-    // Without this, the splash can remain above the fully loaded Flutter app.
-    window.addEventListener('flutter-first-frame', function () {
+    (function () {
       var splash = document.getElementById('loading-splash');
-      if (!splash) return;
-      splash.style.opacity = '0';
-      window.setTimeout(function () {
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-      }, 450);
-    });
+      var timedOut = false;
 
-    // Safety net: never leave users staring at the spinner forever if the
-    // Flutter first-frame event is delayed or unavailable.
-    window.setTimeout(function () {
-      var splash = document.getElementById('loading-splash');
-      if (!splash) return;
-      splash.style.opacity = '0';
+      function removeSplash() {
+        if (!splash || !splash.parentNode) return;
+        splash.style.opacity = '0';
+        window.setTimeout(function () {
+          if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 450);
+      }
+
+      // The splash must disappear only after Flutter has actually painted.
+      // This prevents a blank/black page from being exposed prematurely.
+      window.addEventListener('flutter-first-frame', removeSplash);
+
+      // If Flutter has not produced a frame after 12 seconds, show a useful
+      // recovery action instead of fading to an unexplained black screen.
       window.setTimeout(function () {
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-      }, 450);
-    }, 10000);
+        if (!splash || !splash.parentNode || timedOut) return;
+        timedOut = true;
+        var spinner = splash.querySelector('.splash-spinner');
+        var text = splash.querySelector('.splash-text');
+        if (spinner) spinner.style.display = 'none';
+        if (text) {
+          text.innerHTML =
+            'FineTime is taking longer than expected.<br>' +
+            '<button onclick="window.location.reload()" ' +
+            'style="margin-top:16px;padding:11px 18px;border:0;border-radius:22px;' +
+            'background:#D4AF37;color:#17120A;font-weight:800;cursor:pointer;">' +
+            'Reload FineTime</button>';
+        }
+      }, 12000);
+
+      // Surface bootstrap-level JavaScript errors instead of leaving a blank
+      // canvas with no explanation.
+      window.addEventListener('error', function () {
+        if (!splash || !splash.parentNode) return;
+        var text = splash.querySelector('.splash-text');
+        if (text && !timedOut) {
+          text.textContent = 'FineTime could not finish loading. Please reload.';
+        }
+      });
+    })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
