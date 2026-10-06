@@ -37,7 +37,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   bool reviewEligible = false;
   String? error;
 
-  bool get isHotel => b?['category']?.toString().toLowerCase() == 'hotel';
+  bool get isHotel {
+    final category = b?['category']?.toString().trim().toLowerCase() ?? '';
+    // Business categories can be stored as "hotel", "Hotels", or a
+    // longer hotel category label. Keep the booking flow available for all
+    // hotel variants instead of requiring one exact database spelling.
+    return category == 'hotel' || category.contains('hotel');
+  }
   bool get hasFood => menu.isNotEmpty;
 
   @override
@@ -1063,17 +1069,29 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             const SizedBox(height: 3),
             Text(priceText, style: const TextStyle(color: FT.gold, fontSize: 16, fontWeight: FontWeight.w800)),
           ])),
-          SizedBox(
-            height: 58, width: 205,
-            child: FilledButton(
-              onPressed: openBooking,
-              style: FilledButton.styleFrom(
-                backgroundColor: FT.gold,
-                foregroundColor: const Color(0xFF17120A),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 155, maxWidth: 230),
+              child: SizedBox(
+                height: 58,
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: openBooking,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: FT.gold,
+                    foregroundColor: const Color(0xFF17120A),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+                    elevation: 2,
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      isHotel ? 'Book now →' : 'Reserve now →',
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                    ),
+                  ),
+                ),
               ),
-              child: Text(isHotel ? 'Book now →' : 'Reserve now →',
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
             ),
           ),
         ]),
