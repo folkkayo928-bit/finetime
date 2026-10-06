@@ -1215,3 +1215,12 @@ class _MapLinesPainter extends CustomPainter {
       ..lineTo(size.width + 10, size.height * .52);
     final path3 = Path()
       ..moveTo(size.width * .42, -10)
+      ..lineTo(size.width * .48, size.height * .38)
+      ..lineTo(size.width * .4, size.height + 10);
+    canvas.drawPath(path1, paint);
+    canvas.drawPath(path2, paint);
+    canvas.drawPath(path3, paint);
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
