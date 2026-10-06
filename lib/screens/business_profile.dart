@@ -1054,47 +1054,67 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   Widget _bottomBookingBar(Map<String, dynamic> business) {
     final price = isHotel && rooms.isNotEmpty ? rooms.first['public_price'] : null;
-    final priceText = price == null ? (isHotel ? 'Rate on request' : 'Reserve your experience') : 'ETB $price / night';
+    final priceText = price == null
+        ? (isHotel ? 'Rate on request' : 'Reserve your experience')
+        : 'ETB $price / night';
+
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(22, 11, 18, 11),
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
         decoration: const BoxDecoration(
           color: Color(0xFF080D0E),
           border: Border(top: BorderSide(color: Colors.white10)),
         ),
-        child: Row(children: [
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('From', style: TextStyle(color: Colors.white54, fontSize: 11)),
-            const SizedBox(height: 3),
-            Text(priceText, style: const TextStyle(color: FT.gold, fontSize: 16, fontWeight: FontWeight.w800)),
-          ])),
-          Flexible(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 155, maxWidth: 230),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('From', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                  const SizedBox(height: 3),
+                  Text(
+                    priceText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: FT.gold,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
               child: SizedBox(
-                height: 58,
-                width: double.infinity,
+                height: 54,
                 child: FilledButton(
                   onPressed: openBooking,
                   style: FilledButton.styleFrom(
                     backgroundColor: FT.gold,
                     foregroundColor: const Color(0xFF17120A),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 2,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
                       isHotel ? 'Book now →' : 'Reserve now →',
+                      maxLines: 1,
                       style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -1142,35 +1162,32 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         top: false,
-        child: Stack(
+        child: Column(
           children: [
-            ListView(
-              padding: const EdgeInsets.only(bottom: 105),
-              children: [
-                _profileHero(business, average),
-                _profileTabBar(),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
-                  child: KeyedSubtree(
-                    key: ValueKey(_profileTab),
-                    child: switch (_profileTab) {
-                      0 => _aboutContent(business, allHighlights),
-                      1 => _highlightsContent(allHighlights),
-                      2 => _galleryContent(gallery),
-                      3 => _hoursContent(hours, business),
-                      4 => _reviewsContent(),
-                      _ => _aboutContent(business, allHighlights),
-                    },
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _profileHero(business, average),
+                  _profileTabBar(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    child: KeyedSubtree(
+                      key: ValueKey(_profileTab),
+                      child: switch (_profileTab) {
+                        0 => _aboutContent(business, allHighlights),
+                        1 => _highlightsContent(allHighlights),
+                        2 => _galleryContent(gallery),
+                        3 => _hoursContent(hours, business),
+                        4 => _reviewsContent(),
+                        _ => _aboutContent(business, allHighlights),
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _bottomBookingBar(business),
-            ),
+            _bottomBookingBar(business),
           ],
         ),
       ),
@@ -1198,12 +1215,3 @@ class _MapLinesPainter extends CustomPainter {
       ..lineTo(size.width + 10, size.height * .52);
     final path3 = Path()
       ..moveTo(size.width * .42, -10)
-      ..lineTo(size.width * .48, size.height * .38)
-      ..lineTo(size.width * .4, size.height + 10);
-    canvas.drawPath(path1, paint);
-    canvas.drawPath(path2, paint);
-    canvas.drawPath(path3, paint);
-  }
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
