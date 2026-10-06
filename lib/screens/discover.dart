@@ -340,40 +340,41 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             // ---------------------------------------------------------------
             Stack(
               children: [
-                // Background Building Image
-                SizedBox(
-                  height: 430,
-                  width: double.infinity,
+                // Background Building Image (fills entire hero)
+                Positioned.fill(
                   child: FTImage(
                     url: heroImage,
                     fit: BoxFit.cover,
                   ),
                 ),
 
-                // Multi-Stop Obsidian Vignette Overlay
-                Container(
-                  height: 420,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.45),
-                        Colors.transparent,
-                        const Color(0xFF0C0A06).withValues(alpha: 0.8),
-                        const Color(0xFF0C0A06),
-                      ],
-                      stops: const [0.0, 0.35, 0.75, 1.0],
+                // Multi-Stop Obsidian Vignette Overlay (covers 100% and blends into dark bottom)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.55),
+                          Colors.transparent,
+                          const Color(0xFF0C0A06).withValues(alpha: 0.75),
+                          const Color(0xFF0C0A06).withValues(alpha: 0.95),
+                          const Color(0xFF0C0A06),
+                        ],
+                        stops: const [0.0, 0.30, 0.65, 0.88, 1.0],
+                      ),
                     ),
                   ),
                 ),
 
-                // Header Content
+                // Header Content (hero headings, subtitle, and search bar lower down against bottom edge)
                 SafeArea(
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
@@ -432,7 +433,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           ],
                         ),
 
-                        const SizedBox(height: 80),
+                        // Move the content lower down so search bar sits against the dark bottom edge
+                        const SizedBox(height: 115),
 
                         // Badge: CURATED FOR YOU
                         Text(
@@ -468,7 +470,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 22),
 
                         // Modern Pill Search Bar
                         GestureDetector(
@@ -481,7 +483,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                             height: 52,
                             padding: const EdgeInsets.symmetric(horizontal: 18),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF14120E).withValues(alpha: 0.92),
+                              color: const Color(0xFF14120E).withValues(alpha: 0.94),
                               borderRadius: BorderRadius.circular(26),
                               border: Border.all(
                                   color: const Color(0xFF2C261F), width: 1),
@@ -515,6 +517,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ],
             ),
 
+            const SizedBox(height: 16),
 
             // ---------------------------------------------------------------
             // 2. CATEGORY PILLS (5 ICONS: Hotels, Restaurants, Cafés, Experiences, Nearby)
