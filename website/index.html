@@ -832,6 +832,186 @@ footer{
   .footer-wrap{grid-template-columns:1fr}
   .footer-bottom{flex-direction:column;gap:12px;text-align:center}
 }
+
+/* Partner & Venue Owner Services Section */
+.services-intro{
+  text-align:center;
+  max-width:820px;
+  margin:0 auto 48px;
+}
+.services-intro h2{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(30px,4.2vw,44px);
+  margin:14px 0 16px;
+  line-height:1.2;
+}
+.services-intro h2 span{
+  color:var(--gold-light);
+  font-style:italic;
+}
+.services-intro p{
+  font-size:16px;
+  color:var(--text-muted);
+  line-height:1.7;
+}
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:32px;
+  margin-bottom:44px;
+}
+.service-card{
+  background:linear-gradient(180deg,rgba(24,29,39,0.85) 0%,rgba(14,17,23,0.95) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  overflow:hidden;
+  transition:all .35s cubic-bezier(0.16,1,0.3,1);
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 14px 40px rgba(0,0,0,0.3);
+}
+.service-card:hover{
+  border-color:var(--gold-border);
+  transform:translateY(-6px);
+  box-shadow:0 24px 60px rgba(0,0,0,0.5),0 0 30px var(--gold-glow);
+}
+.service-visual{
+  position:relative;
+  height:260px;
+  overflow:hidden;
+  background:#141720;
+}
+.service-visual img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .5s ease;
+}
+.service-card:hover .service-visual img{
+  transform:scale(1.06);
+}
+.service-floating-tag{
+  position:absolute;
+  bottom:16px;
+  left:18px;
+  background:rgba(10,11,14,0.88);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--gold-border);
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:var(--gold-light);
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6);
+}
+.service-floating-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+}
+.service-body{
+  padding:32px 28px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+.service-category{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:8px;
+}
+.service-title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:24px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:12px;
+  line-height:1.25;
+}
+.service-desc{
+  font-size:14px;
+  color:var(--text-muted);
+  line-height:1.65;
+  margin-bottom:22px;
+}
+.service-checklist{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:auto;
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.service-checklist li{
+  font-size:13.5px;
+  color:var(--text);
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  line-height:1.45;
+}
+.service-check-icon{
+  width:20px;
+  height:20px;
+  min-width:20px;
+  border-radius:50%;
+  background:rgba(212,175,55,0.15);
+  border:1px solid var(--gold-border);
+  color:var(--gold-light);
+  display:grid;
+  place-items:center;
+  font-size:11px;
+  font-weight:900;
+  margin-top:1px;
+}
+.service-checklist strong{
+  color:#fff;
+  font-weight:700;
+}
+.services-ribbon{
+  background:radial-gradient(ellipse at 30% 0%,rgba(212,175,55,0.16) 0%,rgba(18,21,29,0.96) 80%);
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius-xl);
+  padding:38px 44px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:30px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.45);
+}
+.services-ribbon-text h3{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:26px;
+  margin-bottom:8px;
+  color:#fff;
+}
+.services-ribbon-text p{
+  font-size:14.5px;
+  color:var(--text-muted);
+  max-width:620px;
+  line-height:1.6;
+}
+.services-ribbon-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+@media(max-width:960px){
+  .services-grid{grid-template-columns:1fr;gap:24px}
+  .services-ribbon{flex-direction:column;align-items:flex-start;padding:32px 24px}
+}
 </style>
 </head>
 <body>
@@ -846,6 +1026,7 @@ footer{
     <nav class="nav-links">
       <a href="#experiences">Experiences</a>
       <a href="#venues">Discover</a>
+      <a href="#services">For Venues</a>
       <a href="#about">About Us</a>
       <a href="#destinations">Destinations</a>
       <a href="#faqs">FAQs</a>
@@ -979,6 +1160,150 @@ footer{
       <p>Discover in-depth culinary guides, interviews with master chefs, luxury travel journals, and announcements on our dedicated editorial news page.</p>
     </div>
     <a class="btn btn-gold" href="news.html">Read Stories on News Page →</a>
+  </div>
+</section>
+
+<!-- Services for Venue Owners (Hotels, Restaurants, Cafes) -->
+<section id="services" class="section">
+  <div class="services-intro">
+    <div class="badge">FOR HOTEL, RESTAURANT & CAFÉ OWNERS</div>
+    <h2>Transform Your Venue With <span>FineTime Services</span></h2>
+    <p>Everything modern hospitality operators need to boost revenue, streamline staff operations, delight guests, and achieve multi-channel digital prominence.</p>
+  </div>
+
+  <div class="services-grid">
+    <!-- Service 1: Digital Menus & QR Table Ordering -->
+    <div class="service-card">
+      <div class="service-visual">
+        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" alt="FineTime QR Digital Menu & Table Ordering">
+        <div class="service-floating-tag">
+          <span class="service-floating-dot"></span>
+          <span>QR CODE SCAN & ORDER</span>
+        </div>
+      </div>
+      <div class="service-body">
+        <div class="service-category">Restaurants, Cafés & Lounges</div>
+        <h3 class="service-title">Digital Menus & Smartphone QR Ordering</h3>
+        <p class="service-desc">Eliminate bulky paper menus and slow service. Each table or cafe station gets a custom branded QR code. Guests scan with their phone camera to instantly view vibrant photos, descriptions, and live pricing — then place food and drink orders on their phone without waiting.</p>
+        <ul class="service-checklist">
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Instant Phone Ordering:</strong> Guests browse the full menu and order directly from their phone with no app download required.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Live Cashier & Manager Screen:</strong> Incoming orders pop up instantly for hotel managers, cashiers, and kitchen staff with table numbers.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Instant Dynamic Pricing:</strong> Update prices, sold-out items, daily chef specials, or holiday menus in real-time with zero reprint costs.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Service 2: Growth, Marketing & Social Campaigns -->
+    <div class="service-card">
+      <div class="service-visual">
+        <img src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?auto=format&fit=crop&w=800&q=80" alt="FineTime Social Media Marketing & Venue Advertising">
+        <div class="service-floating-tag">
+          <span class="service-floating-dot"></span>
+          <span>SOCIAL PROMOTION & ADS</span>
+        </div>
+      </div>
+      <div class="service-body">
+        <div class="service-category">Marketing & Brand Exposure</div>
+        <h3 class="service-title">Targeted Social Advertising & Competitions</h3>
+        <p class="service-desc">We make sure your culinary craft and venue are seen, discovered, and celebrated. We run high-impact promotional campaigns across FineTime social platforms, sponsored giveaways, and food lover competitions that draw new diners to your tables every week.</p>
+        <ul class="service-checklist">
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Multi-Platform Ad Campaigns:</strong> Targeted promotion across Instagram, TikTok, Telegram, and Facebook showcasing your signature dishes and ambiance.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Exciting Competitions & Contests:</strong> Viral foodie giveaways, tasting vouchers, and seasonal events that drive massive organic awareness and footfall.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Prominent Platform Placement:</strong> Top placement on FineTime home search, curated collections, and editorial storytelling dispatches.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Service 3: Hotel Guest Concierge & Smart Stays -->
+    <div class="service-card">
+      <div class="service-visual">
+        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="FineTime Hotel In-Room Concierge & Stay Amenities">
+        <div class="service-floating-tag">
+          <span class="service-floating-dot"></span>
+          <span>SMART HOTEL CONCIERGE</span>
+        </div>
+      </div>
+      <div class="service-body">
+        <div class="service-category">Hotels, Resorts & Suites</div>
+        <h3 class="service-title">In-Room Guest Concierge & Stay Management</h3>
+        <p class="service-desc">Elevate the stay experience for every hotel guest. Whether they want to book a room, order breakfast to bed, request extra towels or room cleaning, or reserve a table at your hotel restaurant, everything is accessible on their phone with a single tap.</p>
+        <ul class="service-checklist">
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>In-Room Amenity Requests:</strong> Guests request fresh towels, extra pillows, toiletries, or housekeeping from their phone without calling the front desk.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Hotel Dining & Table Reservations:</strong> Staying guests browse hotel restaurant menus, check specials, and reserve dinner tables effortlessly.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Direct Room Booking & Rates:</strong> Showcase luxury suites, amenities, high-res galleries, and confirmed room pricing for instant guest bookings.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Service 4: Operations & Instant Staff Alerts -->
+    <div class="service-card">
+      <div class="service-visual">
+        <img src="https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=800&q=80" alt="FineTime Manager Console & Instant Staff Alerts">
+        <div class="service-floating-tag">
+          <span class="service-floating-dot"></span>
+          <span>REAL-TIME OPS DESK</span>
+        </div>
+      </div>
+      <div class="service-body">
+        <div class="service-category">Staff Operations & Control</div>
+        <h3 class="service-title">Unified Manager Portal & Instant Telegram Alerts</h3>
+        <p class="service-desc">Hospitality operators gain complete control over daily operations with our lightweight partner app and automated alert bot. Receive instant notifications the moment a guest books a table, requests a room, or places an order.</p>
+        <ul class="service-checklist">
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Automated Telegram Bot Alerts:</strong> Your manager or receptionist gets instant mobile notifications for every reservation and guest request.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Zero Hardware Cost:</strong> Works seamlessly on any existing phone, tablet, POS terminal, or computer with no complex equipment to install.</div>
+          </li>
+          <li>
+            <div class="service-check-icon">✓</div>
+            <div><strong>Dedicated Onboarding:</strong> Our team sets up your digital menu, delivers custom acrylic QR stands, and provides 24/7 partner support.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Partner Call To Action Ribbon -->
+  <div class="services-ribbon">
+    <div class="services-ribbon-text">
+      <span class="badge" style="margin-bottom:10px;">JOIN THE NETWORK</span>
+      <h3>Are You Ready to Grow Your Venue With FineTime?</h3>
+      <p>Transform your customer journey today with QR digital ordering, smart hotel amenities, and high-impact social marketing. We onboard your venue in under 48 hours.</p>
+    </div>
+    <div class="services-ribbon-actions">
+      <a class="btn btn-gold" href="mailto:support@finetime.cc?subject=Partner%20Inquiry%20-%20FineTime%20Venue%20Services">Partner With Us Today →</a>
+      <a class="btn btn-outline" href="../partner/">Open Partner App</a>
+    </div>
   </div>
 </section>
 
@@ -1224,6 +1549,7 @@ footer{
     <div class="footer-col">
       <h4>Hospitality Partners</h4>
       <ul>
+        <li><a href="#services">Services for Owners</a></li>
         <li><a href="mailto:support@finetime.cc">Partner With Us</a></li>
         <li><a href="../partner/">Partner Mini App</a></li>
         <li><a href="../admin/">Admin Console</a></li>
